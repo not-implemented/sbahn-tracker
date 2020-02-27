@@ -1,0 +1,160 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+h1 img.logo {
+    vertical-align: text-bottom;
+    height: 30px;
+}
+
+
+#lines {
+    margin: 10px 0;
+}
+
+.line {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.line input {
+    display: none;
+}
+
+.line .lineLogo {
+    opacity: 0.1;
+    cursor: pointer;
+}
+
+.line input:checked ~ .lineLogo, #lines.selectAll .line .lineLogo {
+    opacity: 1;
+}
+
+.lineLogo {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+
+#trains {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.train {
+    width: 150px;
+    height: 85px;
+    margin: 0 5px 5px 0;
+    padding: 4px;
+    border: 1px #bfbfbf solid;
+    border-radius: 4px;
+    background-color: #f7f7f7;
+    position: relative;
+}
+
+.train .header .lineLogo {
+    display: block;
+    float: left;
+    margin-right: 5px;
+}
+
+.train .header .destination {
+    display: block;
+    font-weight: bold;
+}
+
+.train .header .number {
+    display: block;
+    color: #777;
+    font-size: 10px;
+}
+
+.train .header:after {
+    display: block;
+    content: "";
+    clear: both;
+}
+
+.train .state {
+    width: 15px;
+    height: 30px;
+    background-color: #333;
+    border-radius: 4px;
+    position: relative;
+    float: left;
+    margin-right: 5px;
+}
+
+.train .state .light {
+    width: 7px;
+    height: 7px;
+    position: absolute;
+    top: 5px;
+    left: 3px;
+    background-image: radial-gradient(#ff5555 5%, #fc0000 90%);
+    border: 1px solid #f00000;
+    border-radius: 4px;
+}
+
+.train .state.driving .light {
+    top: auto;
+    bottom: 5px;
+    background-image: radial-gradient(#33ff6d 5%, #04d461 90%);
+    border-color: #02da53;
+}
+
+.train .body {
+    float: left;
+}
+.train .body:after {
+    display: block;
+    content: "";
+    clear: both;
+}
+
+.train .station div:before {
+    display: inline-block;
+    width: 14px;
+    content: '';
+}
+
+.train .station .prev:before {
+    content: '➤';
+}
+
+.train .station.driving .prev:before {
+    position: relative;
+    top: 9px;
+}
+
+.train .vehicle {
+    border-bottom: 2px #333 solid;
+    display: inline-block;
+}
+
+.train .vehicle .waggon {
+    display: inline-block;
+    margin: 2px;
+    color: #fff;
+    background-color: #333;
+    border-radius: 4px 4px 0 0;
+    padding: 1px 5px;
+    font-size: 9px;
+    font-weight: bold;
+}
+
+.train .lastUpdate {
+    position: absolute;
+    bottom: 2px;
+    right: 5px;
+    font-size: 9px;
+    color: #b63737;
+}
