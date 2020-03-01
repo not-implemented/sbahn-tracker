@@ -47,6 +47,7 @@ class SBahnGui {
             this.waggons[trainInfo.vehicle_number] = train;
             train.vehicles[trainInfo.vehicle_number] = true;
 
+            train.deleted = false;
             train.lastUpdate = Date.now() - trainInfo.time_since_update;
             train.distanceToDest = stations && stations.length > 0 ? stations.length - stations.indexOf(trainInfo.stop_point_ds100) - 1 : 0;
 
@@ -108,8 +109,13 @@ class SBahnGui {
             else hasWaggons = true;
             train.node.querySelector('.vehicle').appendChild(waggonNode);
         });
-        if (!hasWaggons) train.node.classList.add('deleted');
-        else train.node.classList.remove('deleted');
+        if (!hasWaggons) {
+            train.deleted = true;
+            train.node.classList.add('deleted');
+        } else {
+            train.deleted = false;
+            train.node.classList.remove('deleted');
+        }
 
         this.updateTrain(train);
         this.updateTrains();
@@ -119,7 +125,7 @@ class SBahnGui {
         let seconds = Math.floor((Date.now() - train.lastUpdate) / 1000);
         let infoText = '';
 
-        if (seconds > 30) {
+        if (!train.deleted && seconds > 30) {
             let minutes = Math.floor(seconds / 60);
             seconds -= minutes * 60;
             infoText = 'Keine Info seit ' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
