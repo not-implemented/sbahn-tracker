@@ -10,6 +10,8 @@ class SBahnGui {
         this.trains = {};
         this.trainsNode = document.getElementById('trains');
 
+        this.waggons = {};
+
         this.client = new SBahnClient('put-api-key-here');
 
         this.client.onTrainUpdate = (trainInfo) => {
@@ -34,7 +36,15 @@ class SBahnGui {
             train.prevStation = trainInfo.stop_point_ds100;
             let pos = stations ? stations.indexOf(trainInfo.stop_point_ds100) : -1;
             train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : '';
+
+            let prevTrainOfWaggon = this.waggons[trainInfo.vehicle_number];
+            if (prevTrainOfWaggon && prevTrainOfWaggon !== train) {
+                prevTrainOfWaggon.vehicles[trainInfo.vehicle_number] = false;
+                this.updateTrainContainer(prevTrainOfWaggon);
+            }
+            this.waggons[trainInfo.vehicle_number] = train;
             train.vehicles[trainInfo.vehicle_number] = true;
+
             train.lastUpdate = Date.now() - trainInfo.time_since_update;
             train.distanceToDest = stations && stations.length > 0 ? stations.length - stations.indexOf(trainInfo.stop_point_ds100) - 1 : 0;
 
@@ -87,11 +97,17 @@ class SBahnGui {
         train.node.querySelector('.station .prev').innerText = train.prevStation;
         train.node.querySelector('.station .next').innerText = train.nextStation;
         train.node.querySelector('.vehicle').innerText = '';
+
+        let hasWaggons = false;
         Object.keys(train.vehicles).forEach((vehicleId) => {
             let waggonNode = createEl('span', 'waggon');
             waggonNode.innerText = vehicleId;
+            if (!train.vehicles[vehicleId]) waggonNode.classList.add('deleted');
+            else hasWaggons = true;
             train.node.querySelector('.vehicle').appendChild(waggonNode);
         });
+        if (!hasWaggons) train.node.classList.add('deleted');
+        else train.node.classList.remove('deleted');
 
         this.updateTrain(train);
         this.updateTrains();
