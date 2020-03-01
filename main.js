@@ -55,6 +55,8 @@ class SBahnGui {
             this.updateLines(train);
         };
 
+        document.getElementById('cleanupTrains').addEventListener('click', () => this.cleanupTrains());
+
         this.client.connect();
     }
 
@@ -162,6 +164,19 @@ class SBahnGui {
                     this.trainsNode.insertBefore(train.node, refNode);
                 }
                 previousSibling = train.node;
+            }
+        });
+    }
+
+    cleanupTrains() {
+        Object.keys(this.trains).forEach((id) => {
+            let train = this.trains[id];
+
+            if (train.deleted) {
+                delete this.trains[id];
+                if (train.updateInterval) clearInterval(train.updateInterval);
+                if (train.node.parentNode) train.node.parentNode.removeChild(train.node);
+                train.node = null;
             }
         });
     }

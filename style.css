@@ -13,8 +13,23 @@ h1 img.logo {
 }
 
 
-#lines {
+#controls {
     margin: 10px 0;
+}
+
+#controls > div {
+    margin: 5px 0;
+}
+
+#controls button {
+    padding: 0 5px;
+    border-width: 1px;
+    font-size: 20px;
+}
+
+
+#lines {
+    display: inline-block;
 }
 
 .line {
