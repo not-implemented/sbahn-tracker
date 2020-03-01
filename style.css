@@ -60,6 +60,10 @@ h1 img.logo {
     position: relative;
 }
 
+.train.deleted {
+    opacity: 0.3;
+}
+
 .train .header .lineLogo {
     display: block;
     float: left;
@@ -149,6 +153,10 @@ h1 img.logo {
     padding: 1px 5px;
     font-size: 9px;
     font-weight: bold;
+}
+
+.train .vehicle .waggon.deleted {
+    background-color: #e82c2c;
 }
 
 .train .lastUpdate {
