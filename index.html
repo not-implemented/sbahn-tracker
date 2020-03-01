@@ -10,7 +10,18 @@
 </head>
 <body>
     <h1><img src="img/s-bahn-logo.svg" alt="S" class="logo">-Bahn-München Live-Info</h1>
-    <div id="lines"></div>
+
+    <div id="controls">
+        <div>
+            <span>Filter: </span>
+            <div id="lines"></div>
+        </div>
+        <div>
+            <span>Aktionen: </span>
+            <button type="button" id="cleanupTrains">♻</button>
+        </div>
+    </div>
+
     <div id="trains"></div>
 </body>
 </html>
