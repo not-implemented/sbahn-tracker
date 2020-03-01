@@ -49,7 +49,6 @@ class SBahnGui {
 
             train.deleted = false;
             train.lastUpdate = Date.now() - trainInfo.time_since_update;
-            train.distanceToDest = stations && stations.length > 0 ? stations.length - stations.indexOf(trainInfo.stop_point_ds100) - 1 : 0;
 
             this.updateTrainContainer(train);
             this.updateLines(train);
@@ -144,8 +143,9 @@ class SBahnGui {
 
         Object.keys(this.trains).sort((id1, id2) => {
             let res = this.trains[id1].line.id - this.trains[id2].line.id;
-            if (res == 0) res = this.trains[id1].destination.localeCompare(this.trains[id2].destination);
-            if (res == 0) res = this.trains[id2].distanceToDest - this.trains[id1].distanceToDest;
+            // gerade Zugnummern Richtung Westen, ungerade Richtung Osten:
+            if (res == 0) res = this.trains[id1].number % 2 - this.trains[id2].number % 2;
+            if (res == 0) res = this.trains[id1].number - this.trains[id2].number;
             return res;
         }).forEach((id) => {
             let train = this.trains[id];
