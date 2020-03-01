@@ -31,11 +31,13 @@ class SBahnGui {
 
             train.line = trainInfo.line || { id: 99, name: 'S?', color: '#777', text_color: '#fff' };
             train.destination = stations && stations.length > 0 ? stations[stations.length - 1] : 'Nicht einsteigen';
-            train.number = trainInfo.train_number;
+            train.number = trainInfo.train_number || train.number || null;
+            train.numberIsOld = train.number && !trainInfo.train_number;
             train.state = trainInfo.state;
-            train.prevStation = trainInfo.stop_point_ds100;
+            train.prevStation = trainInfo.stop_point_ds100 || train.prevStation || null;
+            train.prevStationIsOld = train.prevStation && !trainInfo.stop_point_ds100;
             let pos = stations ? stations.indexOf(trainInfo.stop_point_ds100) : -1;
-            train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : '';
+            train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
 
             let prevTrainOfWaggon = this.waggons[trainInfo.vehicle_number];
             if (prevTrainOfWaggon && prevTrainOfWaggon !== train) {
@@ -86,7 +88,7 @@ class SBahnGui {
         train.node.querySelector('.lineLogo').style.backgroundColor = train.line.color;
         train.node.querySelector('.lineLogo').style.color = train.line.text_color;
         train.node.querySelector('.destination').innerText = train.destination;
-        train.node.querySelector('.number').innerText = train.number;
+        train.node.querySelector('.number').innerText = (train.numberIsOld ? 'Zuletzt: ' : '') + (train.number || '');
         if (train.state === 'DRIVING') {
             train.node.querySelector('.state').classList.add('driving');
             train.node.querySelector('.station').classList.add('driving');
@@ -94,7 +96,7 @@ class SBahnGui {
             train.node.querySelector('.state').classList.remove('driving');
             train.node.querySelector('.station').classList.remove('driving');
         }
-        train.node.querySelector('.station .prev').innerText = train.prevStation;
+        train.node.querySelector('.station .prev').innerText = (train.prevStationIsOld ? 'Zuletzt: ' : '') + (train.prevStation || '');
         train.node.querySelector('.station .next').innerText = train.nextStation;
         train.node.querySelector('.vehicle').innerText = '';
 
