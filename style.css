@@ -75,14 +75,13 @@ h1 img.logo {
     position: relative;
 }
 
-.train.deleted {
-    opacity: 0.3;
-}
-
 .train .header .lineLogo {
     display: block;
     float: left;
     margin-right: 5px;
+}
+.train .header .lineLogo.isOld {
+    opacity: 0.2;
 }
 
 .train .header .destination {
@@ -92,8 +91,10 @@ h1 img.logo {
 
 .train .header .number {
     display: block;
-    color: #777;
     font-size: 10px;
+}
+.train .header .number.isOld {
+    color: #999;
 }
 
 .train .header:after {
@@ -145,6 +146,10 @@ h1 img.logo {
     content: '';
 }
 
+.train .station .prev.isOld {
+    color: #999;
+}
+
 .train .station .prev:before {
     content: '➤';
 }
@@ -170,14 +175,15 @@ h1 img.logo {
     font-weight: bold;
 }
 
-.train .vehicle .waggon.deleted {
-    background-color: #e82c2c;
-}
-
 .train .lastUpdate {
     position: absolute;
     bottom: 2px;
     right: 5px;
     font-size: 9px;
     color: #b63737;
+}
+
+#log {
+    max-height: 400px;
+    overflow-y: auto;
 }
