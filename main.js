@@ -10,6 +10,8 @@ class SBahnGui {
         this.trains = {};
         this.trainsNode = document.getElementById('trains');
 
+        this.logNode = document.getElementById('log');
+
         this.waggons = {};
 
         this.client = new SBahnClient('5cc87b12d7c5370001c1d655306122aa0a4743c489b497cb1afbec9b');
@@ -20,6 +22,7 @@ class SBahnGui {
 
             if (!train) {
                 train = {
+                    id: trainId,
                     node: this.createTrainContainer(),
                     updateInterval: setInterval(() => this.updateTrain(train), 1000),
                     vehicles: {}
@@ -29,7 +32,8 @@ class SBahnGui {
 
             let stations = trainInfo.calls_stack;
 
-            train.line = trainInfo.line || { id: 99, name: 'S?', color: '#777', text_color: '#fff' };
+            train.line = trainInfo.line || train.line || { id: 99, name: 'S?', color: '#777', text_color: '#fff' };
+            train.lineIsOld = !trainInfo.line && train.line.id != 99;
             train.destination = stations && stations.length > 0 ? stations[stations.length - 1] : 'Nicht einsteigen';
             train.number = trainInfo.train_number || train.number || null;
             train.numberIsOld = train.number && !trainInfo.train_number;
@@ -41,20 +45,49 @@ class SBahnGui {
 
             let prevTrainOfWaggon = this.waggons[trainInfo.vehicle_number];
             if (prevTrainOfWaggon && prevTrainOfWaggon !== train) {
-                prevTrainOfWaggon.vehicles[trainInfo.vehicle_number] = false;
-                this.updateTrainContainer(prevTrainOfWaggon);
+                delete prevTrainOfWaggon.vehicles[trainInfo.vehicle_number];
+
+                // merge info from previous train:
+                if (train.line.id === 99) {
+                    train.line = prevTrainOfWaggon.line;
+                    train.lineIsOld = true;
+                }
+                if (!train.number) {
+                    train.number = prevTrainOfWaggon.number;
+                    train.numberIsOld = true;
+                }
+                if (!train.prevStation) {
+                    train.prevStation = prevTrainOfWaggon.prevStation;
+                    train.prevStationIsOld = true;
+                }
+
+                let deletePrevTrain = Object.keys(prevTrainOfWaggon.vehicles).length === 0;
+
+                if (!deletePrevTrain) {
+                    this.updateTrainContainer(prevTrainOfWaggon);
+                } else {
+                    delete this.trains[prevTrainOfWaggon.id];
+                    if (prevTrainOfWaggon.updateInterval) clearInterval(prevTrainOfWaggon.updateInterval);
+                    if (prevTrainOfWaggon.node.parentNode) prevTrainOfWaggon.node.parentNode.removeChild(prevTrainOfWaggon.node);
+                    prevTrainOfWaggon.node = null;
+                }
+
+                let actions = [];
+                if (!deletePrevTrain) actions.push('von Wagen ' + Object.keys(prevTrainOfWaggon.vehicles).join('+') + ' abgekuppelt');
+                if (Object.keys(train.vehicles).length > 0) actions.push('an Wagen ' + Object.keys(train.vehicles).join('+') + ' angekuppelt');
+
+                if (actions.length > 0) {
+                    this.log((new Date()).toLocaleTimeString() + ': ' + train.prevStation + ': Wagen ' + trainInfo.vehicle_number + ' wurde ' + actions.join(' und '));
+                }
             }
             this.waggons[trainInfo.vehicle_number] = train;
             train.vehicles[trainInfo.vehicle_number] = true;
 
-            train.deleted = false;
             train.lastUpdate = Date.now() - trainInfo.time_since_update;
 
             this.updateTrainContainer(train);
             this.updateLines(train);
         };
-
-        document.getElementById('cleanupTrains').addEventListener('click', () => this.cleanupTrains());
 
         this.client.connect();
     }
@@ -89,8 +122,16 @@ class SBahnGui {
         train.node.querySelector('.lineLogo').innerText = train.line.name;
         train.node.querySelector('.lineLogo').style.backgroundColor = train.line.color;
         train.node.querySelector('.lineLogo').style.color = train.line.text_color;
+
+        if (train.lineIsOld) train.node.querySelector('.lineLogo').classList.add('isOld');
+        else train.node.querySelector('.lineLogo').classList.remove('isOld');
+
         train.node.querySelector('.destination').innerText = train.destination;
-        train.node.querySelector('.number').innerText = (train.numberIsOld ? 'Zuletzt: ' : '') + (train.number || '');
+        train.node.querySelector('.number').innerText = train.number || '';
+
+        if (train.numberIsOld) train.node.querySelector('.number').classList.add('isOld');
+        else train.node.querySelector('.number').classList.remove('isOld');
+
         if (train.state === 'DRIVING') {
             train.node.querySelector('.state').classList.add('driving');
             train.node.querySelector('.station').classList.add('driving');
@@ -98,25 +139,19 @@ class SBahnGui {
             train.node.querySelector('.state').classList.remove('driving');
             train.node.querySelector('.station').classList.remove('driving');
         }
-        train.node.querySelector('.station .prev').innerText = (train.prevStationIsOld ? 'Zuletzt: ' : '') + (train.prevStation || '');
+        train.node.querySelector('.station .prev').innerText = train.prevStation || '';
+
+        if (train.prevStationIsOld) train.node.querySelector('.station .prev').classList.add('isOld');
+        else train.node.querySelector('.station .prev').classList.remove('isOld');
+
         train.node.querySelector('.station .next').innerText = train.nextStation;
         train.node.querySelector('.vehicle').innerText = '';
 
-        let hasWaggons = false;
         Object.keys(train.vehicles).forEach((vehicleId) => {
             let waggonNode = createEl('span', 'waggon');
             waggonNode.innerText = vehicleId;
-            if (!train.vehicles[vehicleId]) waggonNode.classList.add('deleted');
-            else hasWaggons = true;
             train.node.querySelector('.vehicle').appendChild(waggonNode);
         });
-        if (!hasWaggons) {
-            train.deleted = true;
-            train.node.classList.add('deleted');
-        } else {
-            train.deleted = false;
-            train.node.classList.remove('deleted');
-        }
 
         this.updateTrain(train);
         this.updateTrains();
@@ -126,7 +161,7 @@ class SBahnGui {
         let seconds = Math.floor((Date.now() - train.lastUpdate) / 1000);
         let infoText = '';
 
-        if (!train.deleted && seconds > 30) {
+        if (seconds > 30) {
             let minutes = Math.floor(seconds / 60);
             seconds -= minutes * 60;
             infoText = 'Keine Info seit ' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
@@ -142,7 +177,8 @@ class SBahnGui {
         let previousSibling = null;
 
         Object.keys(this.trains).sort((id1, id2) => {
-            let res = this.trains[id1].line.id - this.trains[id2].line.id;
+            let res = this.trains[id1].lineIsOld - this.trains[id2].lineIsOld;
+            if (res == 0) res = this.trains[id1].line.id - this.trains[id2].line.id;
             // gerade Zugnummern Richtung Westen, ungerade Richtung Osten:
             if (res == 0) res = this.trains[id1].number % 2 - this.trains[id2].number % 2;
             if (res == 0) res = this.trains[id1].number - this.trains[id2].number;
@@ -168,17 +204,10 @@ class SBahnGui {
         });
     }
 
-    cleanupTrains() {
-        Object.keys(this.trains).forEach((id) => {
-            let train = this.trains[id];
-
-            if (train.deleted) {
-                delete this.trains[id];
-                if (train.updateInterval) clearInterval(train.updateInterval);
-                if (train.node.parentNode) train.node.parentNode.removeChild(train.node);
-                train.node = null;
-            }
-        });
+    log(message) {
+        let messageNode = createEl('div', 'message');
+        messageNode.innerText = message;
+        this.logNode.appendChild(messageNode);
     }
 
     updateLines(train) {
