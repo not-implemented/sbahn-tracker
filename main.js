@@ -1,4 +1,5 @@
 import SBahnClient from './modules/client.js';
+import Stations from './modules/stations.js';
 
 class SBahnGui {
     constructor() {
@@ -126,7 +127,7 @@ class SBahnGui {
         if (train.lineIsOld) train.node.querySelector('.lineLogo').classList.add('isOld');
         else train.node.querySelector('.lineLogo').classList.remove('isOld');
 
-        train.node.querySelector('.destination').innerText = train.destination;
+        train.node.querySelector('.destination').innerText = Stations[train.destination] || train.destination;
         train.node.querySelector('.number').innerText = train.number || '';
 
         if (train.numberIsOld) train.node.querySelector('.number').classList.add('isOld');
@@ -139,12 +140,12 @@ class SBahnGui {
             train.node.querySelector('.state').classList.remove('driving');
             train.node.querySelector('.station').classList.remove('driving');
         }
-        train.node.querySelector('.station .prev').innerText = train.prevStation || '';
+        train.node.querySelector('.station .prev').innerText = Stations[train.prevStation] || train.prevStation || '';
 
         if (train.prevStationIsOld) train.node.querySelector('.station .prev').classList.add('isOld');
         else train.node.querySelector('.station .prev').classList.remove('isOld');
 
-        train.node.querySelector('.station .next').innerText = train.nextStation;
+        train.node.querySelector('.station .next').innerText = Stations[train.nextStation] || train.nextStation;
         train.node.querySelector('.vehicle').innerText = '';
 
         Object.keys(train.vehicles).forEach((vehicleId) => {
