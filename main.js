@@ -78,7 +78,7 @@ class SBahnGui {
                 if (Object.keys(train.vehicles).length > 0) actions.push('an Wagen ' + Object.keys(train.vehicles).join('+') + ' angekuppelt');
 
                 if (actions.length > 0) {
-                    this.log((new Date()).toLocaleTimeString() + ': ' + train.prevStation + ': Wagen ' + trainInfo.vehicle_number + ' wurde ' + actions.join(' und '));
+                    this.log(`${(new Date()).toLocaleTimeString()}: ${Stations[train.prevStation]}: Wagen ${trainInfo.vehicle_number} wurde ${actions.join(' und ')}`);
                 }
             }
             this.waggons[trainInfo.vehicle_number] = train;
