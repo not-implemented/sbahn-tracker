@@ -1,3 +1,4 @@
+/* DEFAULTS */
 *, *:before, *:after {
     box-sizing: inherit;
     text-rendering: optimizeLegibility;
@@ -35,6 +36,28 @@ a {
 a:hover, a:active {
     color: #003D1E;
 }
+.strip {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.line-logo {
+    display: inline-block;
+    padding: .5rem .8rem .4rem;
+    border-radius: .6rem;
+    font-size: 1.5rem;
+    line-height: 1;
+    font-weight: bold;
+}
+.line-Logo.is-old {
+    opacity: 0.15;
+}
+/* /DEFAULTS */
+
+/* SITE HEADER: fixed element on top */
 .site-header {
     flex: 0 0 auto;
     padding: .3rem 1.6rem .2rem;
@@ -68,27 +91,11 @@ a:hover, a:active {
     text-transform: uppercase;
     color: #a0a0a0;
 }
-.site-header #controls {
+/* train line filter */
+#controls {
     flex: 0 0 auto;
     margin: .6rem 0;
 }
-.site-main {
-    flex: 1 1 auto;
-    position: relative;
-    overflow-y: auto;
-    padding: 1.2rem .8rem 0;
-    background: #d0d0d0;
-    -webkit-overflow-scrolling: touch;
-    overflow-scrolling: touch;
-}
-.site-footer {
-    margin: 1.2rem -.8rem 0;
-    padding: .6rem .8rem;
-    background: #f0f0f0;
-    box-shadow: 0 .1rem .3rem 0 rgba(0,0,0,.3);
-    text-align: center;
-}
-
 #controls > h3 {
     display: inline-block;
     margin: 0 .6rem 0 0;
@@ -113,35 +120,30 @@ a:hover, a:active {
 #lines .line-logo:hover {
     opacity: 1;
 }
+/* /train line filter */
+/* /SITE HEADER */
 
-.line-logo {
-    display: inline-block;
-    padding: .5rem .8rem .4rem;
-    border-radius: .6rem;
-    font-size: 1.5rem;
-    line-height: 1;
-    font-weight: bold;
+/* SITE FOOTER: Copyright and stuff */
+.site-footer {
+    margin: 1.2rem -.8rem 0;
+    padding: .6rem .8rem;
+    background: #f0f0f0;
+    box-shadow: 0 .1rem .3rem 0 rgba(0,0,0,.3);
+    text-align: center;
 }
-.line-Logo.is-old {
-    opacity: 0.15;
-}
-.strip {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-.lastUpdate {
-    position: absolute;
-    bottom: 0;
-    right: .3rem;
-    font-size: .9rem;
-    line-height: 1;
-    color: #b63737;
-}
+/* /SITE FOOTER */
 
+/* SITE MAIN: main content, displays train cards and site footer */
+.site-main {
+    flex: 1 1 auto;
+    position: relative;
+    overflow-y: auto;
+    padding: 1.2rem .8rem 0;
+    background: #d0d0d0;
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+}
+/* list of train cards */
 #trains {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
@@ -153,6 +155,8 @@ a:hover, a:active {
     padding-left: 0;
     list-style: none;
 }
+/* /list of train cards */
+/* train cards loading */
 #trains:empty {
     height: calc(100% - 4.2rem);
     margin: 0;
@@ -226,6 +230,8 @@ a:hover, a:active {
         color: #606060;
     }
 }
+/* /train cards loading */
+/* train card item */
 .train {
     position: relative;
     border-radius: .6rem;
@@ -235,7 +241,7 @@ a:hover, a:active {
     display: flex;
     flex-direction: column;
 }
-
+/* line-number and destination */
 .train-header {
     order: 3;
     flex: 0 0 auto;
@@ -261,7 +267,8 @@ a:hover, a:active {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
+/* /line-number and destination */
+/* list of previous and next station */
 .train-main {
     order: 2;
     flex: 1 0 auto;
@@ -316,7 +323,8 @@ a:hover, a:active {
 .train-stopped .station-prev::before {
      transform: translateY(0);
 }
-
+/* /list of previous and next station */
+/* train infos like number and waggons */
 .train-aside {
     order: 1;
     flex: 0 0 auto;
@@ -369,13 +377,25 @@ a:hover, a:active {
     padding-right: 1.2rem;
     border-top-right-radius: .9rem;
 }
-
 .train-stopped .waggon {
     background: #ff5555;
     color: #ffebeb;
     text-shadow: 0 0 .1rem #b80000;
 }
+/* /train infos like number and waggons */
+/* error message */
+.lastUpdate {
+    position: absolute;
+    bottom: 0;
+    right: .3rem;
+    font-size: .9rem;
+    line-height: 1;
+    color: #b63737;
+}
+/* /error message */
+/* /SITE MAIN */
 
+/* LOG MESSAGES */
 #log {
     max-width: 70rem;
     max-height: 40vh;
@@ -397,3 +417,4 @@ a:hover, a:active {
 #log .message .log-date {
     font-weight: bold;
 }
+/* /LOG MESSAGES */
