@@ -94,25 +94,26 @@ class SBahnGui {
     }
 
     createTrainContainer() {
-        let trainNode = createEl('div', 'train');
+        let trainNode = createEl('li', 'train');
 
-        let headerNode = createEl('div', 'header');
-        headerNode.appendChild(createEl('span', 'lineLogo'));
-        headerNode.appendChild(createEl('span', 'destination'));
-        headerNode.appendChild(createEl('span', 'number'));
+        let headerNode = createEl('header', 'train-header');
+        let lineNode = createEl('div', 'train-line');
+        lineNode.appendChild(createEl('span', 'line-logo'));
+        headerNode.appendChild(lineNode);
+        headerNode.appendChild(createEl('h2', 'destination'));
         trainNode.appendChild(headerNode);
 
-        let stateNode = createEl('div', 'state');
-        stateNode.appendChild(createEl('div', 'light'));
-        trainNode.appendChild(stateNode);
+        let mainNode = createEl('main', 'train-main');
+        let stationNode = createEl('ul', 'stations');
+        stationNode.appendChild(createEl('li', 'station-prev').appendChild(createEl('span', 'strip')));
+        stationNode.appendChild(createEl('li', 'station-next').appendChild(createEl('span', 'strip')));
+        mainNode.appendChild(stationNode);
+        trainNode.appendChild(mainNode);
 
-        let bodyNode = createEl('div', 'body');
-        let stationNode = createEl('div', 'station');
-        stationNode.appendChild(createEl('div', 'prev'));
-        stationNode.appendChild(createEl('div', 'next'));
-        bodyNode.appendChild(stationNode);
-        bodyNode.appendChild(createEl('div', 'vehicle'));
-        trainNode.appendChild(bodyNode);
+        let asideNode = createEl('aside', 'train-aside');
+        asideNode.appendChild(createEl('span', 'train-number'));
+        asideNode.appendChild(createEl('ul', 'waggons'));
+        trainNode.appendChild(asideNode);
 
         trainNode.appendChild(createEl('div', 'lastUpdate'));
 
@@ -120,38 +121,49 @@ class SBahnGui {
     }
 
     updateTrainContainer(train) {
-        train.node.querySelector('.lineLogo').innerText = train.line.name;
-        train.node.querySelector('.lineLogo').style.backgroundColor = train.line.color;
-        train.node.querySelector('.lineLogo').style.color = train.line.text_color;
+        let lineLogo = train.node.querySelector('.line-logo');
+        let trainNumber = train.node.querySelector('.train-number');
+        let stationPrev = train.node.querySelector('.station-prev');
 
-        if (train.lineIsOld) train.node.querySelector('.lineLogo').classList.add('isOld');
-        else train.node.querySelector('.lineLogo').classList.remove('isOld');
+        lineLogo.innerText = train.line.name;
+        lineLogo.style.backgroundColor = train.line.color;
+        lineLogo.style.color = train.line.text_color;
+
+        if (train.lineIsOld) {
+            lineLogo.classList.add('is-old');
+        } else {
+            lineLogo.classList.remove('is-old');
+        }
 
         train.node.querySelector('.destination').innerText = Stations[train.destination] || train.destination;
-        train.node.querySelector('.number').innerText = train.number || '';
+        trainNumber.innerText = train.number || '';
 
-        if (train.numberIsOld) train.node.querySelector('.number').classList.add('isOld');
-        else train.node.querySelector('.number').classList.remove('isOld');
+        if (train.numberIsOld) {
+            trainNumber.classList.add('is-old');
+        } else {
+            trainNumber.classList.remove('is-old');
+        }
 
         if (train.state === 'DRIVING') {
-            train.node.querySelector('.state').classList.add('driving');
-            train.node.querySelector('.station').classList.add('driving');
+            train.node.classList.toggle('train-stopped', false);
         } else {
-            train.node.querySelector('.state').classList.remove('driving');
-            train.node.querySelector('.station').classList.remove('driving');
+            train.node.classList.toggle('train-stopped', true);
         }
-        train.node.querySelector('.station .prev').innerText = Stations[train.prevStation] || train.prevStation || '';
+        stationPrev.querySelector('.strip').innerText = Stations[train.prevStation] || train.prevStation || '';
 
-        if (train.prevStationIsOld) train.node.querySelector('.station .prev').classList.add('isOld');
-        else train.node.querySelector('.station .prev').classList.remove('isOld');
+        if (train.prevStationIsOld) {
+            stationPrev.classList.add('is-old');
+        } else {
+            stationPrev.classList.remove('is-old');
+        }
 
-        train.node.querySelector('.station .next').innerText = Stations[train.nextStation] || train.nextStation;
-        train.node.querySelector('.vehicle').innerText = '';
+        train.node.querySelector('.station-next .strip').innerText = Stations[train.nextStation] || train.nextStation;
+        train.node.querySelector('.waggons').innerText = '';
 
         Object.keys(train.vehicles).forEach((vehicleId) => {
-            let waggonNode = createEl('span', 'waggon');
+            let waggonNode = createEl('li', 'waggon');
             waggonNode.innerText = vehicleId;
-            train.node.querySelector('.vehicle').appendChild(waggonNode);
+            train.node.querySelector('.waggons').appendChild(waggonNode);
         });
 
         this.updateTrain(train);
@@ -248,7 +260,7 @@ class SBahnGui {
         checkboxNode.addEventListener('change', () => this.updateLineFilter());
         lineNode.appendChild(checkboxNode);
 
-        let lineLogoNode = createEl('span', 'lineLogo');
+        let lineLogoNode = createEl('span', 'line-logo');
         lineLogoNode.textContent = line.name;
         lineLogoNode.style.backgroundColor = line.color;
         lineLogoNode.style.color = line.text_color;
