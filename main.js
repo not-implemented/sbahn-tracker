@@ -105,8 +105,12 @@ class SBahnGui {
 
         let mainNode = createEl('main', 'train-main');
         let stationNode = createEl('ul', 'stations');
-        stationNode.appendChild(createEl('li', 'station-prev').appendChild(createEl('span', 'strip')));
-        stationNode.appendChild(createEl('li', 'station-next').appendChild(createEl('span', 'strip')));
+        let stationPrevNode = createEl('li', 'station-prev');
+        stationPrevNode.appendChild(createEl('span', 'strip'));
+        stationNode.appendChild(stationPrevNode);
+        let stationNextNode = createEl('li', 'station-next');
+        stationNextNode.appendChild(createEl('span', 'strip'));
+        stationNode.appendChild(stationNextNode);
         mainNode.appendChild(stationNode);
         trainNode.appendChild(mainNode);
 
