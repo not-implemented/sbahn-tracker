@@ -132,7 +132,7 @@ const Stations = {
     MOBR: 'Ottobrunn',
     MHOB: 'Hohenbrunn',
     MWAE: 'Wächterhof',
-    MHSB: 'Höhenkrichen-Siegertsbrunn',
+    MHSB: 'Höhenkirchen-Siegertsbrunn',
     MDHR: 'Dürrnhaar',
     MAY: 'Aying',
     MPEI: 'Peiß',
