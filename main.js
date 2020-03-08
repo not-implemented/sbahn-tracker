@@ -43,6 +43,7 @@ class SBahnGui {
             train.prevStationIsOld = train.prevStation && !trainInfo.stop_point_ds100;
             let pos = stations ? stations.indexOf(trainInfo.stop_point_ds100) : -1;
             train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
+            train.delay = trainInfo.delay;
 
             let prevTrainOfWaggon = this.waggons[trainInfo.vehicle_number];
             if (prevTrainOfWaggon && prevTrainOfWaggon !== train) {
@@ -141,6 +142,8 @@ class SBahnGui {
             waggonNode.innerText = vehicleId;
             train.node.querySelector('.waggons').appendChild(waggonNode);
         });
+
+        train.node.querySelector('.delay').innerText = '+' + Math.floor(train.delay);
 
         this.updateTrain(train);
         this.updateTrains();
