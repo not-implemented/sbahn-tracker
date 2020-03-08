@@ -97,10 +97,13 @@ class SBahnGui {
         let lineLogo = train.node.querySelector('.line-logo');
         let trainNumber = train.node.querySelector('.train-number');
         let stationPrev = train.node.querySelector('.station-prev');
+        let trainAside = train.node.querySelector('.train-aside');
 
         lineLogo.innerText = train.line.name;
         lineLogo.style.backgroundColor = train.line.color;
         lineLogo.style.color = train.line.text_color;
+        trainAside.style.backgroundColor = train.line.color + '40';
+        trainAside.style.borderBottomColor = train.line.color + '80';
 
         if (train.lineIsOld) {
             lineLogo.classList.add('is-old');
