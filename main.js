@@ -24,7 +24,7 @@ class SBahnGui {
             if (!train) {
                 train = {
                     id: trainId,
-                    node: this.createTrainContainer(),
+                    node: document.importNode(document.querySelector('template#train').content.firstElementChild, true),
                     updateInterval: setInterval(() => this.updateTrain(train), 1000),
                     vehicles: {}
                 };
@@ -91,37 +91,6 @@ class SBahnGui {
         };
 
         this.client.connect();
-    }
-
-    createTrainContainer() {
-        let trainNode = createEl('li', 'train');
-
-        let headerNode = createEl('header', 'train-header');
-        let lineNode = createEl('div', 'train-line');
-        lineNode.appendChild(createEl('span', 'line-logo'));
-        headerNode.appendChild(lineNode);
-        headerNode.appendChild(createEl('h2', 'destination'));
-        trainNode.appendChild(headerNode);
-
-        let mainNode = createEl('main', 'train-main');
-        let stationNode = createEl('ul', 'stations');
-        let stationPrevNode = createEl('li', 'station-prev');
-        stationPrevNode.appendChild(createEl('span', 'strip'));
-        stationNode.appendChild(stationPrevNode);
-        let stationNextNode = createEl('li', 'station-next');
-        stationNextNode.appendChild(createEl('span', 'strip'));
-        stationNode.appendChild(stationNextNode);
-        mainNode.appendChild(stationNode);
-        trainNode.appendChild(mainNode);
-
-        let asideNode = createEl('aside', 'train-aside');
-        asideNode.appendChild(createEl('span', 'train-number'));
-        asideNode.appendChild(createEl('ul', 'waggons'));
-        trainNode.appendChild(asideNode);
-
-        trainNode.appendChild(createEl('div', 'lastUpdate'));
-
-        return trainNode;
     }
 
     updateTrainContainer(train) {
@@ -256,19 +225,16 @@ class SBahnGui {
     }
 
     createLineContainer(line) {
-        let lineNode = createEl('label', 'line');
+        let lineNode = document.importNode(document.querySelector('template#line').content.firstElementChild, true);
 
-        let checkboxNode = createEl('input');
-        checkboxNode.type = 'checkbox';
+        let checkboxNode = lineNode.querySelector('input');
         checkboxNode.value = line.id;
         checkboxNode.addEventListener('change', () => this.updateLineFilter());
-        lineNode.appendChild(checkboxNode);
 
-        let lineLogoNode = createEl('span', 'line-logo');
+        let lineLogoNode = lineNode.querySelector('.line-logo');
         lineLogoNode.textContent = line.name;
         lineLogoNode.style.backgroundColor = line.color;
         lineLogoNode.style.color = line.text_color;
-        lineNode.appendChild(lineLogoNode);
 
         return lineNode;
     }

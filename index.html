@@ -24,5 +24,31 @@
 
         <footer class="site-footer">Made with 🥨 in Munich — <a href="https://github.com/not-implemented/sbahn-tracker" target="_blank">Contribute to project</a></footer>
     </main>
+
+    <template id="line">
+        <label class="line">
+            <input type="checkbox" value="1">
+            <span class="line-logo"></span>
+        </label>
+    </template>
+    <template id="train">
+        <li class="train">
+            <header class="train-header">
+                <div class="train-line"><span class="line-logo"></span></div>
+                <h2 class="destination"></h2>
+            </header>
+            <main class="train-main">
+                <ul class="stations">
+                    <li class="station-prev"><span class="strip"></span></li>
+                    <li class="station-next"><span class="strip"></span></li>
+                </ul>
+            </main>
+            <aside class="train-aside">
+                <span class="train-number"></span>
+                <ul class="waggons"></ul>
+            </aside>
+            <div class="lastUpdate"></div>
+        </li>
+    </template>
 </body>
 </html>
