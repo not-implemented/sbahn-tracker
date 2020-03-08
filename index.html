@@ -2,24 +2,27 @@
 <html lang="de-DE">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>S-Bahn-München Live-Info</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="img/s-bahn-logo.svg" type="image/svg+xml">
     <script type="module" src="main.js"></script>
 </head>
 <body>
-    <h1><img src="img/s-bahn-logo.svg" alt="S" class="logo">-Bahn-München Live-Info</h1>
+    <header class="site-header">
+        <h1><img src="img/s-bahn-logo.svg" alt="S" class="logo" height="30px"> Bahn München <span>Live-Info</span></h1>
 
-    <div id="controls">
-        <div>
-            <span>Filter: </span>
-            <div id="lines"></div>
+        <div id="controls">
+            <h3>Filter:</h3>
+            <nav id="lines"></nav>
         </div>
-    </div>
+    </header>
+    <main class="site-main">
+        <ul id="trains"></ul>
 
-    <div id="trains"></div>
+        <div id="log"></div>
 
-    <div id="log"></div>
+        <footer class="site-footer">Made with 🥨 in Munich — <a href="https://github.com/not-implemented/sbahn-tracker" target="_blank">Contribute to project</a></footer>
+    </main>
 </body>
 </html>
