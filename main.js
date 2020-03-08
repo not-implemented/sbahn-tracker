@@ -98,6 +98,7 @@ class SBahnGui {
         let lineLogo = train.node.querySelector('.line-logo');
         let trainNumber = train.node.querySelector('.train-number');
         let stationPrev = train.node.querySelector('.station-prev');
+        let stationNext = train.node.querySelector('.station-next');
         let trainAside = train.node.querySelector('.train-aside');
 
         lineLogo.innerText = train.line.name;
@@ -126,7 +127,16 @@ class SBahnGui {
         } else {
             train.node.classList.toggle('train-stopped', true);
         }
-        stationPrev.querySelector('.strip').innerText = Stations[train.prevStation] || train.prevStation || '';
+
+        if (train.prevStation === train.destination) {
+            stationPrev.innerText = '';
+        } else {
+            if (!stationPrev.querySelector('.strip')) {
+                stationPrev.appendChild(createEl('span', 'strip'));
+                stationPrev.appendChild(createEl('span', 'delay'));
+            }
+            stationPrev.querySelector('.strip').innerText = Stations[train.prevStation] || train.prevStation || '';
+        }
 
         if (train.prevStationIsOld) {
             stationPrev.classList.add('is-old');
@@ -134,7 +144,15 @@ class SBahnGui {
             stationPrev.classList.remove('is-old');
         }
 
-        train.node.querySelector('.station-next .strip').innerText = Stations[train.nextStation] || train.nextStation;
+        if (train.nextStation === train.destination) {
+            stationNext.innerText = '';
+        } else {
+            if (!stationNext.querySelector('.strip')) {
+                stationNext.appendChild(createEl('span', 'strip'));
+            }
+            stationNext.querySelector('.strip').innerText = Stations[train.nextStation] || train.nextStation || '';
+        }
+
         train.node.querySelector('.waggons').innerText = '';
 
         Object.keys(train.vehicles).forEach((vehicleId) => {
