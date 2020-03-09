@@ -11,6 +11,8 @@ class SBahnGui {
         this.trains = {};
         this.trainsNode = document.getElementById('trains');
 
+        this.debugTrainId = null;
+
         this.logNode = document.getElementById('log');
 
         this.waggons = {};
@@ -28,7 +30,16 @@ class SBahnGui {
                     updateInterval: setInterval(() => this.updateTrain(train), 1000),
                     vehicles: {}
                 };
+                train.node.addEventListener('click', (event) => {
+                    if (!event.ctrlKey) return;
+                    this.debugTrainId = train.id;
+                    console.log('Debugging trainId ' + this.debugTrainId);
+                })
                 this.trains[trainId] = train;
+            }
+
+            if (train.id === this.debugTrainId) {
+                console.log(trainInfo);
             }
 
             let stations = trainInfo.calls_stack;
