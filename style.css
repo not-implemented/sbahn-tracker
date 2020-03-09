@@ -329,15 +329,10 @@ a:hover, a:active {
     order: 1;
     flex: 0 0 auto;
     padding: .6rem .7rem .5rem;
-    /*border-bottom: .1rem solid #e0e0e0;*/
-    border-bottom: .1rem solid rgba(106, 189, 229, .5);
-    border-radius: .6rem .6rem 0 0;
+    border-bottom: .1rem solid #e0e0e0;
 
     display: flex;
     align-items: center;
-
-    background: rgba(106, 189, 229, .25);
-    /*padding: .6rem .7rem;*/
 }
 .train-number {
     flex: 0 0 4rem;
