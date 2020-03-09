@@ -134,6 +134,12 @@ class SBahnGui {
             lineLogo.classList.remove('is-old');
         }
 
+        if (train.line.id === 99) {
+            train.node.classList.toggle('train-sided', true);
+        } else {
+            train.node.classList.toggle('train-sided', false);
+        }
+
         train.node.querySelector('.destination').innerText = Stations[train.destination] || train.destination;
         trainNumber.innerText = train.number || '';
 
