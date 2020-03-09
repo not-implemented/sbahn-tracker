@@ -121,13 +121,12 @@ class SBahnGui {
         let trainNumber = train.node.querySelector('.train-number');
         let stationPrev = train.node.querySelector('.station-prev');
         let stationNext = train.node.querySelector('.station-next');
-        let trainAside = train.node.querySelector('.train-aside');
+        let trainHeader = train.node.querySelector('.train-header');
 
         lineLogo.innerText = train.line.name;
         lineLogo.style.backgroundColor = train.line.color;
         lineLogo.style.color = train.line.text_color;
-        trainAside.style.backgroundColor = train.line.color + '40';
-        trainAside.style.borderBottomColor = train.line.color + '80';
+        trainHeader.style.backgroundColor = train.line.color + '20'; /* alpha 12.5% */
 
         if (train.lineIsOld) {
             lineLogo.classList.add('is-old');
