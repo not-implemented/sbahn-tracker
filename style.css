@@ -305,7 +305,7 @@ a:hover, a:active {
 .station-prev::before {
     content: '➤';
     position: absolute;
-    left: 22px;
+    left: 2.2rem;
     transform: translateY(calc(50% + .3rem));
     transform-origin: bottom;
 }
@@ -409,7 +409,7 @@ a:hover, a:active {
     overflow-y: auto;
 
     background: #e0e0e0;
-    border-radius: 6px;
+    border-radius: .6rem;
 }
 #log:empty {
     display: none;
