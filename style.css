@@ -366,7 +366,7 @@ a:hover, a:active {
     display: inline-block;
     background: #c0c0c0;
     margin: 0 .1rem;
-    padding: 0 .9rem;
+    padding: 0 .8rem;
     border-radius: .2rem;
     font-size: .9rem;
     line-height: 1.5rem;
@@ -377,8 +377,8 @@ a:hover, a:active {
     border-top-left-radius: .9rem;
 }
 .waggon:last-child {
-    padding-right: 1.2rem;
-    border-top-right-radius: .9rem;
+    padding-right: .8rem;
+    border-top-right-radius: .45rem;
 }
 .train-stopped .waggon {
     background: #ff5555;
