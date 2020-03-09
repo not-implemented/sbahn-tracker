@@ -45,45 +45,54 @@ class SBahnGui {
             train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
             train.delay = trainInfo.delay;
 
-            let prevTrainOfWaggon = this.waggons[trainInfo.vehicle_number];
-            if (prevTrainOfWaggon && prevTrainOfWaggon !== train) {
-                delete prevTrainOfWaggon.vehicles[trainInfo.vehicle_number];
-
-                // merge info from previous train:
-                if (train.line.id === 99) {
-                    train.line = prevTrainOfWaggon.line;
-                    train.lineIsOld = true;
-                }
-                if (!train.number) {
-                    train.number = prevTrainOfWaggon.number;
-                    train.numberIsOld = true;
-                }
-                if (!train.prevStation) {
-                    train.prevStation = prevTrainOfWaggon.prevStation;
-                    train.prevStationIsOld = true;
-                }
-
-                let deletePrevTrain = Object.keys(prevTrainOfWaggon.vehicles).length === 0;
-
-                if (!deletePrevTrain) {
-                    this.updateTrainContainer(prevTrainOfWaggon);
-                } else {
-                    delete this.trains[prevTrainOfWaggon.id];
-                    if (prevTrainOfWaggon.updateInterval) clearInterval(prevTrainOfWaggon.updateInterval);
-                    if (prevTrainOfWaggon.node.parentNode) prevTrainOfWaggon.node.parentNode.removeChild(prevTrainOfWaggon.node);
-                    prevTrainOfWaggon.node = null;
-                }
-
-                let actions = [];
-                if (!deletePrevTrain) actions.push('von Wagen ' + Object.keys(prevTrainOfWaggon.vehicles).join('+') + ' abgekuppelt');
-                if (Object.keys(train.vehicles).length > 0) actions.push('an Wagen ' + Object.keys(train.vehicles).join('+') + ' angekuppelt');
-
-                if (actions.length > 0) {
-                    this.log(`${(new Date()).toLocaleTimeString()}: ${Stations[train.prevStation] || train.prevStation || ''}: Wagen ${trainInfo.vehicle_number} wurde ${actions.join(' und ')}`);
-                }
+            let vehicleNumbers = [trainInfo.vehicle_number];
+            if (trainInfo.rake) {
+                vehicleNumbers = trainInfo.rake.split(';').filter(num => num !== '0').map(num => num.substr(-4, 3));
+            } else {
+                console.log('rake is null - using vehicle_number', trainInfo);
             }
-            this.waggons[trainInfo.vehicle_number] = train;
-            train.vehicles[trainInfo.vehicle_number] = true;
+
+            vehicleNumbers.forEach(vehicleNumber => {
+                let prevTrainOfWaggon = this.waggons[vehicleNumber];
+                if (prevTrainOfWaggon && prevTrainOfWaggon !== train) {
+                    delete prevTrainOfWaggon.vehicles[vehicleNumber];
+
+                    // merge info from previous train:
+                    if (train.line.id === 99) {
+                        train.line = prevTrainOfWaggon.line;
+                        train.lineIsOld = true;
+                    }
+                    if (!train.number) {
+                        train.number = prevTrainOfWaggon.number;
+                        train.numberIsOld = true;
+                    }
+                    if (!train.prevStation) {
+                        train.prevStation = prevTrainOfWaggon.prevStation;
+                        train.prevStationIsOld = true;
+                    }
+
+                    let deletePrevTrain = Object.keys(prevTrainOfWaggon.vehicles).length === 0;
+
+                    if (!deletePrevTrain) {
+                        this.updateTrainContainer(prevTrainOfWaggon);
+                    } else {
+                        delete this.trains[prevTrainOfWaggon.id];
+                        if (prevTrainOfWaggon.updateInterval) clearInterval(prevTrainOfWaggon.updateInterval);
+                        if (prevTrainOfWaggon.node.parentNode) prevTrainOfWaggon.node.parentNode.removeChild(prevTrainOfWaggon.node);
+                        prevTrainOfWaggon.node = null;
+                    }
+
+                    let actions = [];
+                    if (!deletePrevTrain) actions.push('von Wagen ' + Object.keys(prevTrainOfWaggon.vehicles).join('+') + ' abgekuppelt');
+                    if (Object.keys(train.vehicles).length > 0) actions.push('an Wagen ' + Object.keys(train.vehicles).join('+') + ' angekuppelt');
+
+                    if (actions.length > 0) {
+                        this.log(`${(new Date()).toLocaleTimeString()}: ${Stations[train.prevStation] || train.prevStation || ''}: Wagen ${vehicleNumber} wurde ${actions.join(' und ')}`);
+                    }
+                }
+                this.waggons[vehicleNumber] = train;
+                train.vehicles[vehicleNumber] = true;
+            });
 
             train.lastUpdate = Date.now() - trainInfo.time_since_update;
 
