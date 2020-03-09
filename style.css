@@ -241,6 +241,9 @@ a:hover, a:active {
     display: flex;
     flex-direction: column;
 }
+.train-sided {
+    opacity: .5;
+}
 /* line-number and destination */
 .train-header {
     order: 3;
