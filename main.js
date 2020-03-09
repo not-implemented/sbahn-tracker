@@ -28,7 +28,7 @@ class SBahnGui {
                     id: trainId,
                     node: document.importNode(document.querySelector('template#train').content.firstElementChild, true),
                     updateInterval: setInterval(() => this.updateTrain(train), 1000),
-                    vehicles: {}
+                    vehicles: []
                 };
                 train.node.addEventListener('click', (event) => {
                     if (!event.ctrlKey) return;
@@ -65,7 +65,8 @@ class SBahnGui {
             vehicleNumbers.forEach(vehicleNumber => {
                 let prevTrainOfWaggon = this.waggons[vehicleNumber];
                 if (prevTrainOfWaggon && prevTrainOfWaggon !== train) {
-                    delete prevTrainOfWaggon.vehicles[vehicleNumber];
+                    let pos = prevTrainOfWaggon.vehicles.indexOf(vehicleNumber);
+                    if (pos !== -1) prevTrainOfWaggon.vehicles.splice(pos, 1);
 
                     // merge info from previous train:
                     if (train.line.id === 99) {
@@ -81,7 +82,7 @@ class SBahnGui {
                         train.prevStationIsOld = true;
                     }
 
-                    let deletePrevTrain = Object.keys(prevTrainOfWaggon.vehicles).length === 0;
+                    let deletePrevTrain = prevTrainOfWaggon.vehicles.length === 0;
 
                     if (!deletePrevTrain) {
                         this.updateTrainContainer(prevTrainOfWaggon);
@@ -93,16 +94,18 @@ class SBahnGui {
                     }
 
                     let actions = [];
-                    if (!deletePrevTrain) actions.push('von Wagen ' + Object.keys(prevTrainOfWaggon.vehicles).join('+') + ' abgekuppelt');
-                    if (Object.keys(train.vehicles).length > 0) actions.push('an Wagen ' + Object.keys(train.vehicles).join('+') + ' angekuppelt');
+                    if (!deletePrevTrain) actions.push('von Wagen ' + prevTrainOfWaggon.vehicles.join('+') + ' abgekuppelt');
+                    if (train.vehicles.length > 0) actions.push('an Wagen ' + train.vehicles.join('+') + ' angekuppelt');
 
                     if (actions.length > 0) {
                         this.log(`${(new Date()).toLocaleTimeString()}: ${Stations[train.prevStation] || train.prevStation || ''}: Wagen ${vehicleNumber} wurde ${actions.join(' und ')}`);
                     }
                 }
+
                 this.waggons[vehicleNumber] = train;
-                train.vehicles[vehicleNumber] = true;
+                if (!train.vehicles.includes(vehicleNumber)) train.vehicles.push(vehicleNumber);
             });
+            if (trainInfo.rake) train.vehicles = vehicleNumbers; // for correct order
 
             train.lastUpdate = Date.now() - trainInfo.time_since_update;
 
@@ -173,7 +176,7 @@ class SBahnGui {
 
         train.node.querySelector('.waggons').innerText = '';
 
-        Object.keys(train.vehicles).forEach((vehicleId) => {
+        train.vehicles.forEach((vehicleId) => {
             let waggonNode = createEl('li', 'waggon');
             waggonNode.innerText = vehicleId;
             train.node.querySelector('.waggons').appendChild(waggonNode);
