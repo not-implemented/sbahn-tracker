@@ -128,31 +128,19 @@ class SBahnGui {
         lineLogo.style.color = train.line.text_color;
         trainHeader.style.backgroundColor = train.line.color + '20'; /* alpha 12.5% */
 
-        if (train.lineIsOld) {
-            lineLogo.classList.add('is-old');
+        train.node.querySelector('.destination').innerText = Stations[train.destination] || train.destination;
+        trainNumber.innerText = train.number || '';
+
+        if (train.state === 'DRIVING') {
+            train.node.classList.toggle('train-stopped', false);
         } else {
-            lineLogo.classList.remove('is-old');
+            train.node.classList.toggle('train-stopped', true);
         }
 
         if (train.line.id === 99) {
             train.node.classList.toggle('train-sided', true);
         } else {
             train.node.classList.toggle('train-sided', false);
-        }
-
-        train.node.querySelector('.destination').innerText = Stations[train.destination] || train.destination;
-        trainNumber.innerText = train.number || '';
-
-        if (train.numberIsOld) {
-            trainNumber.classList.add('is-old');
-        } else {
-            trainNumber.classList.remove('is-old');
-        }
-
-        if (train.state === 'DRIVING') {
-            train.node.classList.toggle('train-stopped', false);
-        } else {
-            train.node.classList.toggle('train-stopped', true);
         }
 
         if (train.prevStation === train.destination) {
@@ -162,12 +150,6 @@ class SBahnGui {
                 stationPrev.appendChild(createEl('span', 'strip'));
             }
             stationPrev.querySelector('.strip').innerText = Stations[train.prevStation] || train.prevStation || '';
-        }
-
-        if (train.prevStationIsOld) {
-            stationPrev.classList.add('is-old');
-        } else {
-            stationPrev.classList.remove('is-old');
         }
 
         if (train.nextStation === train.destination) {
@@ -186,6 +168,24 @@ class SBahnGui {
             waggonNode.innerText = vehicleId;
             train.node.querySelector('.waggons').appendChild(waggonNode);
         });
+
+        if (train.lineIsOld) {
+            trainHeader.classList.add('is-old');
+        } else {
+            trainHeader.classList.remove('is-old');
+        }
+
+        if (train.prevStationIsOld) {
+            stationPrev.classList.add('is-old');
+        } else {
+            stationPrev.classList.remove('is-old');
+        }
+
+        if (train.numberIsOld) {
+            trainNumber.classList.add('is-old');
+        } else {
+            trainNumber.classList.remove('is-old');
+        }
 
         this.updateTrain(train);
         this.updateTrains();
