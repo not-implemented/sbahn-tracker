@@ -131,17 +131,8 @@ class SBahnGui {
         train.node.querySelector('.destination').innerText = Stations[train.destination] || train.destination;
         trainNumber.innerText = train.number || '';
 
-        if (train.state === 'DRIVING') {
-            train.node.classList.toggle('train-stopped', false);
-        } else {
-            train.node.classList.toggle('train-stopped', true);
-        }
-
-        if (train.line.id === 99) {
-            train.node.classList.toggle('train-sided', true);
-        } else {
-            train.node.classList.toggle('train-sided', false);
-        }
+        train.node.classList.toggle('train-stopped', train.state !== 'DRIVING');
+        train.node.classList.toggle('train-sided', train.lineIsOld || train.line.id === 99);
 
         if (train.prevStation === train.destination) {
             stationPrev.innerText = '';
@@ -169,23 +160,9 @@ class SBahnGui {
             train.node.querySelector('.waggons').appendChild(waggonNode);
         });
 
-        if (train.lineIsOld) {
-            trainHeader.classList.add('is-old');
-        } else {
-            trainHeader.classList.remove('is-old');
-        }
-
-        if (train.prevStationIsOld) {
-            stationPrev.classList.add('is-old');
-        } else {
-            stationPrev.classList.remove('is-old');
-        }
-
-        if (train.numberIsOld) {
-            trainNumber.classList.add('is-old');
-        } else {
-            trainNumber.classList.remove('is-old');
-        }
+        trainHeader.classList.toggle('is-old', train.lineIsOld);
+        stationPrev.classList.toggle('is-old', train.prevStationIsOld);
+        trainNumber.classList.toggle('is-old', train.numberIsOld);
 
         this.updateTrain(train);
         this.updateTrains();
@@ -293,11 +270,7 @@ class SBahnGui {
             this.filteredLines.push(parseInt(node.value, 10));
         }));
 
-        if (this.filteredLines.length === 0) {
-            this.linesNode.classList.add('selectAll');
-        } else {
-            this.linesNode.classList.remove('selectAll');
-        }
+        this.linesNode.classList.toggle('selectAll', this.filteredLines.length === 0);
 
         this.updateTrains();
     }
