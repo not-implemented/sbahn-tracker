@@ -127,7 +127,7 @@ a:hover, a:active {
 
 /* SITE FOOTER: Copyright and stuff */
 .site-footer {
-    margin: 1.2rem -.8rem 0;
+    margin: 2.4rem -.8rem 0;
     padding: .6rem .8rem;
     background: #f0f0f0;
     box-shadow: 0 .1rem .3rem 0 rgba(0,0,0,.3);
@@ -156,6 +156,11 @@ a:hover, a:active {
     margin: 0;
     padding-left: 0;
     list-style: none;
+}
+@media (min-width: 30em) {
+    #trains {
+        grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+    }
 }
 /* /list of train cards */
 /* train cards loading */
@@ -356,6 +361,8 @@ a:hover, a:active {
     padding-left: 0;
     list-style: none;
     font-size: 0;
+    white-space: nowrap;
+    overflow: hidden;
 }
 .waggon {
     display: inline-block;
@@ -395,16 +402,15 @@ a:hover, a:active {
 
 /* LOG MESSAGES */
 #log {
-    max-width: 70rem;
     max-height: 40vh;
-    margin: 1.8rem 0 0;
-    padding: .9rem .8rem 0;
-    border: .1rem solid #c0c0c0;
+    margin: 2.4rem -.8rem -2.4rem;
+    padding: .9rem 1.6rem .3rem;
+    border-top: .1rem solid #c0c0c0;
     color: #606060;
     overflow-y: auto;
 
     background: #e0e0e0;
-    border-radius: .6rem;
+    box-shadow: 0 .1rem .3rem 0 rgba(0,0,0,.3);
 }
 #log:empty {
     display: none;
