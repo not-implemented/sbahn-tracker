@@ -246,6 +246,10 @@ a:hover, a:active {
 .train-sided {
     opacity: .5;
 }
+:not(.train-sided) + .train-sided,
+.train-sided + :not(.train-sided) {
+    grid-column-start: 1;
+}
 /* line-number and destination */
 .train-header {
     order: 3;
