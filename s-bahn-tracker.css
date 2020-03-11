@@ -387,6 +387,18 @@ a:hover, a:active {
     color: #ffebeb;
     text-shadow: 0 0 .1rem #b80000;
 }
+.waggon.is-modern:after {
+    content: "neu";
+    display: block;
+    position: absolute;
+    top: -0.5em;
+}
+.waggon.is-classic:after {
+    content: "alt";
+    display: block;
+    position: absolute;
+    top: -0.5em;
+}
 /* /train infos like number and waggons */
 /* error message */
 .lastUpdate {
