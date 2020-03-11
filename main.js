@@ -17,6 +17,18 @@ class SBahnGui {
 
         this.waggons = {};
 
+        this.vehicleInfos = {};
+
+        fetch('vehicle-info.php').then(response => response.json()).then(data => {
+            this.vehicleInfos = {};
+            data.forEach(vehicleInfo => {
+                if (vehicleInfo.model !== '423') return;
+                this.vehicleInfos[vehicleInfo.number] = vehicleInfo;
+            });
+
+            Object.values(this.trains).forEach(train => this.updateTrainContainer(train));
+        });
+
         this.client = new SBahnClient('put-api-key-here');
 
         this.client.onTrainUpdate = (trainInfo) => {
@@ -160,6 +172,11 @@ class SBahnGui {
                 waggonsNode.appendChild(waggonNode);
             }
             setText(waggonNode, vehicleId);
+
+            let vehicleInfo = this.vehicleInfos[vehicleId];
+            waggonNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern));
+            waggonNode.classList.toggle('is-classic', !!(vehicleInfo && !vehicleInfo.isModern));
+
             waggonNode = waggonNode.nextElementSibling;
         });
         while (waggonNode) {
