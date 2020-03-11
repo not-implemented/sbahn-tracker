@@ -123,40 +123,40 @@ class SBahnGui {
         let stationNext = train.node.querySelector('.station-next');
         let trainHeader = train.node.querySelector('.train-header');
 
-        lineLogo.innerText = train.line.name;
+        lineLogo.textContent = train.line.name;
         lineLogo.style.backgroundColor = train.line.color;
         lineLogo.style.color = train.line.text_color;
         trainHeader.style.backgroundColor = train.line.color + '20'; /* alpha 12.5% */
 
-        train.node.querySelector('.destination').innerText = Stations[train.destination] || train.destination;
-        trainNumber.innerText = train.number || '';
+        train.node.querySelector('.destination').textContent = Stations[train.destination] || train.destination;
+        trainNumber.textContent = train.number || '';
 
         train.node.classList.toggle('train-stopped', train.state !== 'DRIVING');
         train.node.classList.toggle('train-sided', train.lineIsOld || train.line.id === 99);
 
         if (train.prevStation === train.destination) {
-            stationPrev.innerText = '';
+            stationPrev.textContent = '';
         } else {
             if (!stationPrev.querySelector('.strip')) {
                 stationPrev.appendChild(createEl('span', 'strip'));
             }
-            stationPrev.querySelector('.strip').innerText = Stations[train.prevStation] || train.prevStation || '';
+            stationPrev.querySelector('.strip').textContent = Stations[train.prevStation] || train.prevStation || '';
         }
 
         if (train.nextStation === train.destination) {
-            stationNext.innerText = '';
+            stationNext.textContent = '';
         } else {
             if (!stationNext.querySelector('.strip')) {
                 stationNext.appendChild(createEl('span', 'strip'));
             }
-            stationNext.querySelector('.strip').innerText = Stations[train.nextStation] || train.nextStation || '';
+            stationNext.querySelector('.strip').textContent = Stations[train.nextStation] || train.nextStation || '';
         }
 
-        train.node.querySelector('.waggons').innerText = '';
+        train.node.querySelector('.waggons').textContent = '';
 
         train.vehicles.forEach((vehicleId) => {
             let waggonNode = createEl('li', 'waggon');
-            waggonNode.innerText = vehicleId;
+            waggonNode.textContent = vehicleId;
             train.node.querySelector('.waggons').appendChild(waggonNode);
         });
 
@@ -178,7 +178,7 @@ class SBahnGui {
             infoText = 'Keine Info seit ' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
         }
 
-        train.node.querySelector('.lastUpdate').innerText = infoText;
+        train.node.querySelector('.lastUpdate').textContent = infoText;
     }
 
     /**
@@ -217,7 +217,7 @@ class SBahnGui {
 
     log(message) {
         let messageNode = createEl('div', 'message');
-        messageNode.innerText = message;
+        messageNode.textContent = message;
         this.logNode.appendChild(messageNode);
     }
 
