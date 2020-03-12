@@ -174,8 +174,8 @@ class SBahnGui {
             setText(waggonNode, vehicleId);
 
             let vehicleInfo = this.vehicleInfos[vehicleId];
-            waggonNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern));
-            waggonNode.classList.toggle('is-classic', !!(vehicleInfo && !vehicleInfo.isModern));
+            waggonNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern === true));
+            waggonNode.classList.toggle('is-classic', !!(vehicleInfo && vehicleInfo.isModern === false));
 
             waggonNode = waggonNode.nextElementSibling;
         });
