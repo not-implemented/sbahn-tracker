@@ -11,7 +11,7 @@ class SBahnGui {
         this.trains = {};
         this.trainsNode = document.getElementById('trains');
 
-        this.debugTrainId = null;
+        this.trackTrainId = null;
 
         this.logNode = document.getElementById('log');
 
@@ -29,9 +29,37 @@ class SBahnGui {
             Object.values(this.trains).forEach(train => this.updateTrainContainer(train));
         });
 
+        let syncHash = () => {
+            let pageTrainsNode = document.getElementById('page-trains');
+            let pageTrainNode = document.getElementById('page-train');
+
+            pageTrainsNode.classList.toggle('active', false);
+            pageTrainNode.classList.toggle('active', false);
+
+            if (location.hash.startsWith('#train/')) {
+                pageTrainNode.classList.toggle('active', true);
+                this.trackTrainId = parseInt(location.hash.replace('#train/', ''));
+            } else {
+                pageTrainsNode.classList.toggle('active', true);
+            }
+        };
+        window.onhashchange = syncHash;
+        syncHash();
+
+        this.map = L.map('map').setView([48.137222222222, 11.575277777778], 13);
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: 'pk.eyJ1Ijoibm90LWltcGxlbWVudGVkIiwiYSI6ImNrN3Mxc3BicDA5OTczbnBjaWp3aG9vbGwifQ.QXUwqP4R70UpPPxzNfewEA'
+        }).addTo(this.map);
+
         this.client = new SBahnClient('put-api-key-here');
 
-        this.client.onTrainUpdate = (trainInfo) => {
+        this.client.onTrainUpdate = (trainInfo, geometry) => {
             let trainId = trainInfo.train_id;
             let train = this.trains[trainId];
 
@@ -42,16 +70,11 @@ class SBahnGui {
                     updateInterval: setInterval(() => this.updateTrain(train), 1000),
                     vehicles: []
                 };
-                train.node.addEventListener('click', (event) => {
-                    if (!event.ctrlKey) return;
-                    this.debugTrainId = train.id;
-                    console.log('Debugging trainId ' + this.debugTrainId);
-                })
-                this.trains[trainId] = train;
-            }
 
-            if (train.id === this.debugTrainId) {
-                console.log(trainInfo);
+                let detailsLink = train.node.querySelector('.details');
+                detailsLink.href = detailsLink.href.replace('{id}', trainId);
+
+                this.trains[trainId] = train;
             }
 
             let stations = trainInfo.calls_stack;
@@ -120,6 +143,39 @@ class SBahnGui {
             if (trainInfo.rake) train.vehicles = vehicleNumbers; // for correct order
 
             train.lastUpdate = Date.now() - trainInfo.time_since_update;
+
+            if (train.id === this.trackTrainId) {
+                console.log(trainInfo);
+
+                let trNode = createEl('tr');
+                let ts = (new Date(trainInfo.timestamp));
+                trNode.appendChild(createTextEl('td', ts.toLocaleTimeString() + '.' + String(ts.getMilliseconds()).padStart(3, '0')));
+                let eventTs = (new Date(trainInfo.event_timestamp));
+                trNode.appendChild(createTextEl('td', eventTs.toLocaleTimeString() + '.' + String(eventTs.getMilliseconds()).padStart(3, '0')));
+                trNode.appendChild(createTextEl('td', trainInfo.time_since_update));
+                trNode.appendChild(createTextEl('td', trainInfo.aimed_time_offset));
+                trNode.appendChild(createTextEl('td', trainInfo.delay));
+                trNode.appendChild(createTextEl('td', trainInfo.state));
+                trNode.appendChild(createTextEl('td', trainInfo.event));
+                trNode.appendChild(createTextEl('td', trainInfo.ride_state));
+                trNode.appendChild(createTextEl('td', trainInfo.train_number));
+                trNode.appendChild(createTextEl('td', trainInfo.stop_point_ds100));
+                trNode.appendChild(createTextEl('td', trainInfo.position_correction));
+                trNode.appendChild(createTextEl('td', trainInfo.transmitting_vehicle));
+                document.querySelector('#train-events tbody').appendChild(trNode);
+
+                this.map.setView([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]]);
+
+                var circle = L.circle([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]], {
+                    color: train.line.color,
+                    fillColor: train.line.color,
+                    fillOpacity: 0.5,
+                    radius: 10
+                }).addTo(this.map);
+
+                let latlng = geometry.coordinates.map(coord => [coord[1], coord[0]]);
+                var polyline = L.polyline(latlng, {color: 'red'}).addTo(this.map);
+            }
 
             this.updateTrainContainer(train);
             this.updateLines(train);
@@ -304,6 +360,12 @@ class SBahnGui {
 function createEl(name, className) {
     let node = document.createElement(name);
     if (className) node.classList.add(className);
+    return node;
+}
+
+function createTextEl(name, text) {
+    let node = document.createElement(name);
+    if (text) node.textContent = text;
     return node;
 }
 
