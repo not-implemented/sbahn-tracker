@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>S-Bahn München Live-Info</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css" integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js" integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew==" crossorigin=""></script>
+
     <link rel="stylesheet" href="s-bahn-tracker.css">
     <link rel="icon" href="img/s-bahn-logo.svg" type="image/svg+xml">
     <script type="module" src="main.js"></script>
@@ -12,15 +16,47 @@
     <header class="site-header">
         <h1><img src="img/s-bahn-logo.svg" alt="S" class="logo" height="30px"> Bahn München <span>Live-Info</span></h1>
 
+        <nav>
+            <ul>
+                <li><a href="#trains">Fuhrparkübersicht</a></li>
+            </ul>
+        </nav>
+
         <div id="controls">
             <h3>Filter:</h3>
             <nav id="lines"></nav>
         </div>
     </header>
-    <main class="site-main">
-        <ul id="trains"></ul>
 
-        <div id="log"></div>
+    <main class="site-main">
+        <div id="page-trains" class="page active">
+            <ul id="trains"></ul>
+            <div id="log"></div>
+        </div>
+
+        <div id="page-train" class="page">
+            <table id="train-events">
+                <thead>
+                    <tr>
+                        <th>ts</th>
+                        <th>event_ts</th>
+                        <th>t-since-up</th>
+                        <th>aimed-t-off</th>
+                        <th>delay</th>
+                        <th>state</th>
+                        <th>event</th>
+                        <th>ride-st</th>
+                        <th>tr-number</th>
+                        <th>stop-pt</th>
+                        <th>p-corr</th>
+                        <th>tr-vehicle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <div id="map"></div>
+        </div>
 
         <footer class="site-footer">Made with 🥨 in Munich — <a href="https://github.com/not-implemented/sbahn-tracker" target="_blank">Contribute to project</a></footer>
     </main>
@@ -46,6 +82,7 @@
             <aside class="train-aside">
                 <span class="train-number"></span>
                 <ul class="waggons"></ul>
+                <a href="#train/{id}" class="details">+</a>
             </aside>
             <div class="lastUpdate"></div>
         </li>

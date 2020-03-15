@@ -460,3 +460,25 @@ a:hover, a:active {
     box-shadow: inset 0 0 0 .1rem #ff5555;
 }
 /* /IS-OLD */
+
+.page {
+    display: none;
+}
+.page.active {
+    display: block;
+}
+
+#page-train {
+    height: 90%;
+}
+#page-train.active {
+    display: flex;
+}
+#train-events {
+    width: 50%;
+    overflow: scroll;
+}
+#map {
+    width: 50%;
+    height: 100%;
+}

@@ -36,7 +36,7 @@ export default class SBahnClient {
             if (message.source === 'websocket') {
                 // ignore
             } else if (message.source === 'trajectory') {
-                this.onTrainUpdate(message.content.properties);
+                this.onTrainUpdate(message.content.properties, message.content.geometry);
             } else {
                 console.log('Unknown source in WebSocket message: ', ev.data);
             }
