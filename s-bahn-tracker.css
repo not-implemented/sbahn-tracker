@@ -474,7 +474,7 @@ a:hover, a:active {
 #page-train.active {
     display: flex;
 }
-#train-events {
+#train-info {
     width: 50%;
     overflow: scroll;
 }
