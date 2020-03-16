@@ -29,23 +29,6 @@ class SBahnGui {
             Object.values(this.trains).forEach(train => this.updateTrainContainer(train));
         });
 
-        let syncHash = () => {
-            let pageTrainsNode = document.getElementById('page-trains');
-            let pageTrainNode = document.getElementById('page-train');
-
-            pageTrainsNode.classList.toggle('active', false);
-            pageTrainNode.classList.toggle('active', false);
-
-            if (location.hash.startsWith('#train/')) {
-                pageTrainNode.classList.toggle('active', true);
-                this.trackTrainId = parseInt(location.hash.replace('#train/', ''));
-            } else {
-                pageTrainsNode.classList.toggle('active', true);
-            }
-        };
-        window.onhashchange = syncHash;
-        syncHash();
-
         this.map = L.map('map').setView([48.137222222222, 11.575277777778], 13);
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -56,6 +39,24 @@ class SBahnGui {
             zoomOffset: -1,
             accessToken: 'pk.eyJ1Ijoibm90LWltcGxlbWVudGVkIiwiYSI6ImNrN3Mxc3BicDA5OTczbnBjaWp3aG9vbGwifQ.QXUwqP4R70UpPPxzNfewEA'
         }).addTo(this.map);
+
+        let syncHash = () => {
+            let pageTrainsNode = document.getElementById('page-trains');
+            let pageTrainNode = document.getElementById('page-train');
+
+            pageTrainsNode.classList.toggle('active', false);
+            pageTrainNode.classList.toggle('active', false);
+
+            if (location.hash.startsWith('#train/')) {
+                pageTrainNode.classList.toggle('active', true);
+                this.trackTrainId = parseInt(location.hash.replace('#train/', ''));
+                this.map.invalidateSize();
+            } else {
+                pageTrainsNode.classList.toggle('active', true);
+            }
+        };
+        window.onhashchange = syncHash;
+        syncHash();
 
         this.client = new SBahnClient('5cc87b12d7c5370001c1d655306122aa0a4743c489b497cb1afbec9b');
 
