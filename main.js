@@ -366,7 +366,7 @@ function createEl(name, className) {
 
 function createTextEl(name, text) {
     let node = document.createElement(name);
-    if (text) node.textContent = text;
+    node.textContent = text;
     return node;
 }
 
