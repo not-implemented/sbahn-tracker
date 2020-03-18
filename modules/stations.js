@@ -1,4 +1,4 @@
-const Stations = {
+export default {
     //S1
     MFR: 'Freising',
     MPU: 'Pulling',
@@ -182,5 +182,3 @@ const Stations = {
     //S20
     //s. S7
 };
-
-export default Stations;
