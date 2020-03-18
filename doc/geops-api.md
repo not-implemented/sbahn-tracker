@@ -3,7 +3,7 @@ S-Bahn München Live - Internals
 
 Dokumentation der WebSocket-Schnittstelle unter wss://api.geops.io/realtime-ws/v1/
 
-Zu jedem Event-Typ kann der aktuelle Stand abgerufen, sowie auf zukünftige Events subscribed werden, z.B.:
+Zu jeder Event-Quelle kann der aktuelle Stand abgerufen, sowie auf zukünftige Events subscribed werden, z.B.:
 
 ```
 GET trajectory
@@ -11,8 +11,8 @@ SUB trajectory
 ```
 
 
-Event-Typ "trajectory"
-----------------------
+Event-Quelle "trajectory"
+-------------------------
 
 Echtzeit-Events aller aktiven S-Bahnen im Fuhrpark. Züge, die in Bewegung sind, senden in der Regel etwa alle 10 Sek
 ein Event. Züge die stehen, seltener. Züge auf dem Abstellgleis senden irgendwann meist gar keine Events mehr (vermutlich
@@ -99,3 +99,105 @@ offiziellen Echtzeitmap nicht zu sehen).
     - Beispiel:  
     [11.6633382983764, 48.1260354948852],  
     [11.6633382983764, 48.1260354948852]
+
+
+Event-Quelle "trajectory_schematic"
+-----------------------------------
+
+TODO - Wie "trajectory", aber mit Daten/Koordinaten für den schematischen Netzplan.
+
+
+Event-Quelle "full_trajectory_\[Train-ID]"
+------------------------------------------
+
+TODO
+
+
+Event-Quelle "full_trajectory_schematic_\[Train-ID]"
+------------------------------------------
+
+TODO
+
+
+Event-Quelle "stopsequence_\[Train-ID]"
+---------------------------------------
+
+TODO
+
+
+Event-Quelle "stopsequence_schematic_\[Train-ID]"
+-------------------------------------------------
+
+TODO
+
+
+Event-Quelle "deleted_vehicles"
+-------------------------------
+
+TODO
+
+
+Event-Quelle "deleted_vehicles_schematic"
+-----------------------------------------
+
+TODO
+
+
+Event-Quelle "stations"
+-----------------------
+
+TODO
+
+
+Event-Quelle "stations_schematic"
+---------------------------------
+
+TODO
+
+
+Event-Quelle "station \[ID]"
+----------------------------
+
+TODO
+
+
+Event-Quelle "station_schematic \[ID]"
+--------------------------------------
+
+TODO
+
+
+Event-Quelle "timetable_\[Station-ID]"
+--------------------------------------
+
+TODO
+
+
+Event-Quelle "timetable_\[Station-ID]_schematic"
+------------------------------------------------
+
+TODO
+
+
+Event-Quelle "newsticker"
+-------------------------
+
+TODO
+
+
+Event-Quelle "extra_geoms"
+--------------------------
+
+TODO
+
+
+Event-Quelle "healthcheck"
+--------------------------
+
+TODO
+
+
+Event-Quelle "healthcheck_schematic"
+------------------------------------
+
+TODO
