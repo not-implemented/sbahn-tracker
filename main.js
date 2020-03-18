@@ -60,7 +60,8 @@ class SBahnGui {
 
         this.client = new SBahnClient('put-api-key-here');
 
-        this.client.onTrainUpdate = (trainInfo, geometry) => {
+        this.client.on('trajectory', (event) => {
+            let trainInfo = event.properties;
             let trainId = trainInfo.train_id;
             let train = this.trains[trainId];
 
@@ -174,13 +175,13 @@ class SBahnGui {
                     radius: 10
                 }).addTo(this.map);
 
-                let latlng = geometry.coordinates.map(coord => [coord[1], coord[0]]);
+                let latlng = event.geometry.coordinates.map(coord => [coord[1], coord[0]]);
                 var polyline = L.polyline(latlng, {color: 'red'}).addTo(this.map);
             }
 
             this.updateTrainContainer(train);
             this.updateLines(train);
-        };
+        });
 
         this.client.connect();
     }

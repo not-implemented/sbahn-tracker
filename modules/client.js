@@ -1,44 +1,85 @@
+const WebSocket = window && window.WebSocket || require('websocket').w3cwebsocket;
+
 export default class SBahnClient {
     constructor(apiKey) {
         this.apiKey = apiKey;
-        this.onTrainUpdate = () => {};
+        this.callbacks = {};
+
+        this.isActive = false;
+        this.socket = null;
+        this.reconnectDelay = null;
+
+        this.clientTimeDiff = 0;
+    }
+
+    on(source, callback) {
+        if (this.socket && this.socket.readyState === 1) {
+            this.socket.send('GET ' + source);
+            this.socket.send('SUB ' + source);
+        }
+
+        this.callbacks[source] = callback;
+    }
+
+    remove(source) {
+        if (this.socket && this.socket.readyState === 1) {
+            this.socket.send('DEL ' + source);
+        }
+
+        delete this.callbacks[source];
     }
 
     connect() {
+        if (this.isActive) return;
+
+        this.isActive = true;
+        this._connect();
+    }
+
+    close() {
+        if (!this.isActive) return;
+
+        this.isActive = false;
+        if (this.socket) this.socket.close();
+        if (this.reconnectDelay) clearTimeout(this.reconnectDelay);
+    }
+
+    _connect() {
         this.socket = new WebSocket('wss://api.geops.io/realtime-ws/v1/?key=' + this.apiKey);
 
-        this.socket.onerror = () => {
-            console.log('WebSocket Connection Error');
-        };
-
         this.socket.onopen = () => {
-            console.log('WebSocket Client Connected');
-
-            this.socket.send('GET trajectory');
-            this.socket.send('SUB trajectory');
-
-            // TODO:
-            //this.socket.send('GET newsticker');
-            //this.socket.send('GET station');
-            //GET full_trajectory_schematic_140292529036984
-            //GET stopsequence_schematic_140292529036984
+            Object.keys(this.callbacks).forEach(source => {
+                this.socket.send('GET ' + source);
+                this.socket.send('SUB ' + source);
+            });
         };
 
         this.socket.onclose = () => {
-            console.log('WebSocket Client Closed');
+            this.socket = null;
 
-            setTimeout(() => this.connect(), 1000);
+            if (this.isActive) {
+                this.reconnectDelay = setTimeout(() => this._connect(), 100);
+            }
         };
 
-        this.socket.onmessage = (ev) => {
-            let message = JSON.parse(ev.data);
+        this.socket.onmessage = (event) => {
+            let message = null;
+            try {
+                message = JSON.parse(event.data);
+            } catch (err) {
+                console.warn('Ignored invalid JSON in WebSocket message: ' + err.message, event.data);
+                return;
+            }
+
+            this.clientTimeDiff = Date.now() - message.timestamp;
 
             if (message.source === 'websocket') {
-                // ignore
-            } else if (message.source === 'trajectory') {
-                this.onTrainUpdate(message.content.properties, message.content.geometry);
+                // ignoring message: content: {status: "open"}
+                // TODO: implement ping/pong
+            } else if (this.callbacks.hasOwnProperty(message.source)) {
+                this.callbacks[message.source](message.content);
             } else {
-                console.log('Unknown source in WebSocket message: ', ev.data);
+                console.warn(`Unknown source "${message.source}" in WebSocket message`, event.data);
             }
         };
     }
