@@ -58,7 +58,7 @@ class SBahnGui {
         window.onhashchange = syncHash;
         syncHash();
 
-        this.client = new SBahnClient('put-api-key-here');
+        this.client = new SBahnClient('put-api-key-here', console);
 
         this.client.on('trajectory', (event) => {
             let trainInfo = event.properties;

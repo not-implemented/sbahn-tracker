@@ -1,8 +1,9 @@
 const WebSocket = window && window.WebSocket || require('websocket').w3cwebsocket;
 
 export default class SBahnClient {
-    constructor(apiKey) {
+    constructor(apiKey, log) {
         this._apiKey = apiKey;
+        this._log = log;
         this._callbacks = {};
 
         this._isActive = false;
@@ -67,7 +68,7 @@ export default class SBahnClient {
             try {
                 message = JSON.parse(event.data);
             } catch (err) {
-                console.warn('Ignored invalid JSON in WebSocket message: ' + err.message, event.data);
+                this._log.warn('Ignored invalid JSON in WebSocket message: ' + err.message, event.data);
                 return;
             }
 
@@ -79,7 +80,7 @@ export default class SBahnClient {
             } else if (this._callbacks.hasOwnProperty(message.source)) {
                 this._callbacks[message.source](message.content);
             } else {
-                console.warn(`Unknown source "${message.source}" in WebSocket message`, event.data);
+                this._log.warn(`Unknown source "${message.source}" in WebSocket message`, event.data);
             }
         };
     }
