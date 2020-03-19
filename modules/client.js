@@ -10,7 +10,7 @@ export default class SBahnClient {
         this._socket = null;
         this._reconnectDelay = null;
 
-        this.clientTimeDiff = 0;
+        this.clientTimeDiff = null;
     }
 
     on(source, callback) {
@@ -73,7 +73,9 @@ export default class SBahnClient {
                 return;
             }
 
-            this.clientTimeDiff = Date.now() - message.timestamp;
+            // minimal client time difference:
+            let timeDiff = Date.now() - message.timestamp;
+            this.clientTimeDiff = this.clientTimeDiff !== null ? Math.min(timeDiff, this.clientTimeDiff) : timeDiff;
 
             if (message.client_reference !== null) {
                 this._log.info('client_reference is not null in WebSocket message', message);
