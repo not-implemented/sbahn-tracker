@@ -58,7 +58,7 @@ class SBahnGui {
         window.onhashchange = syncHash;
         syncHash();
 
-        this.client = new SBahnClient('5cc87b12d7c5370001c1d655306122aa0a4743c489b497cb1afbec9b');
+        this.client = new SBahnClient('5cc87b12d7c5370001c1d655306122aa0a4743c489b497cb1afbec9b', console);
 
         this.client.on('trajectory', (event) => {
             let trainInfo = event.properties;
