@@ -170,7 +170,7 @@ export default {
     MMDN: 'Donnersbergerbrücke',
     MHAB: 'Hackerbrücke',
     MHT: 'Hauptbahnhof',
-    "MH  N": "Hbf Gleis 27-36",
+    'MH  N': 'Hbf Gleis 27-36',
     MKA: 'Karlsplatz/Stachus',
     MMP: 'Marienplatz',
     MIT: 'Isartor',
