@@ -59,131 +59,131 @@ class SBahnGui {
         syncHash();
 
         this.client = new SBahnClient('put-api-key-here', console);
+        this.client.on('trajectory', event => this.onTrajectoryEvent(event));
+        this.client.connect();
+    }
 
-        this.client.on('trajectory', (event) => {
-            let trainInfo = event.properties;
-            let trainId = trainInfo.train_id;
-            let train = this.trains[trainId];
+    onTrajectoryEvent(event) {
+        let trainInfo = event.properties;
+        let trainId = trainInfo.train_id;
+        let train = this.trains[trainId];
 
-            if (!train) {
-                train = {
-                    id: trainId,
-                    node: document.importNode(document.querySelector('template#train').content.firstElementChild, true),
-                    updateInterval: setInterval(() => this.updateTrain(train), 1000),
-                    vehicles: []
-                };
+        if (!train) {
+            train = {
+                id: trainId,
+                node: document.importNode(document.querySelector('template#train').content.firstElementChild, true),
+                updateInterval: setInterval(() => this.updateTrain(train), 1000),
+                vehicles: []
+            };
 
-                let detailsLink = train.node.querySelector('.details');
-                detailsLink.href = detailsLink.href.replace('{id}', trainId);
+            let detailsLink = train.node.querySelector('.details');
+            detailsLink.href = detailsLink.href.replace('{id}', trainId);
 
-                this.trains[trainId] = train;
-            }
+            this.trains[trainId] = train;
+        }
 
-            let stations = trainInfo.calls_stack;
+        let stations = trainInfo.calls_stack;
 
-            train.line = trainInfo.line || train.line || { id: 99, name: 'S?', color: '#777', text_color: '#fff' };
-            train.lineIsOld = !trainInfo.line && train.line.id != 99;
-            train.destination = stations && stations.length > 0 ? stations[stations.length - 1] : 'Nicht einsteigen';
-            train.number = trainInfo.train_number || train.number || null;
-            train.numberIsOld = train.number && !trainInfo.train_number;
-            train.state = trainInfo.state;
-            train.prevStation = trainInfo.stop_point_ds100 || train.prevStation || null;
-            train.prevStationIsOld = train.prevStation && !trainInfo.stop_point_ds100;
-            let pos = stations ? stations.indexOf(trainInfo.stop_point_ds100) : -1;
-            train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
+        train.line = trainInfo.line || train.line || { id: 99, name: 'S?', color: '#777', text_color: '#fff' };
+        train.lineIsOld = !trainInfo.line && train.line.id != 99;
+        train.destination = stations && stations.length > 0 ? stations[stations.length - 1] : 'Nicht einsteigen';
+        train.number = trainInfo.train_number || train.number || null;
+        train.numberIsOld = train.number && !trainInfo.train_number;
+        train.state = trainInfo.state;
+        train.prevStation = trainInfo.stop_point_ds100 || train.prevStation || null;
+        train.prevStationIsOld = train.prevStation && !trainInfo.stop_point_ds100;
+        let pos = stations ? stations.indexOf(trainInfo.stop_point_ds100) : -1;
+        train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
 
-            let vehicleNumbers = [trainInfo.vehicle_number];
-            if (trainInfo.rake) {
-                vehicleNumbers = trainInfo.rake.split(';').filter(num => num !== '0').map(num => num.substr(-4, 3));
-            } else {
-                console.log('rake is null - using vehicle_number', trainInfo);
-            }
+        let vehicleNumbers = [trainInfo.vehicle_number];
+        if (trainInfo.rake) {
+            vehicleNumbers = trainInfo.rake.split(';').filter(num => num !== '0').map(num => num.substr(-4, 3));
+        } else {
+            console.log('rake is null - using vehicle_number', trainInfo);
+        }
 
-            vehicleNumbers.forEach(vehicleNumber => {
-                let prevTrainOfWaggon = this.waggons[vehicleNumber];
-                if (prevTrainOfWaggon && prevTrainOfWaggon !== train) {
-                    let pos = prevTrainOfWaggon.vehicles.indexOf(vehicleNumber);
-                    if (pos !== -1) prevTrainOfWaggon.vehicles.splice(pos, 1);
+        vehicleNumbers.forEach(vehicleNumber => {
+            let prevTrainOfWaggon = this.waggons[vehicleNumber];
+            if (prevTrainOfWaggon && prevTrainOfWaggon !== train) {
+                let pos = prevTrainOfWaggon.vehicles.indexOf(vehicleNumber);
+                if (pos !== -1) prevTrainOfWaggon.vehicles.splice(pos, 1);
 
-                    // merge info from previous train:
-                    if (train.line.id === 99) {
-                        train.line = prevTrainOfWaggon.line;
-                        train.lineIsOld = true;
-                    }
-                    if (!train.number) {
-                        train.number = prevTrainOfWaggon.number;
-                        train.numberIsOld = true;
-                    }
-                    if (!train.prevStation) {
-                        train.prevStation = prevTrainOfWaggon.prevStation;
-                        train.prevStationIsOld = true;
-                    }
-
-                    let deletePrevTrain = prevTrainOfWaggon.vehicles.length === 0;
-
-                    if (!deletePrevTrain) {
-                        this.updateTrainContainer(prevTrainOfWaggon);
-                    } else {
-                        delete this.trains[prevTrainOfWaggon.id];
-                        if (prevTrainOfWaggon.updateInterval) clearInterval(prevTrainOfWaggon.updateInterval);
-                        if (prevTrainOfWaggon.node.parentNode) prevTrainOfWaggon.node.parentNode.removeChild(prevTrainOfWaggon.node);
-                        prevTrainOfWaggon.node = null;
-                    }
-
-                    let actions = [];
-                    if (!deletePrevTrain) actions.push('von Wagen ' + prevTrainOfWaggon.vehicles.join('+') + ' abgekuppelt');
-                    if (train.vehicles.length > 0) actions.push('an Wagen ' + train.vehicles.join('+') + ' angekuppelt');
-
-                    if (actions.length > 0) {
-                        this.log(`${(new Date()).toLocaleTimeString()}: ${Stations[train.prevStation] || train.prevStation || ''}: Wagen ${vehicleNumber} wurde ${actions.join(' und ')}`);
-                    }
+                // merge info from previous train:
+                if (train.line.id === 99) {
+                    train.line = prevTrainOfWaggon.line;
+                    train.lineIsOld = true;
+                }
+                if (!train.number) {
+                    train.number = prevTrainOfWaggon.number;
+                    train.numberIsOld = true;
+                }
+                if (!train.prevStation) {
+                    train.prevStation = prevTrainOfWaggon.prevStation;
+                    train.prevStationIsOld = true;
                 }
 
-                this.waggons[vehicleNumber] = train;
-                if (!train.vehicles.includes(vehicleNumber)) train.vehicles.push(vehicleNumber);
-            });
-            if (trainInfo.rake) train.vehicles = vehicleNumbers; // for correct order
+                let deletePrevTrain = prevTrainOfWaggon.vehicles.length === 0;
 
-            train.lastUpdate = Date.now() - trainInfo.time_since_update;
+                if (!deletePrevTrain) {
+                    this.updateTrainContainer(prevTrainOfWaggon);
+                } else {
+                    delete this.trains[prevTrainOfWaggon.id];
+                    if (prevTrainOfWaggon.updateInterval) clearInterval(prevTrainOfWaggon.updateInterval);
+                    if (prevTrainOfWaggon.node.parentNode) prevTrainOfWaggon.node.parentNode.removeChild(prevTrainOfWaggon.node);
+                    prevTrainOfWaggon.node = null;
+                }
 
-            if (train.id === this.trackTrainId) {
-                console.log(trainInfo);
+                let actions = [];
+                if (!deletePrevTrain) actions.push('von Wagen ' + prevTrainOfWaggon.vehicles.join('+') + ' abgekuppelt');
+                if (train.vehicles.length > 0) actions.push('an Wagen ' + train.vehicles.join('+') + ' angekuppelt');
 
-                let trNode = createEl('tr');
-                let ts = (new Date(trainInfo.timestamp));
-                trNode.appendChild(createTextEl('td', ts.toLocaleTimeString() + '.' + String(ts.getMilliseconds()).padStart(3, '0')));
-                let eventTs = (new Date(trainInfo.event_timestamp));
-                trNode.appendChild(createTextEl('td', eventTs.toLocaleTimeString() + '.' + String(eventTs.getMilliseconds()).padStart(3, '0')));
-                trNode.appendChild(createTextEl('td', trainInfo.time_since_update));
-                trNode.appendChild(createTextEl('td', trainInfo.aimed_time_offset));
-                trNode.appendChild(createTextEl('td', trainInfo.delay));
-                trNode.appendChild(createTextEl('td', trainInfo.state));
-                trNode.appendChild(createTextEl('td', trainInfo.event));
-                trNode.appendChild(createTextEl('td', trainInfo.ride_state));
-                trNode.appendChild(createTextEl('td', trainInfo.train_number));
-                trNode.appendChild(createTextEl('td', trainInfo.stop_point_ds100));
-                trNode.appendChild(createTextEl('td', trainInfo.position_correction));
-                trNode.appendChild(createTextEl('td', trainInfo.transmitting_vehicle));
-                document.querySelector('#train-events tbody').appendChild(trNode);
-
-                this.map.setView([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]]);
-
-                var circle = L.circle([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]], {
-                    color: train.line.color,
-                    fillColor: train.line.color,
-                    fillOpacity: 0.5,
-                    radius: 10
-                }).addTo(this.map);
-
-                let latlng = event.geometry.coordinates.map(coord => [coord[1], coord[0]]);
-                var polyline = L.polyline(latlng, {color: 'red'}).addTo(this.map);
+                if (actions.length > 0) {
+                    this.log(`${(new Date()).toLocaleTimeString()}: ${Stations[train.prevStation] || train.prevStation || ''}: Wagen ${vehicleNumber} wurde ${actions.join(' und ')}`);
+                }
             }
 
-            this.updateTrainContainer(train);
-            this.updateLines(train);
+            this.waggons[vehicleNumber] = train;
+            if (!train.vehicles.includes(vehicleNumber)) train.vehicles.push(vehicleNumber);
         });
+        if (trainInfo.rake) train.vehicles = vehicleNumbers; // for correct order
 
-        this.client.connect();
+        train.lastUpdate = Date.now() - trainInfo.time_since_update;
+
+        if (train.id === this.trackTrainId) {
+            console.log(trainInfo);
+
+            let trNode = createEl('tr');
+            let ts = (new Date(trainInfo.timestamp));
+            trNode.appendChild(createTextEl('td', ts.toLocaleTimeString() + '.' + String(ts.getMilliseconds()).padStart(3, '0')));
+            let eventTs = (new Date(trainInfo.event_timestamp));
+            trNode.appendChild(createTextEl('td', eventTs.toLocaleTimeString() + '.' + String(eventTs.getMilliseconds()).padStart(3, '0')));
+            trNode.appendChild(createTextEl('td', trainInfo.time_since_update));
+            trNode.appendChild(createTextEl('td', trainInfo.aimed_time_offset));
+            trNode.appendChild(createTextEl('td', trainInfo.delay));
+            trNode.appendChild(createTextEl('td', trainInfo.state));
+            trNode.appendChild(createTextEl('td', trainInfo.event));
+            trNode.appendChild(createTextEl('td', trainInfo.ride_state));
+            trNode.appendChild(createTextEl('td', trainInfo.train_number));
+            trNode.appendChild(createTextEl('td', trainInfo.stop_point_ds100));
+            trNode.appendChild(createTextEl('td', trainInfo.position_correction));
+            trNode.appendChild(createTextEl('td', trainInfo.transmitting_vehicle));
+            document.querySelector('#train-events tbody').appendChild(trNode);
+
+            this.map.setView([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]]);
+
+            var circle = L.circle([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]], {
+                color: train.line.color,
+                fillColor: train.line.color,
+                fillOpacity: 0.5,
+                radius: 10
+            }).addTo(this.map);
+
+            let latlng = event.geometry.coordinates.map(coord => [coord[1], coord[0]]);
+            var polyline = L.polyline(latlng, {color: 'red'}).addTo(this.map);
+        }
+
+        this.updateTrainContainer(train);
+        this.updateLines(train);
     }
 
     updateTrainContainer(train) {
