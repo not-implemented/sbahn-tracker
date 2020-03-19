@@ -59,6 +59,7 @@ export default class SBahnClient {
             this._socket = null;
 
             if (this._isActive) {
+                this._log.info('WebSocket connection closed - reconnecting');
                 this._reconnectDelay = setTimeout(() => this._connect(), 100);
             }
         };
@@ -74,13 +75,17 @@ export default class SBahnClient {
 
             this.clientTimeDiff = Date.now() - message.timestamp;
 
+            if (message.client_reference !== null) {
+                this._log.info('client_reference is not null in WebSocket message', message);
+            }
+
             if (message.source === 'websocket') {
                 // ignoring message: content: {status: "open"}
                 // TODO: implement ping/pong
             } else if (this._callbacks.hasOwnProperty(message.source)) {
                 this._callbacks[message.source](message.content);
             } else {
-                this._log.warn(`Unknown source "${message.source}" in WebSocket message`, event.data);
+                this._log.warn(`Unknown source "${message.source}" in WebSocket message`, message);
             }
         };
     }
