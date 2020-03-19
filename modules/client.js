@@ -2,67 +2,67 @@ const WebSocket = window && window.WebSocket || require('websocket').w3cwebsocke
 
 export default class SBahnClient {
     constructor(apiKey) {
-        this.apiKey = apiKey;
-        this.callbacks = {};
+        this._apiKey = apiKey;
+        this._callbacks = {};
 
-        this.isActive = false;
-        this.socket = null;
-        this.reconnectDelay = null;
+        this._isActive = false;
+        this._socket = null;
+        this._reconnectDelay = null;
 
         this.clientTimeDiff = 0;
     }
 
     on(source, callback) {
-        if (this.socket && this.socket.readyState === 1) {
-            this.socket.send('GET ' + source);
-            this.socket.send('SUB ' + source);
+        if (this._socket && this._socket.readyState === 1) {
+            this._socket.send('GET ' + source);
+            this._socket.send('SUB ' + source);
         }
 
-        this.callbacks[source] = callback;
+        this._callbacks[source] = callback;
     }
 
     remove(source) {
-        if (this.socket && this.socket.readyState === 1) {
-            this.socket.send('DEL ' + source);
+        if (this._socket && this._socket.readyState === 1) {
+            this._socket.send('DEL ' + source);
         }
 
-        delete this.callbacks[source];
+        delete this._callbacks[source];
     }
 
     connect() {
-        if (this.isActive) return;
+        if (this._isActive) return;
 
-        this.isActive = true;
+        this._isActive = true;
         this._connect();
     }
 
     close() {
-        if (!this.isActive) return;
+        if (!this._isActive) return;
 
-        this.isActive = false;
-        if (this.socket) this.socket.close();
-        if (this.reconnectDelay) clearTimeout(this.reconnectDelay);
+        this._isActive = false;
+        if (this._socket) this._socket.close();
+        if (this._reconnectDelay) clearTimeout(this._reconnectDelay);
     }
 
     _connect() {
-        this.socket = new WebSocket('wss://api.geops.io/realtime-ws/v1/?key=' + this.apiKey);
+        this._socket = new WebSocket('wss://api.geops.io/realtime-ws/v1/?key=' + this._apiKey);
 
-        this.socket.onopen = () => {
-            Object.keys(this.callbacks).forEach(source => {
-                this.socket.send('GET ' + source);
-                this.socket.send('SUB ' + source);
+        this._socket.onopen = () => {
+            Object.keys(this._callbacks).forEach(source => {
+                this._socket.send('GET ' + source);
+                this._socket.send('SUB ' + source);
             });
         };
 
-        this.socket.onclose = () => {
-            this.socket = null;
+        this._socket.onclose = () => {
+            this._socket = null;
 
-            if (this.isActive) {
-                this.reconnectDelay = setTimeout(() => this._connect(), 100);
+            if (this._isActive) {
+                this._reconnectDelay = setTimeout(() => this._connect(), 100);
             }
         };
 
-        this.socket.onmessage = (event) => {
+        this._socket.onmessage = (event) => {
             let message = null;
             try {
                 message = JSON.parse(event.data);
@@ -76,8 +76,8 @@ export default class SBahnClient {
             if (message.source === 'websocket') {
                 // ignoring message: content: {status: "open"}
                 // TODO: implement ping/pong
-            } else if (this.callbacks.hasOwnProperty(message.source)) {
-                this.callbacks[message.source](message.content);
+            } else if (this._callbacks.hasOwnProperty(message.source)) {
+                this._callbacks[message.source](message.content);
             } else {
                 console.warn(`Unknown source "${message.source}" in WebSocket message`, event.data);
             }
