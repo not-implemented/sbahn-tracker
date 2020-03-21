@@ -14,10 +14,11 @@
 </head>
 <body>
     <header class="site-header">
-        <h1><a href="#trains"><img src="img/s-bahn-logo.svg" alt="S" class="logo" height="30px"> Bahn München <span>Live</span></a></h1>
+        <h1><a href="#"><img src="img/s-bahn-logo.svg" alt="S" class="logo" height="30px"> Bahn München <span>Live</span></a></h1>
 
         <nav id="controls">
-            <a href="#trains">Fuhrparkübersicht</a>
+            <a href="#list">Liste</a>
+            <a href="#map">Karte</a>
             <div class="filter">
                 <h3>Filter:</h3>
                 <div id="lines"></div>
@@ -26,12 +27,12 @@
     </header>
 
     <main class="site-main">
-        <div id="page-trains" class="page active">
+        <div id="page-list" class="page">
             <ul id="trains"></ul>
             <div id="log"></div>
         </div>
 
-        <div id="page-train" class="page">
+        <div id="page-map" class="page">
             <div id="train-info">
                 <table id="train-events">
                     <thead>

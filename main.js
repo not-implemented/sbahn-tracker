@@ -41,18 +41,16 @@ class SBahnGui {
         }).addTo(this.map);
 
         let syncHash = () => {
-            let pageTrainsNode = document.getElementById('page-trains');
-            let pageTrainNode = document.getElementById('page-train');
+            document.querySelectorAll('main > .page').forEach(pageNode => {
+                pageNode.classList.toggle('is-active', false);
+            });
 
-            pageTrainsNode.classList.toggle('is-active', false);
-            pageTrainNode.classList.toggle('is-active', false);
-
-            if (location.hash.startsWith('#train/')) {
-                pageTrainNode.classList.toggle('is-active', true);
+            if (location.hash === '#map' || location.hash.startsWith('#train/')) {
+                document.querySelector('#page-map').classList.toggle('is-active', true);
                 this.trackTrainId = parseInt(location.hash.replace('#train/', ''));
                 this.map.invalidateSize();
             } else {
-                pageTrainsNode.classList.toggle('is-active', true);
+                document.querySelector('#page-list').classList.toggle('is-active', true);
             }
         };
         window.onhashchange = syncHash;
