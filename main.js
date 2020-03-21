@@ -1,3 +1,4 @@
+import './modules/polyfills.js';
 import SBahnClient from './modules/client.js';
 import Stations from './modules/stations.js';
 
@@ -93,17 +94,22 @@ class SBahnGui {
         let pos = stations ? stations.indexOf(trainInfo.stop_point_ds100) : -1;
         train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
 
-        let vehicleNumbers = [trainInfo.vehicle_number];
-        if (trainInfo.rake) {
-            vehicleNumbers = trainInfo.rake.split(';').filter(num => num !== '0').map(num => num.substr(-4, 3));
+        let vehicles;
+        if (trainInfo.rake !== null) {
+            vehicles = trainInfo.rake.split(';').chunk(4).map(vehicle => {
+                let isReverse = vehicle[0] === '0';
+                let refWaggon = vehicle[isReverse ? 3 : 0];
+                return { number: refWaggon.substr(-4, 3), isReverse };
+            });
         } else {
+            vehicles = [{ number: trainInfo.vehicle_number, isReverse: null }];
             console.log('rake is null - using vehicle_number', trainInfo);
         }
 
-        vehicleNumbers.forEach(vehicleNumber => {
-            let prevTrainOfWaggon = this.waggons[vehicleNumber];
+        vehicles.forEach(vehicle => {
+            let prevTrainOfWaggon = this.waggons[vehicle.number];
             if (prevTrainOfWaggon && prevTrainOfWaggon !== train) {
-                let pos = prevTrainOfWaggon.vehicles.indexOf(vehicleNumber);
+                let pos = prevTrainOfWaggon.vehicles.findIndex(v => v.number === vehicle.number);
                 if (pos !== -1) prevTrainOfWaggon.vehicles.splice(pos, 1);
 
                 // merge info from previous train:
@@ -132,18 +138,18 @@ class SBahnGui {
                 }
 
                 let actions = [];
-                if (!deletePrevTrain) actions.push('von Wagen ' + prevTrainOfWaggon.vehicles.join('+') + ' abgekuppelt');
-                if (train.vehicles.length > 0) actions.push('an Wagen ' + train.vehicles.join('+') + ' angekuppelt');
+                if (!deletePrevTrain) actions.push('von Wagen ' + prevTrainOfWaggon.vehicles.map(v => v.number).join('+') + ' abgekuppelt');
+                if (train.vehicles.length > 0) actions.push('an Wagen ' + train.vehicles.map(v => v.number).join('+') + ' angekuppelt');
 
                 if (actions.length > 0) {
-                    this.log(`${(new Date()).toLocaleTimeString()}: ${Stations[train.prevStation] || train.prevStation || ''}: Wagen ${vehicleNumber} wurde ${actions.join(' und ')}`);
+                    this.log(`${(new Date()).toLocaleTimeString()}: ${Stations[train.prevStation] || train.prevStation || ''}: Wagen ${vehicle.number} wurde ${actions.join(' und ')}`);
                 }
             }
 
-            this.waggons[vehicleNumber] = train;
-            if (!train.vehicles.includes(vehicleNumber)) train.vehicles.push(vehicleNumber);
+            this.waggons[vehicle.number] = train;
+            if (train.vehicles.findIndex(v => v.number === vehicle.number) === -1) train.vehicles.push(vehicle.number);
         });
-        if (trainInfo.rake) train.vehicles = vehicleNumbers; // for correct order
+        train.vehicles = vehicles; // for correct order
 
         train.lastUpdate = Date.now() - trainInfo.time_since_update;
 
@@ -211,14 +217,15 @@ class SBahnGui {
         }
 
         let waggonNode = waggonsNode.firstElementChild;
-        train.vehicles.forEach((vehicleId) => {
+        train.vehicles.forEach((vehicle) => {
             if (!waggonNode) {
                 waggonNode = createEl('li', 'waggon');
                 waggonsNode.appendChild(waggonNode);
             }
-            setText(waggonNode, vehicleId);
+            setText(waggonNode, vehicle.isReverse ? '..' + vehicle.number : vehicle.number + '..');
+            waggonNode.classList.toggle('is-reverse', vehicle.isReverse);
 
-            let vehicleInfo = this.vehicleInfos[vehicleId];
+            let vehicleInfo = this.vehicleInfos[vehicle.number];
             waggonNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern === true));
             waggonNode.classList.toggle('is-classic', !!(vehicleInfo && vehicleInfo.isModern === false));
 
