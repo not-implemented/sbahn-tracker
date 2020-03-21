@@ -28,7 +28,7 @@ offiziellen Echtzeitmap nicht zu sehen).
 - **timestamp** (double): Timestamp in ms, zu dem das Event am Server verarbeitet wurde (Beispiel: 1584365038813.984)
 - **event_timestamp** (double): Timestamp in ms, wann das Event im Fahrzeug ausgelöst wurde - Auflösung scheinbar nur sekundengenau (Beispiel: 1584365037000.0)
 - **delay** (float): Zeit in Sekunden, bis das Event aus dem Fahrzeug am Server verarbeitet wurde (etwa die Differenz zwischen event_timestamp und timestamp) (Beispiel: 1.759718)
-- **time_since_update** (int): Millisekunden seit dem letzten Event für diesen Zug (Differenz event_timestamp zu letztem Event) (Beispiel: 10000)
+- **time_since_update** (int|null): Millisekunden seit dem letzten Event für diesen Zug (Differenz event_timestamp zu letztem Event) - *null* wenn erstes Event (Beispiel: 10000)
 - **aimed_time_offset** (float|null): Aktuelle Verspätung in Sekunden - *null* wenn ohne Fahrplan unterwegs (Beispiel: 26.0)
     - Wird nur bei Ankunft neu berechnet, ungut bei Stationen mit "Puffer", da ein "Aufholen" erst ab der nächsten Station erkennbar ist
     - kann negativ sein (v.a. an Endstationen wenn Abfahrt in der Zukunft liegt)
@@ -79,7 +79,7 @@ offiziellen Echtzeitmap nicht zu sehen).
 - **time_intervals** (array): Array mit Infos zur Interpolation, vermutlich als Keyframes-Definition, vermutlich auf den mitgepushten "LineString" bezogen. Ein Eintrag hat folgende Werte:
     - Timestamp in ms (double): Vermutlich zeitlicher Bezug des Keyframes
     - Wert zwischen 0 und 1 (float): Vermutlich prozentualer Bezug des Keyframes
-    - Zahl (double): Kann *null* sein - v.a. bei Leerfahrt (Völlig unklar)
+    - Wert zwischen ca. -3 und +3 (double|null): Vermutlich Fahrtrichtung als Bogenmaß - *null* wenn unbekannt
     - Beispiel:  
     [1584373611002.26, 0, 0.06996005619603879],  
     [1584373646015.713, 0.25, 0.5999996954801623],  
