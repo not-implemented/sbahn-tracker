@@ -380,7 +380,7 @@ a:hover, a:active {
      transform: translateY(0);
 }
 /* /list of previous and next station */
-/* train infos like number and waggons */
+/* train infos like number and vehicles */
 .train-aside {
     order: 1;
     flex: 0 0 auto;
@@ -400,7 +400,7 @@ a:hover, a:active {
     text-align: center;
     color: #a0a0a0;
 }
-.waggons {
+.vehicles {
     flex: 1 1 auto;
     margin: 0;
     padding-left: 0;
@@ -409,7 +409,7 @@ a:hover, a:active {
     white-space: nowrap;
     overflow: hidden;
 }
-.waggon {
+.vehicle {
     display: inline-block;
     background: #c0c0c0;
     margin: 0 .1rem;
@@ -419,32 +419,32 @@ a:hover, a:active {
     line-height: 1.5rem;
     font-weight: bold;
 }
-.waggon:first-child {
+.vehicle:first-child {
     padding-left: 1.2rem;
     border-top-left-radius: .9rem;
 }
-.waggon:last-child {
+.vehicle:last-child {
     padding-right: .8rem;
     border-top-right-radius: .45rem;
 }
-.train-stopped .waggon {
+.train-stopped .vehicle {
     background: #ff5555;
     color: #ffebeb;
     text-shadow: 0 0 .1rem #b80000;
 }
-.waggon.is-modern:after {
+.vehicle.is-modern:after {
     content: "neu";
     display: block;
     position: absolute;
     top: -0.5em;
 }
-.waggon.is-classic:after {
+.vehicle.is-classic:after {
     content: "alt";
     display: block;
     position: absolute;
     top: -0.5em;
 }
-/* /train infos like number and waggons */
+/* /train infos like number and vehicles */
 /* error message */
 .lastUpdate {
     position: absolute;
