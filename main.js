@@ -48,7 +48,14 @@ class SBahnGui {
 
             if (location.hash === '#map' || location.hash.startsWith('#train/')) {
                 document.querySelector('#page-map').classList.toggle('is-active', true);
-                this.trackTrainId = parseInt(location.hash.replace('#train/', ''));
+
+                if (location.hash.startsWith('#train/')) {
+                    this.trackTrainId = parseInt(location.hash.replace('#train/', ''));
+                } else {
+                    this.trackTrainId = null;
+                }
+                document.querySelector('#train-details').classList.toggle('is-active', !!this.trackTrainId);
+
                 this.map.invalidateSize();
             } else {
                 document.querySelector('#page-list').classList.toggle('is-active', true);
