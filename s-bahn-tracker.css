@@ -188,7 +188,7 @@ a:hover, a:active {
     display: block;
 }
 /* list of train cards */
-#page-trains {
+#page-list {
     padding: 1.2rem .8rem;
 }
 #trains {
@@ -456,14 +456,14 @@ a:hover, a:active {
 }
 /* /error message */
 /* details of train */
-#page-train.is-active {
+#page-map.is-active {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     overflow: auto;
 }
 @media (orientation: landscape) and (min-width: 21.875em) {
-    #page-train.is-active {
+    #page-map.is-active {
         flex-direction: row;
     }
 }
