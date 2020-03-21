@@ -150,6 +150,8 @@ class SBahnGui {
         if (train.id === this.trackTrainId) {
             console.log(trainInfo);
 
+            this.updateTrainContainer(train, document.querySelector('#train-details .train'));
+
             let trNode = createEl('tr');
             let ts = (new Date(trainInfo.timestamp));
             trNode.appendChild(createTextEl('td', ts.toLocaleTimeString() + '.' + String(ts.getMilliseconds()).padStart(3, '0')));
@@ -184,24 +186,25 @@ class SBahnGui {
         this.updateLines(train);
     }
 
-    updateTrainContainer(train) {
-        let lineLogo = train.node.querySelector('.line-logo');
-        let trainNumber = train.node.querySelector('.train-number');
-        let stationPrev = train.node.querySelector('.station-prev');
-        let stationNext = train.node.querySelector('.station-next');
-        let trainHeader = train.node.querySelector('.train-header');
-        let waggonsNode = train.node.querySelector('.waggons');
+    updateTrainContainer(train, trainNode) {
+        trainNode = trainNode || train.node;
+        let lineLogo = trainNode.querySelector('.line-logo');
+        let trainNumber = trainNode.querySelector('.train-number');
+        let stationPrev = trainNode.querySelector('.station-prev');
+        let stationNext = trainNode.querySelector('.station-next');
+        let trainHeader = trainNode.querySelector('.train-header');
+        let waggonsNode = trainNode.querySelector('.waggons');
 
         setText(lineLogo, train.line.name);
         lineLogo.style.backgroundColor = train.line.color;
         lineLogo.style.color = train.line.text_color;
         trainHeader.style.backgroundColor = train.line.color + '20'; /* alpha 12.5% */
 
-        setText(train.node.querySelector('.destination'), Stations[train.destination] || train.destination);
+        setText(trainNode.querySelector('.destination'), Stations[train.destination] || train.destination);
         setText(trainNumber, train.number || '');
 
-        train.node.classList.toggle('train-stopped', train.state !== 'DRIVING');
-        train.node.classList.toggle('train-sided', train.lineIsOld || train.line.id === 99);
+        trainNode.classList.toggle('train-stopped', train.state !== 'DRIVING');
+        trainNode.classList.toggle('train-sided', train.lineIsOld || train.line.id === 99);
 
         if (train.prevStation === train.destination) {
             setText(stationPrev, '');
