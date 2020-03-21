@@ -14,18 +14,15 @@
 </head>
 <body>
     <header class="site-header">
-        <h1><img src="img/s-bahn-logo.svg" alt="S" class="logo" height="30px"> Bahn München <span>Live-Info</span></h1>
+        <h1><a href="#trains"><img src="img/s-bahn-logo.svg" alt="S" class="logo" height="30px"> Bahn München <span>Live-Info</span></a></h1>
 
-        <nav>
-            <ul>
-                <li><a href="#trains">Fuhrparkübersicht</a></li>
-            </ul>
+        <nav id="controls">
+            <a href="#trains">Fuhrparkübersicht</a>
+            <div class="filter">
+                <h3>Filter:</h3>
+                <div id="lines"></div>
+            </div>
         </nav>
-
-        <div id="controls">
-            <h3>Filter:</h3>
-            <nav id="lines"></nav>
-        </div>
     </header>
 
     <main class="site-main">
@@ -39,18 +36,18 @@
                 <table id="train-events">
                     <thead>
                         <tr>
-                            <th>ts</th>
-                            <th>event_ts</th>
-                            <th>t-since-up</th>
-                            <th>aimed-t-off</th>
-                            <th>delay</th>
+                            <th class="is-number">ts</th>
+                            <th class="is-number">event_ts</th>
+                            <th class="is-number">t-since-up</th>
+                            <th class="is-number">aimed-t-off</th>
+                            <th class="is-number">delay</th>
                             <th>state</th>
                             <th>event</th>
                             <th>ride-st</th>
-                            <th>tr-number</th>
+                            <th class="is-number">tr-number</th>
                             <th>stop-pt</th>
-                            <th>p-corr</th>
-                            <th>tr-vehicle</th>
+                            <th class="is-number">p-corr</th>
+                            <th class="is-number">tr-vehicle</th>
                         </tr>
                     </thead>
                     <tbody>

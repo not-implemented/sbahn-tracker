@@ -44,15 +44,15 @@ class SBahnGui {
             let pageTrainsNode = document.getElementById('page-trains');
             let pageTrainNode = document.getElementById('page-train');
 
-            pageTrainsNode.classList.toggle('active', false);
-            pageTrainNode.classList.toggle('active', false);
+            pageTrainsNode.classList.toggle('is-active', false);
+            pageTrainNode.classList.toggle('is-active', false);
 
             if (location.hash.startsWith('#train/')) {
-                pageTrainNode.classList.toggle('active', true);
+                pageTrainNode.classList.toggle('is-active', true);
                 this.trackTrainId = parseInt(location.hash.replace('#train/', ''));
                 this.map.invalidateSize();
             } else {
-                pageTrainsNode.classList.toggle('active', true);
+                pageTrainsNode.classList.toggle('is-active', true);
             }
         };
         window.onhashchange = syncHash;
