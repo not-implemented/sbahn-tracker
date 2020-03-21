@@ -79,26 +79,39 @@
                     </aside>
                     <div class="lastUpdate"></div>
                 </div>
+
                 <table id="train-events">
                     <thead>
                         <tr>
-                            <th class="is-number">ts</th>
-                            <th class="is-number">event_ts</th>
-                            <th class="is-number">t-since-up</th>
-                            <th class="is-number">aimed-t-off</th>
-                            <th class="is-number">delay</th>
+                            <th class="is-number">event-time</th>
+                            <th class="is-number">aimed-time-offset</th>
                             <th>state</th>
                             <th>event</th>
-                            <th>ride-st</th>
-                            <th class="is-number">tr-number</th>
-                            <th>stop-pt</th>
-                            <th class="is-number">p-corr</th>
-                            <th class="is-number">tr-vehicle</th>
+                            <th>ride-state</th>
+                            <th class="is-number">train-number</th>
+                            <th class="is-number">original-train-number</th>
+                            <th>stop-point-ds100</th>
+                            <th class="is-number" title="position-correction">pos-corr</th>
+                            <th class="is-number">transmitting-vehicle</th>
                         </tr>
                     </thead>
                     <tbody>
                     </tbody>
                 </table>
+                <template id="train-event">
+                    <tr>
+                        <td class="event-timestamp is-number"></td>
+                        <td class="aimed-time-offset is-number"></td>
+                        <td class="state"></td>
+                        <td class="event"></td>
+                        <td class="ride-state"></td>
+                        <td class="train-number is-number"></td>
+                        <td class="original-train-number is-number"></td>
+                        <td class="stop-point-ds100"></td>
+                        <td class="position-correction is-number"></td>
+                        <td class="transmitting-vehicle is-number"></td>
+                    </tr>
+                </template>
             </div>
         </div>
 
