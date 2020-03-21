@@ -33,7 +33,25 @@
         </div>
 
         <div id="page-map" class="page">
-            <div id="train-info">
+            <div id="map"></div>
+            <div id="train-details">
+                <div class="train">
+                    <header class="train-header">
+                        <div class="train-line"><span class="line-logo"></span></div>
+                        <h2 class="destination"></h2>
+                    </header>
+                    <main class="train-main">
+                        <ul class="stations">
+                            <li class="station-prev"><span class="strip"></span></li>
+                            <li class="station-next"><span class="strip"></span></li>
+                        </ul>
+                    </main>
+                    <aside class="train-aside">
+                        <span class="train-number"></span>
+                        <ul class="waggons"></ul>
+                    </aside>
+                    <div class="lastUpdate"></div>
+                </div>
                 <table id="train-events">
                     <thead>
                         <tr>
@@ -55,7 +73,6 @@
                     </tbody>
                 </table>
             </div>
-            <div id="map"></div>
         </div>
 
         <footer class="site-footer">Made with 🥨 in Munich — <a href="https://github.com/not-implemented/sbahn-tracker" target="_blank">Contribute to project</a></footer>
