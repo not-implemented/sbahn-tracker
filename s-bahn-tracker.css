@@ -427,22 +427,17 @@ a:hover, a:active {
     padding-right: .8rem;
     border-top-right-radius: .45rem;
 }
-.train-stopped .vehicle {
-    background: #ff5555;
-    color: #ffebeb;
-    text-shadow: 0 0 .1rem #b80000;
+.vehicle:not(.is-reverse):after {
+    content: '..';
 }
-.vehicle.is-modern:after {
-    content: "neu";
-    display: block;
-    position: absolute;
-    top: -0.5em;
+.vehicle.is-reverse:before {
+    content: '..';
 }
-.vehicle.is-classic:after {
-    content: "alt";
-    display: block;
-    position: absolute;
-    top: -0.5em;
+.vehicle.is-classic {
+    background: linear-gradient(180deg, #f07f7f 50%, #be9e9e 100%);
+}
+.vehicle.is-modern {
+    background: linear-gradient(180deg, #ff7f7f 50%, #ffd7d7 100%);
 }
 /* /train infos like number and vehicles */
 /* error message */

@@ -222,7 +222,7 @@ class SBahnGui {
                 vehicleNode = createEl('li', 'vehicle');
                 vehiclesNode.appendChild(vehicleNode);
             }
-            setText(vehicleNode, vehicle.isReverse ? '..' + vehicle.number : vehicle.number + '..');
+            setText(vehicleNode, vehicle.number);
             vehicleNode.classList.toggle('is-reverse', vehicle.isReverse);
 
             let vehicleInfo = this.vehicleInfos[vehicle.number];
