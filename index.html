@@ -22,6 +22,12 @@
             <div class="filter">
                 <h3>Filter:</h3>
                 <div id="lines"></div>
+                <template id="line">
+                    <label class="line">
+                        <input type="checkbox">
+                        <span class="line-logo"></span>
+                    </label>
+                </template>
             </div>
         </nav>
     </header>
@@ -29,6 +35,27 @@
     <main class="site-main">
         <div id="page-list" class="page">
             <ul id="trains"></ul>
+            <template id="train">
+                <li class="train">
+                    <header class="train-header">
+                        <div class="train-line"><span class="line-logo"></span></div>
+                        <h2 class="destination"></h2>
+                    </header>
+                    <main class="train-main">
+                        <ul class="stations">
+                            <li class="station-prev"><span class="strip"></span></li>
+                            <li class="station-next"><span class="strip"></span></li>
+                        </ul>
+                    </main>
+                    <aside class="train-aside">
+                        <span class="train-number"></span>
+                        <ul class="waggons"></ul>
+                        <a href="#train/{id}" class="details">+</a>
+                    </aside>
+                    <div class="lastUpdate"></div>
+                </li>
+            </template>
+
             <div id="log"></div>
         </div>
 
@@ -77,32 +104,5 @@
 
         <footer class="site-footer">Made with 🥨 in Munich — <a href="https://github.com/not-implemented/sbahn-tracker" target="_blank">Contribute to project</a></footer>
     </main>
-
-    <template id="line">
-        <label class="line">
-            <input type="checkbox">
-            <span class="line-logo"></span>
-        </label>
-    </template>
-    <template id="train">
-        <li class="train">
-            <header class="train-header">
-                <div class="train-line"><span class="line-logo"></span></div>
-                <h2 class="destination"></h2>
-            </header>
-            <main class="train-main">
-                <ul class="stations">
-                    <li class="station-prev"><span class="strip"></span></li>
-                    <li class="station-next"><span class="strip"></span></li>
-                </ul>
-            </main>
-            <aside class="train-aside">
-                <span class="train-number"></span>
-                <ul class="waggons"></ul>
-                <a href="#train/{id}" class="details">+</a>
-            </aside>
-            <div class="lastUpdate"></div>
-        </li>
-    </template>
 </body>
 </html>
