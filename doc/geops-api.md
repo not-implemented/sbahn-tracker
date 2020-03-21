@@ -23,7 +23,7 @@ offiziellen Echtzeitmap nicht zu sehen).
 ### content.properties
 
 - **train_id** (uint64): Eindeutige Zug-ID (Beispiel: 140477388333184)
-    - Ein Zug behält dieselbe ID, solange er in dieser Wagen-Konstellation unterwegs ist, auch wenn er die Richtung ändert, oder auf's Abstellgleis fährt
+    - Ein Zug behält dieselbe ID, solange er in dieser Fahrzeug-Konstellation unterwegs ist, auch wenn er die Richtung ändert, oder auf's Abstellgleis fährt
     - Nur bei Kuppelvorgängen werden neue IDs vergeben
 - **timestamp** (double): Timestamp in ms, zu dem das Event am Server verarbeitet wurde (Beispiel: 1584365038813.984)
 - **event_timestamp** (double): Timestamp in ms, wann das Event im Fahrzeug ausgelöst wurde - Auflösung scheinbar nur sekundengenau (Beispiel: 1584365037000.0)
@@ -60,15 +60,15 @@ offiziellen Echtzeitmap nicht zu sehen).
     - DRIVING: Türen zu
 - **ride_state** (string):
     - K: Normale Fahrt?
-    - X: Rangierfahrt/Leerfahrt? Wird aber manchmal von einem Waggon im Verbund gepushed (von hinteren Wagen), während der andere "K" pusht
+    - X: Rangierfahrt/Leerfahrt? Wird aber manchmal von einem Fahrzeug im Verbund gepushed (von hinteren Fahrzeug), während der andere "K" pusht
     - Z: Ziel erreicht/Leerfahrt? Wird an Endstation gepushed, aber auch bei Leerfahrt
     - ... insgesamt ziemlich unklar
-- **transmitting_vehicle** (string): Vollständige Wagennummer des aktuell pushenden Fahrzeugs (Beispiel: 948004231445)
+- **transmitting_vehicle** (string): Vollständige Fahrzeugnummer des aktuell pushenden Fahrzeugs (Beispiel: 948004231445)
     - 94800 = Präfix?
     - 423 = Baureihe
-    - 144 = Wagennummer
+    - 144 = Fahrzeugnummer
     - 5 = Prüfziffer
-- **vehicle_number** (string): Reine Wagennummer des pushenden Fahrzeugs (Beispiel: 144)
+- **vehicle_number** (string): Reine Fahrzeugnummer des pushenden Fahrzeugs (Beispiel: 144)
 - **raw_coordinates** (array[lon, lat]): Geogr. Breite/Länge - Position zum Zeitpunkt des event_timestamp (Beispiel: [11.780573806573102, 48.100563853952934])
 - **position_correction** (int): Werte von 0 bis 3 gesehen - noch unklar
 - **rake** (string|null): Wagenreihung (Beispiel: "948004231445;0;0;0;0;0;0;948004233540")
