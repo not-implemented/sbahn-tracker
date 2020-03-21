@@ -150,24 +150,10 @@ class SBahnGui {
         if (train.id === this.trackTrainId) {
             console.log(trainInfo);
 
-            this.updateTrainContainer(train, document.querySelector('#train-details .train'));
+            let trainNode = document.querySelector('#train-details .train');
 
-            let trNode = createEl('tr');
-            let ts = (new Date(trainInfo.timestamp));
-            trNode.appendChild(createTextEl('td', ts.toLocaleTimeString() + '.' + String(ts.getMilliseconds()).padStart(3, '0')));
-            let eventTs = (new Date(trainInfo.event_timestamp));
-            trNode.appendChild(createTextEl('td', eventTs.toLocaleTimeString() + '.' + String(eventTs.getMilliseconds()).padStart(3, '0')));
-            trNode.appendChild(createTextEl('td', trainInfo.time_since_update));
-            trNode.appendChild(createTextEl('td', trainInfo.aimed_time_offset));
-            trNode.appendChild(createTextEl('td', trainInfo.delay));
-            trNode.appendChild(createTextEl('td', trainInfo.state));
-            trNode.appendChild(createTextEl('td', trainInfo.event));
-            trNode.appendChild(createTextEl('td', trainInfo.ride_state));
-            trNode.appendChild(createTextEl('td', trainInfo.train_number));
-            trNode.appendChild(createTextEl('td', trainInfo.stop_point_ds100));
-            trNode.appendChild(createTextEl('td', trainInfo.position_correction));
-            trNode.appendChild(createTextEl('td', trainInfo.transmitting_vehicle));
-            document.querySelector('#train-events tbody').appendChild(trNode);
+            this.updateTrainContainer(train, trainNode);
+            this.logTrainEvent(trainInfo);
 
             this.map.setView([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]]);
 
@@ -263,6 +249,22 @@ class SBahnGui {
         }
 
         setText(train.node.querySelector('.lastUpdate'), infoText);
+    }
+
+    logTrainEvent(trainEvent) {
+        let trainEventNode = document.importNode(document.querySelector('template#train-event').content.firstElementChild, true);
+        trainEventNode.querySelector('.event-timestamp').textContent = (new Date(trainEvent.event_timestamp)).toLocaleTimeString();
+        trainEventNode.querySelector('.event-timestamp').title = 'Delay: ' + trainEvent.delay;
+        trainEventNode.querySelector('.aimed-time-offset').textContent = trainEvent.aimed_time_offset;
+        trainEventNode.querySelector('.state').textContent = trainEvent.state;
+        trainEventNode.querySelector('.event').textContent = trainEvent.event;
+        trainEventNode.querySelector('.ride-state').textContent = trainEvent.ride_state;
+        trainEventNode.querySelector('.train-number').textContent = trainEvent.train_number;
+        trainEventNode.querySelector('.original-train-number').textContent = trainEvent.original_train_number;
+        trainEventNode.querySelector('.stop-point-ds100').textContent = trainEvent.stop_point_ds100;
+        trainEventNode.querySelector('.position-correction').textContent = trainEvent.position_correction;
+        trainEventNode.querySelector('.transmitting-vehicle').textContent = trainEvent.transmitting_vehicle;
+        document.querySelector('#train-events tbody').appendChild(trainEventNode);
     }
 
     /**
@@ -363,12 +365,6 @@ class SBahnGui {
 function createEl(name, className) {
     let node = document.createElement(name);
     if (className) node.classList.add(className);
-    return node;
-}
-
-function createTextEl(name, text) {
-    let node = document.createElement(name);
-    node.textContent = text;
     return node;
 }
 

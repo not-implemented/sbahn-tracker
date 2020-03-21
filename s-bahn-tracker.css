@@ -390,7 +390,7 @@ a:hover, a:active {
     display: flex;
     align-items: center;
 }
-.train-number {
+.train .train-number {
     flex: 0 0 4rem;
     display: inline-block;
     margin: 0;
@@ -528,7 +528,7 @@ th {
 .train-header.is-old .line-logo {
     opacity: .5;
 }
-.train-number.is-old {
+.train .train-number.is-old {
     background: #ffebeb;
     color: #b80000;
     border-radius: .8rem;
