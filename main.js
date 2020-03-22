@@ -221,7 +221,6 @@ class SBahnGui {
             let direction = trainInfo.time_intervals[0][2];
             if (direction) {
                 direction = - direction / Math.PI * 180;
-                console.log(train.mapMarkerSvgNode.querySelector('path').transform);
                 train.mapMarkerSvgNode.querySelector('path').transform.baseVal.getItem(0).setRotate(direction, 5, 5);
                 train.mapMarkerSvgNode.querySelector('path').style.display = null;
             } else {
