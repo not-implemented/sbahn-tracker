@@ -49,12 +49,25 @@ class SBahnGui {
             if (location.hash === '#map' || location.hash.startsWith('#train/')) {
                 document.querySelector('#page-map').classList.toggle('is-active', true);
 
+                if (this.trains[this.trackTrainId]) {
+                    let train = this.trains[this.trackTrainId];
+                    train.mapMarkerSvgNode.querySelector('.main').style.stroke = '#fff';
+                }
+
                 if (location.hash.startsWith('#train/')) {
                     this.trackTrainId = parseInt(location.hash.replace('#train/', ''));
                 } else {
                     this.trackTrainId = null;
                 }
                 document.querySelector('#train-details').classList.toggle('is-active', !!this.trackTrainId);
+
+                if (this.trains[this.trackTrainId]) {
+                    let train = this.trains[this.trackTrainId];
+                    let trainNode = document.querySelector('#train-details .train');
+                    this.updateTrainContainer(train, trainNode);
+                    document.querySelector('#train-events tbody').textContent = '';
+                    train.mapMarkerSvgNode.querySelector('.main').style.stroke = '#f00';
+                }
 
                 this.map.invalidateSize();
             } else {
@@ -203,12 +216,6 @@ class SBahnGui {
         train.mapMarkerSvgNode.querySelector('.main').style.fill = train.line.color;
         train.mapMarkerSvgNode.querySelector('text').style.fill = train.line.text_color;
         train.mapMarkerSvgNode.querySelector('text').textContent = train.line.name;
-
-        if (train.id === this.trackTrainId) {
-            train.mapMarkerSvgNode.querySelector('.main').style.stroke = '#f00';
-        } else {
-            train.mapMarkerSvgNode.querySelector('.main').style.stroke = '#fff';
-        }
 
         if (trainInfo.time_intervals) {
             let direction = trainInfo.time_intervals[0][2];
