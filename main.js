@@ -142,6 +142,9 @@ class SBahnGui {
                     if (prevTrainOfVehicle.updateInterval) clearInterval(prevTrainOfVehicle.updateInterval);
                     if (prevTrainOfVehicle.node.parentNode) prevTrainOfVehicle.node.parentNode.removeChild(prevTrainOfVehicle.node);
                     prevTrainOfVehicle.node = null;
+                    if (prevTrainOfVehicle.mapMarker) prevTrainOfVehicle.mapMarker.remove();
+                    prevTrainOfVehicle.mapMarker = null;
+                    prevTrainOfVehicle.mapMarkerSvgNode = null;
                 }
 
                 let actions = [];
@@ -179,6 +182,43 @@ class SBahnGui {
 
             let latlng = event.geometry.coordinates.map(coord => [coord[1], coord[0]]);
             var polyline = L.polyline(latlng, {color: 'red'}).addTo(this.map);
+        }
+
+        if (!train.mapMarker) {
+            train.mapMarkerSvgNode = document.importNode(document.querySelector('template#train-marker').content.firstElementChild, true);
+            train.mapMarker = L.marker([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]], {
+                icon: L.divIcon({
+                    html: train.mapMarkerSvgNode,
+                    className: '',
+                    iconSize: [50, 50],
+                    iconAnchor: [25, 25]
+                }),
+                opacity: 0.75
+            }).addTo(this.map).on('click', (event) => {
+                location.hash = '#train/' + train.id;
+            });
+        } else {
+            train.mapMarker.setLatLng(L.latLng(trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]));
+        }
+        train.mapMarkerSvgNode.querySelector('.main').style.fill = train.line.color;
+        train.mapMarkerSvgNode.querySelector('text').style.fill = train.line.text_color;
+        train.mapMarkerSvgNode.querySelector('text').textContent = train.line.name;
+
+        if (train.id === this.trackTrainId) {
+            train.mapMarkerSvgNode.querySelector('.main').style.stroke = '#f00';
+        } else {
+            train.mapMarkerSvgNode.querySelector('.main').style.stroke = '#fff';
+        }
+
+        if (trainInfo.time_intervals) {
+            let direction = trainInfo.time_intervals[0][2];
+            if (direction) {
+                direction = - direction / Math.PI * 180;
+                console.log(train.mapMarkerSvgNode.querySelector('path').transform);
+                train.mapMarkerSvgNode.querySelector('path').transform.baseVal.getItem(0).setRotate(direction, 5, 5);
+            } else {
+                train.mapMarkerSvgNode.querySelector('path').style.display = 'none';
+            }
         }
 
         this.updateTrainContainer(train);
