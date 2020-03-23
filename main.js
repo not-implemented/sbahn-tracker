@@ -149,7 +149,7 @@ class SBahnGui {
 
             let prevTrainOfVehicle = vehicle.currentTrain;
             if (prevTrainOfVehicle && prevTrainOfVehicle !== train) {
-                let pos = prevTrainOfVehicle.vehicles.findIndex(v => v.number === vehicle.number);
+                let pos = prevTrainOfVehicle.vehicles.findIndex(v => v.id === vehicle.id);
                 if (pos !== -1) prevTrainOfVehicle.vehicles.splice(pos, 1);
 
                 // merge info from previous train:
@@ -190,7 +190,7 @@ class SBahnGui {
             }
 
             vehicle.currentTrain = train;
-            if (train.vehicles.findIndex(v => v.number === vehicle.number) === -1) train.vehicles.push(vehicle);
+            if (train.vehicles.findIndex(v => v.id === vehicle.id) === -1) train.vehicles.push(vehicle);
             return vehicle;
         });
 
