@@ -9,8 +9,8 @@ class SBahnGui {
         this.vehicles = new Map();
         this.vehicleInfos = new Map();
 
-        this.filteredLines = [];
-        this.trackTrainId = null;
+        this.selectedLineIds = [];
+        this.selectedTrainId = null;
 
         this.initMap();
         this.initNavigation();
@@ -43,20 +43,20 @@ class SBahnGui {
             if (location.hash === '#map' || location.hash.startsWith('#train/')) {
                 document.querySelector('#page-map').classList.toggle('is-active', true);
 
-                if (this.trains.has(this.trackTrainId)) {
-                    let train = this.trains.get(this.trackTrainId);
+                if (this.trains.has(this.selectedTrainId)) {
+                    let train = this.trains.get(this.selectedTrainId);
                     train.mapMarkerSvgNode.querySelector('.main').style.stroke = '#fff';
                 }
 
                 if (location.hash.startsWith('#train/')) {
-                    this.trackTrainId = parseInt(location.hash.replace('#train/', ''));
+                    this.selectedTrainId = parseInt(location.hash.replace('#train/', ''));
                 } else {
-                    this.trackTrainId = null;
+                    this.selectedTrainId = null;
                 }
-                document.querySelector('#train-details').classList.toggle('is-active', !!this.trackTrainId);
+                document.querySelector('#train-details').classList.toggle('is-active', !!this.selectedTrainId);
 
-                if (this.trains.has(this.trackTrainId)) {
-                    let train = this.trains.get(this.trackTrainId);
+                if (this.trains.has(this.selectedTrainId)) {
+                    let train = this.trains.get(this.selectedTrainId);
                     let trainNode = document.querySelector('#train-details .train');
                     this.updateTrainContainer(train, trainNode);
                     document.querySelector('#train-events tbody').textContent = '';
@@ -178,7 +178,7 @@ class SBahnGui {
 
         train.lastUpdate = Date.now() - trainInfo.time_since_update;
 
-        if (train.id === this.trackTrainId) {
+        if (train.id === this.selectedTrainId) {
             console.log(trainInfo);
 
             let trainNode = document.querySelector('#train-details .train');
@@ -347,7 +347,7 @@ class SBahnGui {
         }));
 
         this.trains.forEach(train => {
-            if (this.filteredLines.length > 0 && !this.filteredLines.includes(train.line.id)) {
+            if (this.selectedLineIds.length > 0 && !this.selectedLineIds.includes(train.line.id)) {
                 if (train.node.parentNode) train.node.parentNode.removeChild(train.node);
             } else {
                 if (train.node.parentNode) {
@@ -418,12 +418,12 @@ class SBahnGui {
     updateLineFilter() {
         let linesNode = document.getElementById('lines');
 
-        this.filteredLines = [];
+        this.selectedLineIds = [];
         linesNode.querySelectorAll('input:checked').forEach((node => {
-            this.filteredLines.push(parseInt(node.value, 10));
+            this.selectedLineIds.push(parseInt(node.value, 10));
         }));
 
-        linesNode.classList.toggle('selectAll', this.filteredLines.length === 0);
+        linesNode.classList.toggle('selectAll', this.selectedLineIds.length === 0);
 
         this.updateTrains();
     }
