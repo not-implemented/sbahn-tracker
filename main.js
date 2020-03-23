@@ -45,7 +45,7 @@ class SBahnGui {
 
                 if (this.trains.has(this.selectedTrainId)) {
                     let train = this.trains.get(this.selectedTrainId);
-                    train.mapMarkerSvgNode.querySelector('.main').style.stroke = '#fff';
+                    train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = '#fff';
                 }
 
                 if (location.hash.startsWith('#train/')) {
@@ -60,7 +60,7 @@ class SBahnGui {
                     let trainNode = document.querySelector('#train-details .train');
                     this.updateTrainContainer(train, trainNode);
                     document.querySelector('#train-events tbody').textContent = '';
-                    train.mapMarkerSvgNode.querySelector('.main').style.stroke = '#f00';
+                    train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = '#f00';
                 }
 
                 this.map.invalidateSize();
@@ -92,12 +92,14 @@ class SBahnGui {
         if (!train) {
             train = {
                 id: trainId,
-                node: document.importNode(document.querySelector('template#train').content.firstElementChild, true),
-                updateInterval: setInterval(() => this.updateTrain(train), 1000),
+                _gui: {
+                    node: document.importNode(document.querySelector('template#train').content.firstElementChild, true),
+                    updateInterval: setInterval(() => this.updateTrain(train), 1000),
+                },
                 vehicles: []
             };
 
-            let detailsLink = train.node.querySelector('.details');
+            let detailsLink = train._gui.node.querySelector('.details');
             detailsLink.href = detailsLink.href.replace('{id}', trainId);
 
             this.trains.set(trainId, train);
@@ -154,12 +156,12 @@ class SBahnGui {
                     this.updateTrainContainer(prevTrainOfVehicle);
                 } else {
                     this.trains.delete(prevTrainOfVehicle.id);
-                    if (prevTrainOfVehicle.updateInterval) clearInterval(prevTrainOfVehicle.updateInterval);
-                    if (prevTrainOfVehicle.node.parentNode) prevTrainOfVehicle.node.parentNode.removeChild(prevTrainOfVehicle.node);
-                    prevTrainOfVehicle.node = null;
-                    if (prevTrainOfVehicle.mapMarker) prevTrainOfVehicle.mapMarker.remove();
-                    prevTrainOfVehicle.mapMarker = null;
-                    prevTrainOfVehicle.mapMarkerSvgNode = null;
+                    if (prevTrainOfVehicle._gui.updateInterval) clearInterval(prevTrainOfVehicle._gui.updateInterval);
+                    if (prevTrainOfVehicle._gui.node.parentNode) prevTrainOfVehicle._gui.node.parentNode.removeChild(prevTrainOfVehicle._gui.node);
+                    prevTrainOfVehicle._gui.node = null;
+                    if (prevTrainOfVehicle._gui.mapMarker) prevTrainOfVehicle._gui.mapMarker.remove();
+                    prevTrainOfVehicle._gui.mapMarker = null;
+                    prevTrainOfVehicle._gui.mapMarkerSvgNode = null;
                 }
 
                 let actions = [];
@@ -199,11 +201,11 @@ class SBahnGui {
             var polyline = L.polyline(latlng, {color: 'red'}).addTo(this.map);
         }
 
-        if (!train.mapMarker) {
-            train.mapMarkerSvgNode = document.importNode(document.querySelector('template#train-marker').content.firstElementChild, true);
-            train.mapMarker = L.marker([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]], {
+        if (!train._gui.mapMarker) {
+            train._gui.mapMarkerSvgNode = document.importNode(document.querySelector('template#train-marker').content.firstElementChild, true);
+            train._gui.mapMarker = L.marker([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]], {
                 icon: L.divIcon({
-                    html: train.mapMarkerSvgNode,
+                    html: train._gui.mapMarkerSvgNode,
                     className: '',
                     iconSize: [50, 50],
                     iconAnchor: [25, 25]
@@ -213,20 +215,20 @@ class SBahnGui {
                 location.hash = '#train/' + train.id;
             });
         } else {
-            train.mapMarker.setLatLng(L.latLng(trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]));
+            train._gui.mapMarker.setLatLng(L.latLng(trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]));
         }
-        train.mapMarkerSvgNode.querySelector('.main').style.fill = train.line.color;
-        train.mapMarkerSvgNode.querySelector('text').style.fill = train.line.text_color;
-        train.mapMarkerSvgNode.querySelector('text').textContent = train.line.name;
+        train._gui.mapMarkerSvgNode.querySelector('.main').style.fill = train.line.color;
+        train._gui.mapMarkerSvgNode.querySelector('text').style.fill = train.line.text_color;
+        train._gui.mapMarkerSvgNode.querySelector('text').textContent = train.line.name;
 
         if (trainInfo.time_intervals) {
             let direction = trainInfo.time_intervals[0][2];
             if (direction) {
                 direction = - direction / Math.PI * 180;
-                train.mapMarkerSvgNode.querySelector('path').transform.baseVal.getItem(0).setRotate(direction, 5, 5);
-                train.mapMarkerSvgNode.querySelector('path').style.display = null;
+                train._gui.mapMarkerSvgNode.querySelector('path').transform.baseVal.getItem(0).setRotate(direction, 5, 5);
+                train._gui.mapMarkerSvgNode.querySelector('path').style.display = null;
             } else {
-                train.mapMarkerSvgNode.querySelector('path').style.display = 'none';
+                train._gui.mapMarkerSvgNode.querySelector('path').style.display = 'none';
             }
         }
 
@@ -235,7 +237,7 @@ class SBahnGui {
     }
 
     updateTrainContainer(train, trainNode) {
-        trainNode = trainNode || train.node;
+        trainNode = trainNode || train._gui.node;
         let lineLogo = trainNode.querySelector('.line-logo');
         let trainNumber = trainNode.querySelector('.train-number');
         let stationPrev = trainNode.querySelector('.station-prev');
@@ -311,7 +313,7 @@ class SBahnGui {
             infoText = 'Keine Info seit ' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
         }
 
-        setText(train.node.querySelector('.lastUpdate'), infoText);
+        setText(train._gui.node.querySelector('.lastUpdate'), infoText);
     }
 
     logTrainEvent(trainEvent) {
@@ -348,19 +350,19 @@ class SBahnGui {
 
         this.trains.forEach(train => {
             if (this.selectedLineIds.length > 0 && !this.selectedLineIds.includes(train.line.id)) {
-                if (train.node.parentNode) train.node.parentNode.removeChild(train.node);
+                if (train._gui.node.parentNode) train._gui.node.parentNode.removeChild(train._gui.node);
             } else {
-                if (train.node.parentNode) {
-                    if (train.node.previousSibling !== previousSibling) {
-                        train.node.parentNode.removeChild(train.node);
+                if (train._gui.node.parentNode) {
+                    if (train._gui.node.previousSibling !== previousSibling) {
+                        train._gui.node.parentNode.removeChild(train._gui.node);
                     }
                 }
 
-                if (!train.node.parentNode) {
+                if (!train._gui.node.parentNode) {
                     let refNode = previousSibling ? previousSibling.nextSibling : trainsNode.firstChild;
-                    trainsNode.insertBefore(train.node, refNode);
+                    trainsNode.insertBefore(train._gui.node, refNode);
                 }
-                previousSibling = train.node;
+                previousSibling = train._gui.node;
             }
         });
     }
@@ -379,7 +381,9 @@ class SBahnGui {
         if (!this.lines.has(lineId)) {
             this.lines.set(lineId, {
                 id: lineId,
-                node: this.createLineContainer(train.line)
+                _gui: {
+                    node: this.createLineContainer(train.line)
+                }
             });
 
             this.lines = new Map([...this.lines.entries()].sort(([, line1], [, line2]) => {
@@ -390,11 +394,11 @@ class SBahnGui {
         let previousSibling = null;
 
         this.lines.forEach(line => {
-            if (!line.node.parentNode) {
+            if (!line._gui.node.parentNode) {
                 let refNode = previousSibling ? previousSibling.nextSibling : linesNode.firstChild;
-                linesNode.insertBefore(line.node, refNode);
+                linesNode.insertBefore(line._gui.node, refNode);
             }
-            previousSibling = line.node;
+            previousSibling = line._gui.node;
         });
 
         this.updateLineFilter();
