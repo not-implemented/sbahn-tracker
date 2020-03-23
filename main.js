@@ -190,7 +190,7 @@ class SBahnGui {
             }
 
             vehicle.currentTrain = train;
-            if (train.vehicles.findIndex(v => v.number === vehicle.number) === -1) train.vehicles.push(vehicle.number);
+            if (train.vehicles.findIndex(v => v.number === vehicle.number) === -1) train.vehicles.push(vehicle);
             return vehicle;
         });
 
