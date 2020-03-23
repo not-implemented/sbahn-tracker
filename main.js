@@ -7,7 +7,7 @@ class SBahnGui {
         this.lines = new Map();
         this.trains = new Map();
         this.vehicles = new Map();
-        this.vehicleInfos = {};
+        this.vehicleInfos = new Map();
 
         this.filteredLines = [];
         this.trackTrainId = null;
@@ -74,10 +74,10 @@ class SBahnGui {
 
     loadVehicleInfos() {
         fetch('vehicle-info.php').then(response => response.json()).then(data => {
-            this.vehicleInfos = {};
+            this.vehicleInfos.clear();
             data.forEach(vehicleInfo => {
                 if (vehicleInfo.model !== '423') return;
-                this.vehicleInfos[vehicleInfo.number] = vehicleInfo;
+                this.vehicleInfos.set(vehicleInfo.number, vehicleInfo);
             });
 
             this.trains.forEach(train => this.updateTrainContainer(train));
@@ -281,7 +281,7 @@ class SBahnGui {
             setText(vehicleNode, vehicle.number);
             vehicleNode.classList.toggle('is-reverse', vehicle.isReverse);
 
-            let vehicleInfo = this.vehicleInfos[vehicle.number];
+            let vehicleInfo = this.vehicleInfos.get(vehicle.number);
             vehicleNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern === true));
             vehicleNode.classList.toggle('is-classic', !!(vehicleInfo && vehicleInfo.isModern === false));
 
