@@ -12,15 +12,7 @@ class SBahnGui {
         this.vehicles = {};
         this.vehicleInfos = {};
 
-        fetch('vehicle-info.php').then(response => response.json()).then(data => {
-            this.vehicleInfos = {};
-            data.forEach(vehicleInfo => {
-                if (vehicleInfo.model !== '423') return;
-                this.vehicleInfos[vehicleInfo.number] = vehicleInfo;
-            });
-
-            Object.values(this.trains).forEach(train => this.updateTrainContainer(train));
-        });
+        this.loadVehicleInfos();
 
         this.map = L.map('map').setView([48.137222222222, 11.575277777778], 13);
 
@@ -72,6 +64,18 @@ class SBahnGui {
         this.client = new SBahnClient('5cc87b12d7c5370001c1d655306122aa0a4743c489b497cb1afbec9b', console);
         this.client.on('trajectory', event => this.onTrajectoryEvent(event));
         this.client.connect();
+    }
+
+    loadVehicleInfos() {
+        fetch('vehicle-info.php').then(response => response.json()).then(data => {
+            this.vehicleInfos = {};
+            data.forEach(vehicleInfo => {
+                if (vehicleInfo.model !== '423') return;
+                this.vehicleInfos[vehicleInfo.number] = vehicleInfo;
+            });
+
+            Object.values(this.trains).forEach(train => this.updateTrainContainer(train));
+        });
     }
 
     onTrajectoryEvent(event) {
