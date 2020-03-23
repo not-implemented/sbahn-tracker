@@ -7,17 +7,9 @@ class SBahnGui {
         this.filteredLines = [];
 
         this.lines = {};
-        this.linesNode = document.getElementById('lines');
-
         this.trains = {};
-        this.trainsNode = document.getElementById('trains');
-
         this.trackTrainId = null;
-
-        this.logNode = document.getElementById('log');
-
         this.vehicles = {};
-
         this.vehicleInfos = {};
 
         fetch('vehicle-info.php').then(response => response.json()).then(data => {
@@ -332,6 +324,7 @@ class SBahnGui {
      * Intelligent reordering/inserting/removing of DOM nodes with minimal changes to DOM
      */
     updateTrains() {
+        let trainsNode = document.getElementById('trains');
         let previousSibling = null;
 
         Object.keys(this.trains).sort((id1, id2) => {
@@ -354,8 +347,8 @@ class SBahnGui {
                 }
 
                 if (!train.node.parentNode) {
-                    let refNode = previousSibling ? previousSibling.nextSibling : this.trainsNode.firstChild;
-                    this.trainsNode.insertBefore(train.node, refNode);
+                    let refNode = previousSibling ? previousSibling.nextSibling : trainsNode.firstChild;
+                    trainsNode.insertBefore(train.node, refNode);
                 }
                 previousSibling = train.node;
             }
@@ -363,12 +356,14 @@ class SBahnGui {
     }
 
     log(message) {
+        let logNode = document.getElementById('log');
         let messageNode = createEl('div', 'message');
         messageNode.textContent = message;
-        this.logNode.appendChild(messageNode);
+        logNode.appendChild(messageNode);
     }
 
     updateLines(train) {
+        let linesNode = document.getElementById('lines');
         let lineId = train.line.id;
         let line = this.lines[lineId];
 
@@ -387,8 +382,8 @@ class SBahnGui {
             let line = this.lines[id];
 
             if (!line.node.parentNode) {
-                let refNode = previousSibling ? previousSibling.nextSibling : this.linesNode.firstChild;
-                this.linesNode.insertBefore(line.node, refNode);
+                let refNode = previousSibling ? previousSibling.nextSibling : linesNode.firstChild;
+                linesNode.insertBefore(line.node, refNode);
             }
             previousSibling = line.node;
         });
@@ -412,12 +407,14 @@ class SBahnGui {
     }
 
     updateLineFilter() {
+        let linesNode = document.getElementById('lines');
+
         this.filteredLines = [];
-        this.linesNode.querySelectorAll('input:checked').forEach((node => {
+        linesNode.querySelectorAll('input:checked').forEach((node => {
             this.filteredLines.push(parseInt(node.value, 10));
         }));
 
-        this.linesNode.classList.toggle('selectAll', this.filteredLines.length === 0);
+        linesNode.classList.toggle('selectAll', this.filteredLines.length === 0);
 
         this.updateTrains();
     }
