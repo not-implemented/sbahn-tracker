@@ -5,7 +5,7 @@ import Stations from './modules/stations.js';
 class SBahnGui {
     constructor() {
         this.lines = new Map();
-        this.trains = {};
+        this.trains = new Map();
         this.trackTrainId = null;
         this.vehicles = {};
         this.vehicleInfos = {};
@@ -43,8 +43,8 @@ class SBahnGui {
             if (location.hash === '#map' || location.hash.startsWith('#train/')) {
                 document.querySelector('#page-map').classList.toggle('is-active', true);
 
-                if (this.trains[this.trackTrainId]) {
-                    let train = this.trains[this.trackTrainId];
+                if (this.trains.has(this.trackTrainId)) {
+                    let train = this.trains.get(this.trackTrainId);
                     train.mapMarkerSvgNode.querySelector('.main').style.stroke = '#fff';
                 }
 
@@ -55,8 +55,8 @@ class SBahnGui {
                 }
                 document.querySelector('#train-details').classList.toggle('is-active', !!this.trackTrainId);
 
-                if (this.trains[this.trackTrainId]) {
-                    let train = this.trains[this.trackTrainId];
+                if (this.trains.has(this.trackTrainId)) {
+                    let train = this.trains.get(this.trackTrainId);
                     let trainNode = document.querySelector('#train-details .train');
                     this.updateTrainContainer(train, trainNode);
                     document.querySelector('#train-events tbody').textContent = '';
@@ -80,14 +80,14 @@ class SBahnGui {
                 this.vehicleInfos[vehicleInfo.number] = vehicleInfo;
             });
 
-            Object.values(this.trains).forEach(train => this.updateTrainContainer(train));
+            this.trains.forEach(train => this.updateTrainContainer(train));
         });
     }
 
     onTrajectoryEvent(event) {
         let trainInfo = event.properties;
         let trainId = trainInfo.train_id;
-        let train = this.trains[trainId];
+        let train = this.trains.get(trainId);
 
         if (!train) {
             train = {
@@ -100,7 +100,7 @@ class SBahnGui {
             let detailsLink = train.node.querySelector('.details');
             detailsLink.href = detailsLink.href.replace('{id}', trainId);
 
-            this.trains[trainId] = train;
+            this.trains.set(trainId, train);
         }
 
         let stations = trainInfo.calls_stack;
@@ -153,7 +153,7 @@ class SBahnGui {
                 if (!deletePrevTrain) {
                     this.updateTrainContainer(prevTrainOfVehicle);
                 } else {
-                    delete this.trains[prevTrainOfVehicle.id];
+                    this.trains.delete(prevTrainOfVehicle.id);
                     if (prevTrainOfVehicle.updateInterval) clearInterval(prevTrainOfVehicle.updateInterval);
                     if (prevTrainOfVehicle.node.parentNode) prevTrainOfVehicle.node.parentNode.removeChild(prevTrainOfVehicle.node);
                     prevTrainOfVehicle.node = null;
@@ -337,16 +337,16 @@ class SBahnGui {
         let trainsNode = document.getElementById('trains');
         let previousSibling = null;
 
-        Object.keys(this.trains).sort((id1, id2) => {
-            let res = this.trains[id1].lineIsOld - this.trains[id2].lineIsOld;
-            if (res == 0) res = this.trains[id1].line.id - this.trains[id2].line.id;
+        this.trains = new Map([...this.trains.entries()].sort(([, train1], [, train2]) => {
+            let res = train1.lineIsOld - train2.lineIsOld;
+            if (res == 0) res = train1.line.id - train2.line.id;
             // gerade Zugnummern Richtung Westen, ungerade Richtung Osten:
-            if (res == 0) res = this.trains[id1].number % 2 - this.trains[id2].number % 2;
-            if (res == 0) res = this.trains[id1].number - this.trains[id2].number;
+            if (res == 0) res = train1.number % 2 - train2.number % 2;
+            if (res == 0) res = train1.number - train2.number;
             return res;
-        }).forEach((id) => {
-            let train = this.trains[id];
+        }));
 
+        this.trains.forEach(train => {
             if (this.filteredLines.length > 0 && !this.filteredLines.includes(train.line.id)) {
                 if (train.node.parentNode) train.node.parentNode.removeChild(train.node);
             } else {
