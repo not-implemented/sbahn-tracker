@@ -76,8 +76,15 @@ class SBahnGui {
         fetch('vehicle-info.php').then(response => response.json()).then(data => {
             this.vehicleInfos.clear();
             data.forEach(vehicleInfo => {
-                if (vehicleInfo.model !== '423') return;
-                this.vehicleInfos.set(vehicleInfo.number, vehicleInfo);
+                // Bahn-Prüfziffer mit https://de.wikipedia.org/wiki/Luhn-Algorithmus berechnen:
+                let checksum = [...vehicleInfo.model, ...vehicleInfo.number].reverse().reduce((sum, digit, i) => {
+                    digit = parseInt(digit, 10);
+                    if (i % 2 === 0) digit *= 2;
+                    if (digit > 9) digit -= 9;
+                    return sum + digit;
+                }, 0);
+                let id = parseInt('94800' + vehicleInfo.model + vehicleInfo.number + (10 - checksum % 10), 10);
+                this.vehicleInfos.set(id, vehicleInfo);
             });
 
             this.trains.forEach(train => this.updateTrainContainer(train));
@@ -292,7 +299,7 @@ class SBahnGui {
             setText(vehicleNode, vehicle.number);
             vehicleNode.classList.toggle('is-reverse', vehicle.isReverse);
 
-            let vehicleInfo = this.vehicleInfos.get(vehicle.number);
+            let vehicleInfo = this.vehicleInfos.get(vehicle.id);
             vehicleNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern === true));
             vehicleNode.classList.toggle('is-classic', !!(vehicleInfo && vehicleInfo.isModern === false));
 
