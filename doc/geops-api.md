@@ -58,6 +58,7 @@ offiziellen Echtzeitmap nicht zu sehen).
 - **state** (string):
     - BOARDING: Türen offen
     - DRIVING: Türen zu
+    - *null*: ???
 - **ride_state** (string):
     - K: Normale Fahrt?
     - X: Rangierfahrt/Leerfahrt? Wird aber manchmal von einem Fahrzeug im Verbund gepushed (von hinteren Fahrzeug), während der andere "K" pusht
