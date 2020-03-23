@@ -6,11 +6,11 @@ class SBahnGui {
     constructor() {
         this.lines = new Map();
         this.trains = new Map();
-        this.trackTrainId = null;
-        this.vehicles = {};
+        this.vehicles = new Map();
         this.vehicleInfos = {};
 
         this.filteredLines = [];
+        this.trackTrainId = null;
 
         this.initMap();
         this.initNavigation();
@@ -129,7 +129,7 @@ class SBahnGui {
         }
 
         vehicles.forEach(vehicle => {
-            let prevTrainOfVehicle = this.vehicles[vehicle.number];
+            let prevTrainOfVehicle = this.vehicles.get(vehicle.number);
             if (prevTrainOfVehicle && prevTrainOfVehicle !== train) {
                 let pos = prevTrainOfVehicle.vehicles.findIndex(v => v.number === vehicle.number);
                 if (pos !== -1) prevTrainOfVehicle.vehicles.splice(pos, 1);
@@ -171,7 +171,7 @@ class SBahnGui {
                 }
             }
 
-            this.vehicles[vehicle.number] = train;
+            this.vehicles.set(vehicle.number, train);
             if (train.vehicles.findIndex(v => v.number === vehicle.number) === -1) train.vehicles.push(vehicle.number);
         });
         train.vehicles = vehicles; // for correct order
