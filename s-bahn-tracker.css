@@ -370,8 +370,9 @@ a:hover, a:active {
     content: "Endhaltestelle";
     color: #a0a0a0;
 }
-.station-next:empty {
-    display: none;
+.station-next:empty,
+.station-next .strip:empty {
+    margin-top: -.6rem;
 }
 .train-stopped .station-prev {
     font-weight: bold;
@@ -410,6 +411,7 @@ a:hover, a:active {
     overflow: hidden;
 }
 .vehicle {
+    position: relative;
     display: inline-block;
     background: #c0c0c0;
     margin: 0 .1rem;
@@ -427,17 +429,45 @@ a:hover, a:active {
     padding-right: .8rem;
     border-top-right-radius: .45rem;
 }
-.vehicle:not(.is-reverse):after {
-    content: '..';
+.vehicle:not(.is-reverse)::before {
+    content: '‹';
+    position: absolute;
+    left: .3rem;
+    font-size: 1.2rem;
+    line-height: 1.4rem;
+    font-weight: bold;
 }
-.vehicle.is-reverse:before {
-    content: '..';
+.vehicle:not(.is-reverse):first-child::before {
+    left: .6rem;
+}
+.vehicle.is-reverse::after {
+    content: '›';
+    position: absolute;
+    right: .3rem;
+    font-size: 1.2rem;
+    line-height: 1.4rem;
+    font-weight: bold;
 }
 .vehicle.is-classic {
     background: linear-gradient(180deg, #f07f7f 50%, #be9e9e 100%);
 }
 .vehicle.is-modern {
     background: linear-gradient(180deg, #ff7f7f 50%, #ffd7d7 100%);
+}
+.icon-info {
+    font-size: 1.5rem;
+    line-height: 1;
+    width: 1em;
+    height: 1em;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 50%;
+    color: #fff;
+    background: #606060;
+}
+.icon-info:hover {
+    color: #a0a0a0;
+    background: #333;
 }
 /* /train infos like number and vehicles */
 /* error message */

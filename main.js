@@ -110,7 +110,7 @@ class SBahnGui {
                 vehicles: []
             };
 
-            let detailsLink = train._gui.node.querySelector('.details');
+            let detailsLink = train._gui.node.querySelector('.to-train-details');
             detailsLink.href = detailsLink.href.replace('{id}', trainId);
 
             this.trains.set(trainId, train);
