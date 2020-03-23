@@ -4,13 +4,13 @@ import Stations from './modules/stations.js';
 
 class SBahnGui {
     constructor() {
-        this.filteredLines = [];
-
-        this.lines = {};
+        this.lines = new Map();
         this.trains = {};
         this.trackTrainId = null;
         this.vehicles = {};
         this.vehicleInfos = {};
+
+        this.filteredLines = [];
 
         this.initMap();
         this.initNavigation();
@@ -375,22 +375,21 @@ class SBahnGui {
     updateLines(train) {
         let linesNode = document.getElementById('lines');
         let lineId = train.line.id;
-        let line = this.lines[lineId];
 
-        if (!line) {
-            line = {
-                node: this.createLineContainer(train.line),
-            };
-            this.lines[lineId] = line;
+        if (!this.lines.has(lineId)) {
+            this.lines.set(lineId, {
+                id: lineId,
+                node: this.createLineContainer(train.line)
+            });
+
+            this.lines = new Map([...this.lines.entries()].sort(([, line1], [, line2]) => {
+                return line1.id - line2.id;
+            }));
         }
 
         let previousSibling = null;
 
-        Object.keys(this.lines).sort((id1, id2) => {
-            return id1 - id2;
-        }).forEach((id) => {
-            let line = this.lines[id];
-
+        this.lines.forEach(line => {
             if (!line.node.parentNode) {
                 let refNode = previousSibling ? previousSibling.nextSibling : linesNode.firstChild;
                 linesNode.insertBefore(line.node, refNode);
