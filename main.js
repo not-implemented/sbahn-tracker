@@ -10,7 +10,7 @@ class SBahnGui {
         this.vehicleInfos = new Map();
 
         this.selectedLineIds = [];
-        this.selectedTrainId = null;
+        this.selectedTrainIds = [];
 
         this.initMap();
         this.initNavigation();
@@ -43,25 +43,29 @@ class SBahnGui {
             if (location.hash === '#map' || location.hash.startsWith('#train/')) {
                 document.querySelector('#page-map').classList.toggle('is-active', true);
 
-                if (this.trains.has(this.selectedTrainId)) {
-                    let train = this.trains.get(this.selectedTrainId);
-                    train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = '#fff';
-                }
+                this.selectedTrainIds.forEach(selectedTrainId => {
+                    if (this.trains.has(selectedTrainId)) {
+                        let train = this.trains.get(selectedTrainId);
+                        train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = '#fff';
+                    }
+                });
 
                 if (location.hash.startsWith('#train/')) {
-                    this.selectedTrainId = parseInt(location.hash.replace('#train/', ''));
+                    this.selectedTrainIds = location.hash.replace('#train/', '').split(',').map(id => parseInt(id, 10));
                 } else {
-                    this.selectedTrainId = null;
+                    this.selectedTrainIds = [];
                 }
-                document.querySelector('#train-details').classList.toggle('is-active', !!this.selectedTrainId);
+                document.querySelector('#train-details').classList.toggle('is-active', this.selectedTrainIds.length > 0);
 
-                if (this.trains.has(this.selectedTrainId)) {
-                    let train = this.trains.get(this.selectedTrainId);
-                    let trainNode = document.querySelector('#train-details .train');
-                    this.updateTrainContainer(train, trainNode);
-                    document.querySelector('#train-events tbody').textContent = '';
-                    train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = '#f00';
-                }
+                this.selectedTrainIds.forEach(selectedTrainId => {
+                    if (this.trains.has(selectedTrainId)) {
+                        let train = this.trains.get(selectedTrainId);
+                        let trainNode = document.querySelector('#train-details .train');
+                        this.updateTrainContainer(train, trainNode);
+                        document.querySelector('#train-events tbody').textContent = '';
+                        train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = '#f00';
+                    }
+                });
 
                 this.map.invalidateSize();
             } else {
@@ -198,7 +202,7 @@ class SBahnGui {
 
         train.lastUpdate = Date.now() - trainInfo.time_since_update;
 
-        if (train.id === this.selectedTrainId) {
+        if (this.selectedTrainIds.includes(train.id)) {
             console.log(trainInfo);
 
             let trainNode = document.querySelector('#train-details .train');
@@ -230,7 +234,14 @@ class SBahnGui {
                 }),
                 opacity: 0.75
             }).addTo(this.map).on('click', (event) => {
-                location.hash = '#train/' + train.id;
+                let ids = [];
+                if (event.originalEvent.ctrlKey) ids = [...this.selectedTrainIds];
+
+                let idx = ids.indexOf(train.id);
+                if (idx === -1) ids.push(train.id);
+                else ids.splice(idx, 1);
+
+                location.hash = '#train/' + ids.join(',');
             });
         } else {
             train._gui.mapMarker.setLatLng(L.latLng(trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]));
