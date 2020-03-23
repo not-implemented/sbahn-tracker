@@ -123,15 +123,24 @@ class SBahnGui {
             vehicles = trainInfo.rake.split(';').chunk(4).map(vehicle => {
                 let isReverse = vehicle[0] === '0';
                 let refWaggon = vehicle[isReverse ? 3 : 0];
-                return { number: refWaggon.substr(-4, 3), isReverse };
+                return { id: parseInt(refWaggon, 10), number: refWaggon.substr(-4, 3), isReverse };
             });
         } else {
-            vehicles = [{ number: trainInfo.vehicle_number, isReverse: null }];
-            console.log('rake is null - using vehicle_number', trainInfo);
+            // fallback if rake is not known:
+            vehicles = [{ id: parseInt(trainInfo.transmitting_vehicle, 10), number: trainInfo.vehicle_number, isReverse: null }];
         }
 
-        vehicles.forEach(vehicle => {
-            let prevTrainOfVehicle = this.vehicles.get(vehicle.number);
+        train.vehicles = vehicles.map(newVehicle => {
+            let vehicle = this.vehicles.get(newVehicle.id);
+            if (!vehicle) {
+                vehicle = newVehicle;
+                this.vehicles.set(vehicle.id, vehicle);
+            } else {
+                vehicle.number = newVehicle.number;
+                vehicle.isReverse = newVehicle.isReverse;
+            }
+
+            let prevTrainOfVehicle = vehicle.currentTrain;
             if (prevTrainOfVehicle && prevTrainOfVehicle !== train) {
                 let pos = prevTrainOfVehicle.vehicles.findIndex(v => v.number === vehicle.number);
                 if (pos !== -1) prevTrainOfVehicle.vehicles.splice(pos, 1);
@@ -173,10 +182,10 @@ class SBahnGui {
                 }
             }
 
-            this.vehicles.set(vehicle.number, train);
+            vehicle.currentTrain = train;
             if (train.vehicles.findIndex(v => v.number === vehicle.number) === -1) train.vehicles.push(vehicle.number);
+            return vehicle;
         });
-        train.vehicles = vehicles; // for correct order
 
         train.lastUpdate = Date.now() - trainInfo.time_since_update;
 
