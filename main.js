@@ -130,6 +130,8 @@ class SBahnGui {
             vehicles = trainInfo.rake.split(';').chunk(4).map(vehicle => {
                 let isReverse = vehicle[0] === '0';
                 let refWaggon = vehicle[isReverse ? 3 : 0];
+                // folgender Fall trat auf - war eigentlich ein Langzug (vermutlich Bug): rake: "948004232062;0;0;0;0;0;0;948004231817;0"
+                if (!refWaggon) return { id: null, number: vehicle[0] || '???', isReverse: null };
                 return { id: parseInt(refWaggon, 10), number: refWaggon.substr(-4, 3), isReverse };
             });
         } else {
@@ -141,7 +143,7 @@ class SBahnGui {
             let vehicle = this.vehicles.get(newVehicle.id);
             if (!vehicle) {
                 vehicle = newVehicle;
-                this.vehicles.set(vehicle.id, vehicle);
+                if (vehicle.id !== null) this.vehicles.set(vehicle.id, vehicle);
             } else {
                 vehicle.number = newVehicle.number;
                 vehicle.isReverse = newVehicle.isReverse;
@@ -166,7 +168,7 @@ class SBahnGui {
                     train.prevStationIsOld = true;
                 }
 
-                let deletePrevTrain = prevTrainOfVehicle.vehicles.length === 0;
+                let deletePrevTrain = !prevTrainOfVehicle.vehicles.some(v => v.id !== null);
 
                 if (!deletePrevTrain) {
                     this.updateTrainContainer(prevTrainOfVehicle);
