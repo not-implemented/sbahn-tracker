@@ -87,9 +87,9 @@ a:hover, a:active {
     font-size: 2.4rem;
     line-height: 1;
 }
-.site-header a,
-.site-header a:hover,
-.site-header a:active {
+.site-header h1 a,
+.site-header h1 a:hover,
+.site-header h1 a:active {
     color: #333;
     text-decoration: none;
 }
@@ -100,36 +100,34 @@ a:hover, a:active {
     color: #a0a0a0;
 }
 /* train line filter */
-#controls {
-    flex: 0 1 auto;
-}
-#controls > a {
-    display: none;
-    margin: .6rem 1.6rem .6rem 0;
+#nav > a {
+    margin: .6rem .8rem;
     padding: .5rem .8rem .4rem;
+    border: 1px solid rgba(0, 111, 53, .35);
     border-radius: .6rem;
     font-size: 1.5rem;
     line-height: 1;
     font-weight: bold;
-    background: #006f35;
-    color: #fff;
     text-decoration: none;
+    transition: border .2s ease-in-out, background .2s ease-in-out;
 }
-
-@media (min-width: 54em) {
-    #controls > a {
-        display: inline-block;
-    }
+#nav > a:hover,
+#nav > a:active {
+    background: rgba(0, 111, 53, .15);
+    border-color: rgba(0, 111, 53, .5);
 }
-#controls > a:hover,
-#controls > a:active {
+#filter {
+    flex: 0 1 auto;
+}
+#filter > a:hover,
+#filter > a:active {
     color: #fff;
 }
-#controls .filter {
+#filter .filter {
     display: inline-block;
     margin: .6rem 0;
 }
-#controls h3 {
+#filter h3 {
     display: inline-block;
     margin: 0 .6rem 0 0;
     font-size: .75em;
@@ -529,9 +527,8 @@ table {
     border: 0;
     background: #fff;
 }
-
-td,
-th {
+th,
+td {
     vertical-align: top;
     padding: .3rem .4rem;
     text-align: left;
