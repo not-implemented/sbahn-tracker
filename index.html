@@ -90,24 +90,26 @@
                     <div class="lastUpdate"></div>
                 </div>
 
-                <table id="train-events">
-                    <thead>
-                        <tr>
-                            <th class="is-number">event-time</th>
-                            <th class="is-number">aimed-time-offset</th>
-                            <th>state</th>
-                            <th>event</th>
-                            <th>ride-state</th>
-                            <th class="is-number">train-number</th>
-                            <th class="is-number">original-train-number</th>
-                            <th>stop-point-ds100</th>
-                            <th class="is-number" title="position-correction">pos-corr</th>
-                            <th class="is-number">transmitting-vehicle</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                <div id="train-events">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="is-number">event-time</th>
+                                <th class="is-number">aimed-time-offset</th>
+                                <th>state</th>
+                                <th>event</th>
+                                <th>ride-state</th>
+                                <th class="is-number">train-number</th>
+                                <th class="is-number">original-train-number</th>
+                                <th>stop-point-ds100</th>
+                                <th class="is-number" title="position-correction">pos-corr</th>
+                                <th class="is-number">transmitting-vehicle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
                 <template id="train-event">
                     <tr>
                         <td class="event-timestamp is-number"></td>

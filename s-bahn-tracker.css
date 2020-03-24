@@ -482,6 +482,7 @@ a:hover, a:active {
 /* /error message */
 /* details of train */
 #page-map.is-active {
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -496,13 +497,30 @@ a:hover, a:active {
     display: none;
     flex: 1 0 50%;
     overflow: auto;
-    padding: 1.2rem .8rem;
+    z-index: -1;
 }
 #train-details.is-active {
     display: block;
 }
+#train-details .train {
+    border-radius: 0;
+}
+#train-details .train-header {
+    border-radius: 0;
+}
+#train-events {
+    padding: .6rem .7rem;
+    background: #fff;
+    overflow: auto;
+}
 #map {
-    flex: 1 0 50%;
+    flex: 1 0 25%;
+    box-shadow: 0 0 .6rem .3rem rgba(0,0,0,.15);
+}
+@media (orientation: landscape) and (min-width: 21.875em) {
+    #map {
+        flex-basis: 50%;
+    }
 }
 table {
     border-collapse: collapse;
@@ -517,10 +535,21 @@ th {
     vertical-align: top;
     padding: .3rem .4rem;
     text-align: left;
+    font-size: 1.2rem;
+    line-height: 1.5;
 }
 th {
     font-weight: bold;
     border-bottom: 1px solid #c0c0c0;
+}
+tbody tr {
+    background: #f0f0f0;
+}
+tbody tr:nth-child(odd) {
+    background: #fff;
+}
+table .is-number {
+    text-align: right;
 }
 /* /details of train */
 /* /SITE MAIN */
