@@ -15,20 +15,19 @@
 <body>
     <header class="site-header">
         <h1><a href="#"><img src="img/s-bahn-logo.svg" alt="S" class="logo" height="30px"> Bahn München <span>Live</span></a></h1>
-
-        <nav id="controls">
+        <nav id="nav">
             <a href="#list">Liste</a>
             <a href="#map">Karte</a>
-            <div class="filter">
-                <h3>Filter:</h3>
-                <div id="lines"></div>
-                <template id="line">
-                    <label class="line">
-                        <input type="checkbox">
-                        <span class="line-logo"></span>
-                    </label>
-                </template>
-            </div>
+        </nav>
+        <nav id="filter">
+            <h3>Filter:</h3>
+            <div id="lines"></div>
+            <template id="line">
+                <label class="line">
+                    <input type="checkbox">
+                    <span class="line-logo"></span>
+                </label>
+            </template>
         </nav>
     </header>
 
