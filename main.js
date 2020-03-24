@@ -18,6 +18,7 @@ class SBahnGui {
         this.loadVehicleInfos();
 
         this.client = new SBahnClient('put-api-key-here', console);
+        this.client.on('station', event => this.onStationEvent(event));
         this.client.on('trajectory', event => this.onTrajectoryEvent(event));
         this.client.connect();
     }
@@ -129,6 +130,7 @@ class SBahnGui {
         train.prevStationIsOld = train.prevStation && !trainInfo.stop_point_ds100;
         let pos = stations ? stations.indexOf(trainInfo.stop_point_ds100) : -1;
         train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
+        train.coordinates = [trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]];
 
         let vehicles;
         if (trainInfo.rake !== null) {
@@ -266,6 +268,14 @@ class SBahnGui {
         this.updateLines(train);
     }
 
+    onStationEvent(event) {
+        this.stations.forEach(station => {
+            if (station.id === event.properties.uic) {
+                station.coordinates = [event.geometry.coordinates[1], event.geometry.coordinates[0]];
+            }
+        });
+    }
+
     getStationName(abbrev) {
         let station = this.stations.get(abbrev);
         return station && station.name || abbrev || '';
@@ -309,6 +319,8 @@ class SBahnGui {
             setText(stationNext.querySelector('.strip'), this.getStationName(train.nextStation));
         }
 
+        trainNode.querySelector('.progress .bar').style.width = this.calcProgress(train) + '%';
+
         let vehicleNode = vehiclesNode.firstElementChild;
         train.vehicles.forEach((vehicle) => {
             if (!vehicleNode) {
@@ -336,6 +348,33 @@ class SBahnGui {
 
         this.updateTrain(train);
         this.updateTrains();
+    }
+
+    calcProgress(train) {
+        if (train.state !== 'DRIVING') return 0;
+
+        let prevStation = this.stations.get(train.prevStation);
+        let nextStation = this.stations.get(train.nextStation);
+
+        if(prevStation && prevStation.coordinates && nextStation && nextStation.coordinates) {
+            let toPrev = this.calcDistance(train.coordinates, prevStation.coordinates);
+            let toNext = this.calcDistance(train.coordinates, nextStation.coordinates);
+
+            return toPrev / (toPrev + toNext) * 100;
+        }
+
+        return 0;
+    }
+
+    calcDistance(coord1, coord2) {
+        coord1 = [coord1[0] / 180 * Math.PI, coord1[1] / 180 * Math.PI];
+        coord2 = [coord2[0] / 180 * Math.PI, coord2[1] / 180 * Math.PI];
+
+        let distanceRadian = Math.acos(Math.sin(coord1[1]) * Math.sin(coord2[1]) + Math.cos(coord1[1]) * Math.cos(coord2[1]) * Math.cos(coord2[0] - coord1[0]));
+        let distanceSm = distanceRadian / Math.PI * 180 * 60;
+        let distanceKm = distanceSm * 1.851851851;
+
+        return distanceKm;
     }
 
     updateTrain(train) {

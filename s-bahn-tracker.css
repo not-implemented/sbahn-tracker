@@ -372,6 +372,16 @@ a:hover, a:active {
 .station-next .strip:empty {
     margin-top: -.6rem;
 }
+.progress {
+    background-color: #bdd9f3;
+    width: 10rem;
+    height: 0.5rem;
+}
+.progress .bar {
+    background-color: #2b68a1;
+    width: 0;
+    height: 100%;
+}
 .train-stopped .station-prev {
     font-weight: bold;
 }
