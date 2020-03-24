@@ -8,6 +8,7 @@ class SBahnGui {
         this.trains = new Map();
         this.vehicles = new Map();
         this.vehicleInfos = new Map();
+        this.stations = new Map(Object.entries(Stations));
 
         this.selectedLineIds = [];
         this.selectedTrainIds = [];
@@ -191,7 +192,7 @@ class SBahnGui {
                 if (train.vehicles.length > 0) actions.push('an Wagen ' + train.vehicles.map(v => v.number).join('+') + ' angekuppelt');
 
                 if (actions.length > 0) {
-                    this.log(`${(new Date()).toLocaleTimeString()}: ${Stations[train.prevStation] || train.prevStation || ''}: Wagen ${vehicle.number} wurde ${actions.join(' und ')}`);
+                    this.log(`${(new Date()).toLocaleTimeString()}: ${this.getStationName(train.prevStation)}: Wagen ${vehicle.number} wurde ${actions.join(' und ')}`);
                 }
             }
 
@@ -265,6 +266,11 @@ class SBahnGui {
         this.updateLines(train);
     }
 
+    getStationName(abbrev) {
+        let station = this.stations.get(abbrev);
+        return station && station.name || abbrev || '';
+    }
+
     updateTrainContainer(train, trainNode) {
         trainNode = trainNode || train._gui.node;
         let lineLogo = trainNode.querySelector('.line-logo');
@@ -279,7 +285,7 @@ class SBahnGui {
         lineLogo.style.color = train.line.text_color;
         trainHeader.style.backgroundColor = train.line.color + '20'; /* alpha 12.5% */
 
-        setText(trainNode.querySelector('.destination'), Stations[train.destination] || train.destination);
+        setText(trainNode.querySelector('.destination'), this.getStationName(train.destination));
         setText(trainNumber, train.number || '');
 
         trainNode.classList.toggle('train-stopped', train.state !== 'DRIVING');
@@ -291,7 +297,7 @@ class SBahnGui {
             if (!stationPrev.querySelector('.strip')) {
                 stationPrev.appendChild(createEl('span', 'strip'));
             }
-            setText(stationPrev.querySelector('.strip'), Stations[train.prevStation] || train.prevStation || '');
+            setText(stationPrev.querySelector('.strip'), this.getStationName(train.prevStation));
         }
 
         if (train.nextStation === train.destination) {
@@ -300,7 +306,7 @@ class SBahnGui {
             if (!stationNext.querySelector('.strip')) {
                 stationNext.appendChild(createEl('span', 'strip'));
             }
-            setText(stationNext.querySelector('.strip'), Stations[train.nextStation] || train.nextStation || '');
+            setText(stationNext.querySelector('.strip'), this.getStationName(train.nextStation));
         }
 
         let vehicleNode = vehiclesNode.firstElementChild;
