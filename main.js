@@ -89,7 +89,7 @@ class SBahnGui {
                     if (digit > 9) digit -= 9;
                     return sum + digit;
                 }, 0);
-                let id = parseInt('94800' + vehicleInfo.model + vehicleInfo.number + (10 - checksum % 10), 10);
+                let id = parseInt('94800' + vehicleInfo.model + vehicleInfo.number + ((1000 - checksum) % 10), 10);
                 this.vehicleInfos.set(id, vehicleInfo);
             });
 
