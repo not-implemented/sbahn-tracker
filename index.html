@@ -31,7 +31,7 @@
         </nav>
     </header>
 
-    <main class="site-main">
+    <main class="site-main" data-default-page="list">
         <div id="page-list" class="page">
             <ul id="trains"></ul>
             <template id="train">
@@ -50,7 +50,7 @@
                     <aside class="train-aside">
                         <span class="train-number"></span>
                         <ul class="vehicles"></ul>
-                        <a href="#train/{id}" class="to-train-details icon-info">ℹ</a>
+                        <a href="#map?trains={id}" class="to-train-details icon-info">ℹ</a>
                     </aside>
                     <div class="lastUpdate"></div>
                 </li>

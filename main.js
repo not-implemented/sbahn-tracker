@@ -10,8 +10,12 @@ class SBahnGui {
         this.vehicleInfos = new Map();
         this.stations = new Map(Object.entries(Stations));
 
-        this.selectedLineIds = [];
-        this.selectedTrainIds = [];
+        // navigation:
+        this.page = null;
+        this.options = {
+            lines: [],
+            trains: []
+        };
 
         this.initMap();
         this.initNavigation();
@@ -37,45 +41,60 @@ class SBahnGui {
     }
 
     initNavigation() {
-        let syncHash = () => {
-            document.querySelectorAll('main > .page').forEach(pageNode => {
-                pageNode.classList.toggle('is-active', false);
+        function parseIdList(str) {
+            return str ? str.split(',').map(id => parseInt(id, 10)).filter(id => id > 0) : [];
+        }
+
+        window.onhashchange = () => {
+            let [page, params] = location.hash.split('?');
+            page = page.replace(/^#/, '');
+            params = new URLSearchParams(params);
+
+            if (!document.getElementById('page-' + page)) page = document.querySelector('main').dataset.defaultPage;
+            this.page = page;
+
+            Object.keys(this.options).forEach(name => {
+                this.options[name] = parseIdList(params.get(name));
             });
 
-            if (location.hash === '#map' || location.hash.startsWith('#train/')) {
-                document.querySelector('#page-map').classList.toggle('is-active', true);
+            if (this.updateUrl()) return; // triggers onhashchange again, if url was not canonical
 
-                this.selectedTrainIds.forEach(selectedTrainId => {
-                    if (this.trains.has(selectedTrainId)) {
-                        let train = this.trains.get(selectedTrainId);
-                        train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = '#fff';
-                    }
-                });
+            document.querySelectorAll('main > .page').forEach(pageNode => {
+                pageNode.classList.toggle('is-active', pageNode.id === 'page-' + this.page);
+            });
 
-                if (location.hash.startsWith('#train/')) {
-                    this.selectedTrainIds = location.hash.replace('#train/', '').split(',').map(id => parseInt(id, 10));
-                } else {
-                    this.selectedTrainIds = [];
-                }
-                document.querySelector('#train-details').classList.toggle('is-active', this.selectedTrainIds.length > 0);
-
-                this.selectedTrainIds.forEach(selectedTrainId => {
-                    if (this.trains.has(selectedTrainId)) {
-                        let train = this.trains.get(selectedTrainId);
-                        let trainNode = document.querySelector('#train-details .train');
-                        this.updateTrainContainer(train, trainNode);
-                        document.querySelector('#train-events tbody').textContent = '';
-                        train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = '#f00';
-                    }
-                });
-
-                this.map.invalidateSize();
-            } else {
-                document.querySelector('#page-list').classList.toggle('is-active', true);
-            }
+            this.onLineSelectionChange();
+            this.onTrainSelectionChange();
+            if (this.page === 'map') this.map.invalidateSize();
         };
-        window.onhashchange = syncHash;
-        syncHash();
+        window.onhashchange();
+
+        // handle navigation clicks internally to preserve options in hash url:
+        document.querySelectorAll('nav#nav a').forEach(linkNode => {
+            linkNode.addEventListener('click', (event) => {
+                event.preventDefault();
+                this.updateUrl(linkNode.getAttribute('href').replace(/^#/, ''));
+            });
+        });
+    }
+
+    updateUrl(page, options) {
+        this.page = page || this.page;
+
+        let params = new URLSearchParams();
+        Object.keys(this.options).forEach(name => {
+            if (options && options.hasOwnProperty(name)) this.options[name] = options[name];
+            if (this.options[name].length) params.set(name, this.options[name].join(','));
+        });
+
+        params = params.toString();
+        let hashUrl = '#' + this.page + (params ? '?' + params : '');
+
+        if (location.hash !== hashUrl) {
+            location.hash = hashUrl;
+            return true;
+        }
+        return false;
     }
 
     loadVehicleInfos() {
@@ -113,7 +132,11 @@ class SBahnGui {
             };
 
             let detailsLink = train._gui.node.querySelector('.to-train-details');
-            detailsLink.href = detailsLink.href.replace('{id}', trainId);
+            detailsLink.href = detailsLink.getAttribute('href').replace('{id}', trainId);
+            detailsLink.addEventListener('click', (event) => {
+                event.preventDefault();
+                this.updateUrl('map', { trains: [trainId] });
+            });
 
             this.trains.set(trainId, train);
         }
@@ -205,7 +228,7 @@ class SBahnGui {
 
         train.lastUpdate = Date.now() - trainInfo.time_since_update;
 
-        if (this.selectedTrainIds.includes(train.id)) {
+        if (this.options.trains.includes(train.id)) {
             console.log(trainInfo);
 
             let trainNode = document.querySelector('#train-details .train');
@@ -224,7 +247,7 @@ class SBahnGui {
             let latlng = event.geometry.coordinates.map(coord => [coord[1], coord[0]]);
             var polyline = L.polyline(latlng, {color: 'red'}).addTo(this.map);
         }
-        if (!this.selectedLineIds.length || this.selectedLineIds.includes(train.line.id)) {
+        if (!this.options.lines.length || this.options.lines.includes(train.line.id)) {
           if (!train._gui.mapMarker) {
                 train._gui.mapMarkerSvgNode = document.importNode(document.querySelector('template#train-marker').content.firstElementChild, true);
                 train._gui.mapMarker = L.marker([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]], {
@@ -236,14 +259,13 @@ class SBahnGui {
                     }),
                     opacity: 0.75
                 }).addTo(this.map).on('click', (event) => {
-                    let ids = [];
-                    if (event.originalEvent.ctrlKey) ids = [...this.selectedTrainIds];
+                    if (!event.originalEvent.ctrlKey) this.options.trains = [];
 
-                    let idx = ids.indexOf(train.id);
-                    if (idx === -1) ids.push(train.id);
-                    else ids.splice(idx, 1);
+                    let idx = this.options.trains.indexOf(train.id);
+                    if (idx === -1) this.options.trains.push(train.id);
+                    else this.options.trains.splice(idx, 1);
 
-                    location.hash = '#train/' + ids.join(',');
+                    this.updateUrl();
                 });
             } else {
                     train._gui.mapMarker.setLatLng(L.latLng(trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]));
@@ -379,6 +401,24 @@ class SBahnGui {
         return distanceKm;
     }
 
+    onTrainSelectionChange() {
+        document.querySelector('#train-details').classList.toggle('is-active', this.options.trains.length > 0);
+
+        this.trains.forEach(train => {
+            let selected = this.options.trains.includes(train.id);
+
+            if (train._gui.mapMarkerSvgNode) {
+                train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = selected ? '#f00' : '#fff';
+            }
+
+            if (selected) {
+                let trainNode = document.querySelector('#train-details .train');
+                this.updateTrainContainer(train, trainNode);
+                document.querySelector('#train-events tbody').textContent = '';
+            }
+        });
+    }
+
     updateTrain(train) {
         let seconds = Math.floor((Date.now() - train.lastUpdate) / 1000);
         let infoText = '';
@@ -425,7 +465,7 @@ class SBahnGui {
         }));
 
         this.trains.forEach(train => {
-            if (this.selectedLineIds.length > 0 && !this.selectedLineIds.includes(train.line.id)) {
+            if (this.options.lines.length > 0 && !this.options.lines.includes(train.line.id)) {
                 if (train._gui.node.parentNode) train._gui.node.parentNode.removeChild(train._gui.node);
             } else {
                 if (train._gui.node.parentNode) {
@@ -477,7 +517,7 @@ class SBahnGui {
             previousSibling = line._gui.node;
         });
 
-        this.updateLineFilter();
+        this.onLineSelectionChange();
     }
 
     createLineContainer(line) {
@@ -485,7 +525,11 @@ class SBahnGui {
 
         let checkboxNode = lineNode.querySelector('input');
         checkboxNode.value = line.id;
-        checkboxNode.addEventListener('change', () => this.updateLineFilter());
+        checkboxNode.addEventListener('change', () => {
+            this.updateUrl(null, {
+                lines: [...document.querySelectorAll('#lines input:checked')].map(node => parseInt(node.value, 10))
+            });
+        });
 
         let lineLogoNode = lineNode.querySelector('.line-logo');
         lineLogoNode.textContent = line.name;
@@ -495,19 +539,18 @@ class SBahnGui {
         return lineNode;
     }
 
-    updateLineFilter() {
+    onLineSelectionChange() {
         let linesNode = document.getElementById('lines');
 
-        this.selectedLineIds = [];
-        linesNode.querySelectorAll('input:checked').forEach((node => {
-            this.selectedLineIds.push(parseInt(node.value, 10));
+        linesNode.querySelectorAll('input').forEach((node => {
+            node.checked = this.options.lines.includes(parseInt(node.value, 10));
         }));
 
-        linesNode.classList.toggle('selectAll', this.selectedLineIds.length === 0);
+        linesNode.classList.toggle('selectAll', this.options.lines.length === 0);
 
-        if (this.selectedLineIds.length) {
+        if (this.options.lines.length) {
             this.trains.forEach((train) => {
-                if (train._gui.mapMarker && !this.selectedLineIds.includes(train.line.id)) {
+                if (train._gui.mapMarker && !this.options.lines.includes(train.line.id)) {
                     train._gui.mapMarker.remove();
                 } else if (train._gui.mapMarker && this.map) {
                     train._gui.mapMarker.addTo(this.map);
