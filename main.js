@@ -112,7 +112,15 @@ class SBahnGui {
                 this.vehicleInfos.set(id, vehicleInfo);
             });
 
-            this.trains.forEach(train => this.updateTrainContainer(train));
+            this.trains.forEach(train => this.onTrainUpdate(train));
+        });
+    }
+
+    onStationEvent(event) {
+        this.stations.forEach(station => {
+            if (station.id === event.properties.uic) {
+                station.coordinates = [event.geometry.coordinates[1], event.geometry.coordinates[0]];
+            }
         });
     }
 
@@ -292,17 +300,13 @@ class SBahnGui {
         this.updateLines(train);
     }
 
-    onStationEvent(event) {
-        this.stations.forEach(station => {
-            if (station.id === event.properties.uic) {
-                station.coordinates = [event.geometry.coordinates[1], event.geometry.coordinates[0]];
-            }
-        });
-    }
-
     getStationName(abbrev) {
         let station = this.stations.get(abbrev);
         return station && station.name || abbrev || '';
+    }
+
+    onTrainUpdate(train) {
+        this.updateTrainContainer(train);
     }
 
     updateTrainContainer(train, trainNode) {
