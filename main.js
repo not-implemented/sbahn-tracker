@@ -24,7 +24,7 @@ class SBahnGui {
     }
 
     initMap() {
-        this.map = L.map('map').setView([48.137222222222, 11.575277777778], 13);
+        this.map = L.map('map').setView([48.137187, 11.575501], 11);
 
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
