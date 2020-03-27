@@ -78,12 +78,12 @@ class SBahnGui {
         });
     }
 
-    updateUrl(page, options) {
+    updateUrl(page, newOptions) {
         this.page = page || this.page;
 
         let params = new URLSearchParams();
         Object.keys(this.options).forEach(name => {
-            if (options && options.hasOwnProperty(name)) this.options[name] = options[name];
+            if (newOptions && newOptions.hasOwnProperty(name)) this.options[name] = newOptions[name];
             if (this.options[name].length) params.set(name, this.options[name].join(','));
         });
 
@@ -100,7 +100,7 @@ class SBahnGui {
     loadVehicleInfos() {
         fetch('vehicle-info.php').then(response => response.json()).then(data => {
             this.vehicleInfos.clear();
-            data.forEach(vehicleInfo => {
+            for (let vehicleInfo of data) {
                 // Bahn-Prüfziffer mit https://de.wikipedia.org/wiki/Luhn-Algorithmus berechnen:
                 let checksum = [...vehicleInfo.model, ...vehicleInfo.number].reverse().reduce((sum, digit, i) => {
                     digit = parseInt(digit, 10);
@@ -110,7 +110,7 @@ class SBahnGui {
                 }, 0);
                 let id = parseInt('94800' + vehicleInfo.model + vehicleInfo.number + ((1000 - checksum) % 10), 10);
                 this.vehicleInfos.set(id, vehicleInfo);
-            });
+            }
 
             this.trains.forEach(train => this.onTrainUpdate(train));
         });
@@ -350,7 +350,7 @@ class SBahnGui {
         trainNode.querySelector('.progress .bar').style.width = this.calcProgress(train) + '%';
 
         let vehicleNode = vehiclesNode.firstElementChild;
-        train.vehicles.forEach((vehicle) => {
+        train.vehicles.forEach(vehicle => {
             if (!vehicleNode) {
                 vehicleNode = createEl('li', 'vehicle');
                 vehiclesNode.appendChild(vehicleNode);
@@ -546,14 +546,14 @@ class SBahnGui {
     onLineSelectionChange() {
         let linesNode = document.getElementById('lines');
 
-        linesNode.querySelectorAll('input').forEach((node => {
+        linesNode.querySelectorAll('input').forEach(node => {
             node.checked = this.options.lines.includes(parseInt(node.value, 10));
-        }));
+        });
 
         linesNode.classList.toggle('selectAll', this.options.lines.length === 0);
 
         if (this.options.lines.length) {
-            this.trains.forEach((train) => {
+            this.trains.forEach(train => {
                 if (train._gui.mapMarker && !this.options.lines.includes(train.line.id)) {
                     train._gui.mapMarker.remove();
                 } else if (train._gui.mapMarker && this.map) {
@@ -561,7 +561,7 @@ class SBahnGui {
                 }
             });
         } else {
-            this.trains.forEach((train) => {
+            this.trains.forEach(train => {
                 if (train._gui.mapMarker && this.map) {
                     train._gui.mapMarker.addTo(this.map);
                 }
