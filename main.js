@@ -128,32 +128,32 @@ class SBahnGui {
     }
 
     onTrajectoryEvent(event) {
-        let trainInfo = event.properties;
-        let train = this.trains.get(trainInfo.train_id);
+        let rawTrain = event.properties;
+        let train = this.trains.get(rawTrain.train_id);
 
         if (!train) {
-            train = { id: trainInfo.train_id };
+            train = { id: rawTrain.train_id };
             this.createTrainGui(train);
             this.trains.set(train.id, train);
         }
 
-        let stations = trainInfo.calls_stack;
+        let stations = rawTrain.calls_stack;
 
-        train.line = trainInfo.line || train.line || { id: 99, name: 'S?', color: '#777', text_color: '#fff' };
-        train.lineIsOld = !trainInfo.line && train.line.id != 99;
+        train.line = rawTrain.line || train.line || { id: 99, name: 'S?', color: '#777', text_color: '#fff' };
+        train.lineIsOld = !rawTrain.line && train.line.id != 99;
         train.destination = stations && stations.length > 0 ? stations[stations.length - 1] : 'Nicht einsteigen';
-        train.number = trainInfo.train_number || train.number || null;
-        train.numberIsOld = train.number && !trainInfo.train_number;
-        train.state = trainInfo.state;
-        train.prevStation = trainInfo.stop_point_ds100 || train.prevStation || null;
-        train.prevStationIsOld = train.prevStation && !trainInfo.stop_point_ds100;
-        let pos = stations ? stations.indexOf(trainInfo.stop_point_ds100) : -1;
+        train.number = rawTrain.train_number || train.number || null;
+        train.numberIsOld = train.number && !rawTrain.train_number;
+        train.state = rawTrain.state;
+        train.prevStation = rawTrain.stop_point_ds100 || train.prevStation || null;
+        train.prevStationIsOld = train.prevStation && !rawTrain.stop_point_ds100;
+        let pos = stations ? stations.indexOf(rawTrain.stop_point_ds100) : -1;
         train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
-        train.coordinates = [trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]];
+        train.coordinates = [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]];
 
         let vehicles;
-        if (trainInfo.rake !== null) {
-            vehicles = trainInfo.rake.split(';').chunk(4).map(vehicle => {
+        if (rawTrain.rake !== null) {
+            vehicles = rawTrain.rake.split(';').chunk(4).map(vehicle => {
                 let isReverse = vehicle[0] === '0';
                 let refWaggon = vehicle[isReverse ? 3 : 0];
                 // folgender Fall trat auf - war eigentlich ein Langzug (vermutlich Bug): rake: "948004232062;0;0;0;0;0;0;948004231817;0"
@@ -162,7 +162,7 @@ class SBahnGui {
             });
         } else {
             // fallback if rake is not known:
-            vehicles = [{ id: parseInt(trainInfo.transmitting_vehicle, 10), number: trainInfo.vehicle_number, isReverse: null }];
+            vehicles = [{ id: parseInt(rawTrain.transmitting_vehicle, 10), number: rawTrain.vehicle_number, isReverse: null }];
         }
 
         train.vehicles = train.vehicles || [];
@@ -223,18 +223,18 @@ class SBahnGui {
             return vehicle;
         });
 
-        train.lastUpdate = Date.now() - trainInfo.time_since_update;
+        train.lastUpdate = Date.now() - rawTrain.time_since_update;
 
         if (this.options.trains.includes(train.id)) {
-            console.log(trainInfo);
+            console.log(rawTrain);
 
             let trainNode = document.querySelector('#train-details .train');
 
             this.updateTrainContainer(train, trainNode);
-            this.logTrainEvent(trainInfo);
+            this.logTrainEvent(rawTrain);
 
-            this.map.setView([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]]);
-            var circle = L.circle([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]], {
+            this.map.setView([rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]]);
+            var circle = L.circle([rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]], {
                 color: train.line.color,
                 fillColor: train.line.color,
                 fillOpacity: 0.5,
@@ -247,7 +247,7 @@ class SBahnGui {
         if (!this.options.lines.length || this.options.lines.includes(train.line.id)) {
           if (!train._gui.mapMarker) {
                 train._gui.mapMarkerSvgNode = document.importNode(document.querySelector('template#train-marker').content.firstElementChild, true);
-                train._gui.mapMarker = L.marker([trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]], {
+                train._gui.mapMarker = L.marker([rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]], {
                     icon: L.divIcon({
                         html: train._gui.mapMarkerSvgNode,
                         className: '',
@@ -265,15 +265,15 @@ class SBahnGui {
                     this.updateUrl();
                 });
             } else {
-                    train._gui.mapMarker.setLatLng(L.latLng(trainInfo.raw_coordinates[1], trainInfo.raw_coordinates[0]));
+                    train._gui.mapMarker.setLatLng(L.latLng(rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]));
             }
             if (train._gui.mapMarkerSvgNode) {
                 train._gui.mapMarkerSvgNode.querySelector('.main').style.fill = train.line.color;
                 train._gui.mapMarkerSvgNode.querySelector('text').style.fill = train.line.text_color;
                 train._gui.mapMarkerSvgNode.querySelector('text').textContent = train.line.name;
 
-                if (trainInfo.time_intervals) {
-                    let direction = trainInfo.time_intervals[0][2];
+                if (rawTrain.time_intervals) {
+                    let direction = rawTrain.time_intervals[0][2];
                     if (direction) {
                         direction = - direction / Math.PI * 180;
                         train._gui.mapMarkerSvgNode.querySelector('path').transform.baseVal.getItem(0).setRotate(direction, 5, 5);
