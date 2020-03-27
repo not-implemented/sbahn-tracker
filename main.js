@@ -117,11 +117,14 @@ class SBahnGui {
     }
 
     onStationEvent(event) {
-        this.stations.forEach(station => {
-            if (station.id === event.properties.uic) {
-                station.coordinates = [event.geometry.coordinates[1], event.geometry.coordinates[0]];
-            }
-        });
+        if (!this.stationsById) {
+            this.stationsById = new Map([...this.stations.entries()].map(([, station]) => [station.id, station]));
+        }
+
+        let station = this.stationsById.get(event.properties.uic);
+        if (station) {
+            station.coordinates = [event.geometry.coordinates[1], event.geometry.coordinates[0]];
+        }
     }
 
     onTrajectoryEvent(event) {
