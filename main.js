@@ -240,42 +240,21 @@ class SBahnGui {
             var polyline = L.polyline(latlng, {color: 'red'}).addTo(this.map);
         }
         if (!this.options.lines.length || this.options.lines.includes(train.line.id)) {
-          if (!train._gui.mapMarker) {
-                train._gui.mapMarkerSvgNode = document.importNode(document.querySelector('template#train-marker').content.firstElementChild, true);
-                train._gui.mapMarker = L.marker([rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]], {
-                    icon: L.divIcon({
-                        html: train._gui.mapMarkerSvgNode,
-                        className: '',
-                        iconSize: [50, 50],
-                        iconAnchor: [25, 25]
-                    }),
-                    opacity: 0.75
-                }).addTo(this.map).on('click', (event) => {
-                    if (!event.originalEvent.ctrlKey) this.options.trains = [];
+            train._gui.mapMarker.setLatLng(L.latLng(rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]));
+            train._gui.mapMarker.addTo(this.map);
 
-                    let idx = this.options.trains.indexOf(train.id);
-                    if (idx === -1) this.options.trains.push(train.id);
-                    else this.options.trains.splice(idx, 1);
+            train._gui.mapMarkerSvgNode.querySelector('.main').style.fill = train.line.color;
+            train._gui.mapMarkerSvgNode.querySelector('text').style.fill = train.line.text_color;
+            train._gui.mapMarkerSvgNode.querySelector('text').textContent = train.line.name;
 
-                    this.updateUrl();
-                });
-            } else {
-                    train._gui.mapMarker.setLatLng(L.latLng(rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]));
-            }
-            if (train._gui.mapMarkerSvgNode) {
-                train._gui.mapMarkerSvgNode.querySelector('.main').style.fill = train.line.color;
-                train._gui.mapMarkerSvgNode.querySelector('text').style.fill = train.line.text_color;
-                train._gui.mapMarkerSvgNode.querySelector('text').textContent = train.line.name;
-
-                if (rawTrain.time_intervals) {
-                    let direction = rawTrain.time_intervals[0][2];
-                    if (direction) {
-                        direction = - direction / Math.PI * 180;
-                        train._gui.mapMarkerSvgNode.querySelector('path').transform.baseVal.getItem(0).setRotate(direction, 5, 5);
-                        train._gui.mapMarkerSvgNode.querySelector('path').style.display = null;
-                    } else {
-                        train._gui.mapMarkerSvgNode.querySelector('path').style.display = 'none';
-                    }
+            if (rawTrain.time_intervals) {
+                let direction = rawTrain.time_intervals[0][2];
+                if (direction) {
+                    direction = - direction / Math.PI * 180;
+                    train._gui.mapMarkerSvgNode.querySelector('path').transform.baseVal.getItem(0).setRotate(direction, 5, 5);
+                    train._gui.mapMarkerSvgNode.querySelector('path').style.display = null;
+                } else {
+                    train._gui.mapMarkerSvgNode.querySelector('path').style.display = 'none';
                 }
             }
         }
@@ -295,6 +274,25 @@ class SBahnGui {
         detailsLink.addEventListener('click', (event) => {
             event.preventDefault();
             this.updateUrl('map', { trains: [train.id] });
+        });
+
+        train._gui.mapMarkerSvgNode = document.importNode(document.querySelector('template#train-marker').content.firstElementChild, true);
+        train._gui.mapMarker = L.marker([0, 0], {
+            icon: L.divIcon({
+                html: train._gui.mapMarkerSvgNode,
+                className: '',
+                iconSize: [50, 50],
+                iconAnchor: [25, 25]
+            }),
+            opacity: 0.75
+        }).on('click', (event) => {
+            if (!event.originalEvent.ctrlKey) this.options.trains = [];
+
+            let idx = this.options.trains.indexOf(train.id);
+            if (idx === -1) this.options.trains.push(train.id);
+            else this.options.trains.splice(idx, 1);
+
+            this.updateUrl();
         });
     }
 
