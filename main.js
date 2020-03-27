@@ -201,12 +201,7 @@ class SBahnGui {
                     this.updateTrainContainer(prevTrainOfVehicle);
                 } else {
                     this.trains.delete(prevTrainOfVehicle.id);
-                    if (prevTrainOfVehicle._gui.updateInterval) clearInterval(prevTrainOfVehicle._gui.updateInterval);
-                    if (prevTrainOfVehicle._gui.node.parentNode) prevTrainOfVehicle._gui.node.parentNode.removeChild(prevTrainOfVehicle._gui.node);
-                    prevTrainOfVehicle._gui.node = null;
-                    if (prevTrainOfVehicle._gui.mapMarker) prevTrainOfVehicle._gui.mapMarker.remove();
-                    prevTrainOfVehicle._gui.mapMarker = null;
-                    prevTrainOfVehicle._gui.mapMarkerSvgNode = null;
+                    this.cleanupTrainGui(prevTrainOfVehicle);
                 }
 
                 let actions = [];
@@ -301,6 +296,15 @@ class SBahnGui {
             event.preventDefault();
             this.updateUrl('map', { trains: [train.id] });
         });
+    }
+
+    cleanupTrainGui(train) {
+        if (train._gui.updateInterval) clearInterval(train._gui.updateInterval);
+        if (train._gui.node.parentNode) train._gui.node.parentNode.removeChild(train._gui.node);
+        train._gui.node = null;
+        if (train._gui.mapMarker) train._gui.mapMarker.remove();
+        train._gui.mapMarker = null;
+        train._gui.mapMarkerSvgNode = null;
     }
 
     getStationName(abbrev) {
