@@ -129,27 +129,12 @@ class SBahnGui {
 
     onTrajectoryEvent(event) {
         let trainInfo = event.properties;
-        let trainId = trainInfo.train_id;
-        let train = this.trains.get(trainId);
+        let train = this.trains.get(trainInfo.train_id);
 
         if (!train) {
-            train = {
-                id: trainId,
-                _gui: {
-                    node: document.importNode(document.querySelector('template#train').content.firstElementChild, true),
-                    updateInterval: setInterval(() => this.updateTrain(train), 1000),
-                },
-                vehicles: []
-            };
-
-            let detailsLink = train._gui.node.querySelector('.to-train-details');
-            detailsLink.href = detailsLink.getAttribute('href').replace('{id}', trainId);
-            detailsLink.addEventListener('click', (event) => {
-                event.preventDefault();
-                this.updateUrl('map', { trains: [trainId] });
-            });
-
-            this.trains.set(trainId, train);
+            train = { id: trainInfo.train_id };
+            this.createTrainGui(train);
+            this.trains.set(train.id, train);
         }
 
         let stations = trainInfo.calls_stack;
@@ -180,6 +165,7 @@ class SBahnGui {
             vehicles = [{ id: parseInt(trainInfo.transmitting_vehicle, 10), number: trainInfo.vehicle_number, isReverse: null }];
         }
 
+        train.vehicles = train.vehicles || [];
         train.vehicles = vehicles.map(newVehicle => {
             let vehicle = this.vehicles.get(newVehicle.id);
             if (!vehicle) {
@@ -301,6 +287,20 @@ class SBahnGui {
 
         this.updateTrainContainer(train);
         this.updateLines(train);
+    }
+
+    createTrainGui(train) {
+        train._gui = {
+            node: document.importNode(document.querySelector('template#train').content.firstElementChild, true),
+            updateInterval: setInterval(() => this.updateTrain(train), 1000),
+        };
+
+        let detailsLink = train._gui.node.querySelector('.to-train-details');
+        detailsLink.href = detailsLink.getAttribute('href').replace('{id}', train.id);
+        detailsLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            this.updateUrl('map', { trains: [train.id] });
+        });
     }
 
     getStationName(abbrev) {
