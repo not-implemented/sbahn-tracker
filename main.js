@@ -39,6 +39,15 @@ class SBahnGui {
             zoomOffset: -1,
             accessToken: 'pk.eyJ1Ijoibm90LWltcGxlbWVudGVkIiwiYSI6ImNrN3Mxc3BicDA5OTczbnBjaWp3aG9vbGwifQ.QXUwqP4R70UpPPxzNfewEA'
         }).addTo(this.map);
+
+        // Lama easter egg:
+        L.marker([-16.6073271, -65.4916048], {
+            icon: L.icon({
+                iconUrl: 'img/lama.svg',
+                iconSize: [50, 53],
+                iconAnchor: [25, 25]
+            })
+        }).addTo(this.map);
     }
 
     initNavigation() {
