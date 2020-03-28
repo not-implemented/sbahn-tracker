@@ -242,7 +242,6 @@ class SBahnGui {
         }
         if (!this.options.lines.length || this.options.lines.includes(train.line.id)) {
             train._gui.mapMarker.setLatLng(train.coordinates);
-            train._gui.mapMarker.addTo(this.map);
 
             train._gui.mapMarkerSvgNode.querySelector('.main').style.fill = train.line.color;
             train._gui.mapMarkerSvgNode.querySelector('text').style.fill = train.line.textColor;
@@ -472,21 +471,13 @@ class SBahnGui {
             return this.options.lines.length === 0 || this.options.lines.includes(train.line.id);
         });
 
-        if (this.options.lines.length) {
-            this.trains.forEach(train => {
-                if (train._gui.mapMarker && !this.options.lines.includes(train.line.id)) {
-                    train._gui.mapMarker.remove();
-                } else if (train._gui.mapMarker && this.map) {
-                    train._gui.mapMarker.addTo(this.map);
-                }
-            });
-        } else {
-            this.trains.forEach(train => {
-                if (train._gui.mapMarker && this.map) {
-                    train._gui.mapMarker.addTo(this.map);
-                }
-            });
-        }
+        this.trains.forEach(train => {
+            if (this.options.lines.length > 0 && !this.options.lines.includes(train.line.id)) {
+                train._gui.mapMarker.remove();
+            } else {
+                train._gui.mapMarker.addTo(this.map);
+            }
+        });
     }
 
     log(message) {
