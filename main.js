@@ -457,13 +457,7 @@ class SBahnGui {
         document.querySelector('#train-events tbody').appendChild(trainEventNode);
     }
 
-    /**
-     * Intelligent reordering/inserting/removing of DOM nodes with minimal changes to DOM
-     */
     updateTrains() {
-        let trainsNode = document.getElementById('trains');
-        let previousSibling = null;
-
         this.trains = new Map([...this.trains.entries()].sort(([, train1], [, train2]) => {
             let res = train1.lineIsOld - train2.lineIsOld;
             if (res == 0) res = (train1.line.id === 0) - (train2.line.id === 0);
@@ -474,22 +468,8 @@ class SBahnGui {
             return res;
         }));
 
-        this.trains.forEach(train => {
-            if (this.options.lines.length > 0 && !this.options.lines.includes(train.line.id)) {
-                if (train._gui.node.parentNode) train._gui.node.parentNode.removeChild(train._gui.node);
-            } else {
-                if (train._gui.node.parentNode) {
-                    if (train._gui.node.previousSibling !== previousSibling) {
-                        train._gui.node.parentNode.removeChild(train._gui.node);
-                    }
-                }
-
-                if (!train._gui.node.parentNode) {
-                    let refNode = previousSibling ? previousSibling.nextSibling : trainsNode.firstChild;
-                    trainsNode.insertBefore(train._gui.node, refNode);
-                }
-                previousSibling = train._gui.node;
-            }
+        Utils.syncDomNodeList(this.trains, document.getElementById('trains'), train => {
+            return this.options.lines.length === 0 || this.options.lines.includes(train.line.id);
         });
 
         if (this.options.lines.length) {
