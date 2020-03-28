@@ -574,7 +574,7 @@ class SBahnGui {
         linesNode.querySelectorAll('input').forEach(node => {
             node.checked = this.options.lines.includes(parseInt(node.value, 10));
         });
-        linesNode.classList.toggle('selectAll', this.options.lines.length === 0);
+        linesNode.classList.toggle('select-all', this.options.lines.length === 0);
 
         if (!skipTrainUpdate) this.updateTrains();
     }
