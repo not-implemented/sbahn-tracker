@@ -265,7 +265,7 @@ class SBahnGui {
 
     createTrainGui(train) {
         train._gui = {
-            node: document.importNode(document.querySelector('template#train').content.firstElementChild, true),
+            node: Utils.getTemplate('train'),
             updateInterval: setInterval(() => this.updateTrain(train), 1000),
         };
 
@@ -276,7 +276,7 @@ class SBahnGui {
             this.updateUrl('map', { trains: [train.id] });
         });
 
-        train._gui.mapMarkerSvgNode = document.importNode(document.querySelector('template#train-marker').content.firstElementChild, true);
+        train._gui.mapMarkerSvgNode = Utils.getTemplate('train-marker');
         train._gui.mapMarker = L.marker([0, 0], {
             icon: L.divIcon({
                 html: train._gui.mapMarkerSvgNode,
@@ -442,7 +442,7 @@ class SBahnGui {
     }
 
     logTrainEvent(trainEvent) {
-        let trainEventNode = document.importNode(document.querySelector('template#train-event').content.firstElementChild, true);
+        let trainEventNode = Utils.getTemplate('train-event');
         trainEventNode.querySelector('.event-timestamp').textContent = (new Date(trainEvent.event_timestamp)).toLocaleTimeString();
         trainEventNode.querySelector('.event-timestamp').title = 'Delay: ' + trainEvent.delay;
         trainEventNode.querySelector('.aimed-time-offset').textContent = trainEvent.aimed_time_offset;
@@ -539,7 +539,7 @@ class SBahnGui {
 
     createLineGui(line) {
         line._gui = {
-            node: document.importNode(document.querySelector('template#line').content.firstElementChild, true)
+            node: Utils.getTemplate('line')
         };
 
         let checkboxNode = line._gui.node.querySelector('input');

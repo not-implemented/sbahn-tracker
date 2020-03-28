@@ -1,5 +1,12 @@
 export default {
     /**
+     * Clones a template from DOM by id
+     */
+    getTemplate: (id) => {
+        return document.importNode(document.querySelector('template#' + id).content.firstElementChild, true);
+    },
+
+    /**
      * Intelligent reordering/inserting/removing of DOM nodes based on a Map (with minimal changes to DOM)
      *
      * @param {Map} map The items need a "._gui.node" property with the DOM node - no matter if it is already in DOM
