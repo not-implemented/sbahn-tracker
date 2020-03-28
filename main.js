@@ -318,13 +318,13 @@ class SBahnGui {
 
     onTrainsUpdate() {
         this.trains = new Map([...this.trains.entries()].sort(([, train1], [, train2]) => {
-            let res = train1.lineIsOld - train2.lineIsOld;
-            if (res == 0) res = (train1.line.id === 0) - (train2.line.id === 0);
-            if (res == 0) res = train1.line.id - train2.line.id;
+            let result = train1.lineIsOld - train2.lineIsOld;
+            if (result == 0) result = (train1.line.id === 0) - (train2.line.id === 0);
+            if (result == 0) result = train1.line.id - train2.line.id;
             // gerade Zugnummern Richtung Westen, ungerade Richtung Osten:
-            if (res == 0) res = train1.number % 2 - train2.number % 2;
-            if (res == 0) res = train1.number - train2.number;
-            return res;
+            if (result == 0) result = train1.number % 2 - train2.number % 2;
+            if (result == 0) result = train1.number - train2.number;
+            return result;
         }));
 
         Utils.syncDomNodeList(this.trains, document.getElementById('trains'), train => {
@@ -332,10 +332,10 @@ class SBahnGui {
         });
 
         this.trains.forEach(train => {
-            if (this.options.lines.length > 0 && !this.options.lines.includes(train.line.id)) {
-                train._gui.mapMarker.remove();
-            } else {
+            if (this.options.lines.length === 0 || this.options.lines.includes(train.line.id)) {
                 train._gui.mapMarker.addTo(this.map);
+            } else {
+                train._gui.mapMarker.remove();
             }
         });
     }
