@@ -1,4 +1,5 @@
 import './modules/polyfills.js';
+import Utils from './modules/utils.js';
 import SBahnClient from './modules/client.js';
 import Stations from './modules/stations.js';
 
@@ -42,7 +43,7 @@ class SBahnGui {
 
     initNavigation() {
         function parseIdList(str) {
-            return str ? str.split(',').map(id => parseInt(id, 10)).filter(id => id > 0) : [];
+            return str ? str.split(',').map(id => parseInt(id, 10)).filter(id => id >= 0) : [];
         }
 
         window.onhashchange = () => {
@@ -139,8 +140,8 @@ class SBahnGui {
 
         let stations = rawTrain.calls_stack;
 
-        train.line = rawTrain.line || train.line || { id: 99, name: 'S?', color: '#777', text_color: '#fff' };
-        train.lineIsOld = !rawTrain.line && train.line.id != 99;
+        train.line = this.handleLine(rawTrain.line);
+        train.lineIsOld = !rawTrain.line && train.line.id != 0;
         train.destination = stations && stations.length > 0 ? stations[stations.length - 1] : 'Nicht einsteigen';
         train.number = rawTrain.train_number || train.number || null;
         train.numberIsOld = train.number && !rawTrain.train_number;
@@ -182,7 +183,7 @@ class SBahnGui {
                 if (pos !== -1) prevTrainOfVehicle.vehicles.splice(pos, 1);
 
                 // merge info from previous train:
-                if (train.line.id === 99) {
+                if (train.line.id === 0) {
                     train.line = prevTrainOfVehicle.line;
                     train.lineIsOld = true;
                 }
@@ -244,7 +245,7 @@ class SBahnGui {
             train._gui.mapMarker.addTo(this.map);
 
             train._gui.mapMarkerSvgNode.querySelector('.main').style.fill = train.line.color;
-            train._gui.mapMarkerSvgNode.querySelector('text').style.fill = train.line.text_color;
+            train._gui.mapMarkerSvgNode.querySelector('text').style.fill = train.line.textColor;
             train._gui.mapMarkerSvgNode.querySelector('text').textContent = train.line.name;
 
             if (rawTrain.time_intervals) {
@@ -260,7 +261,6 @@ class SBahnGui {
         }
 
         this.updateTrainContainer(train);
-        this.updateLines(train);
     }
 
     createTrainGui(train) {
@@ -325,14 +325,14 @@ class SBahnGui {
 
         setText(lineLogo, train.line.name);
         lineLogo.style.backgroundColor = train.line.color;
-        lineLogo.style.color = train.line.text_color;
+        lineLogo.style.color = train.line.textColor;
         trainHeader.style.backgroundColor = train.line.color + '20'; /* alpha 12.5% */
 
         setText(trainNode.querySelector('.destination'), this.getStationName(train.destination));
         setText(trainNumber, train.number || '');
 
         trainNode.classList.toggle('train-stopped', train.state !== 'DRIVING');
-        trainNode.classList.toggle('train-sided', train.lineIsOld || train.line.id === 99);
+        trainNode.classList.toggle('train-sided', train.lineIsOld || train.line.id === 0);
 
         if (train.prevStation === train.destination) {
             setText(stationPrev, '');
@@ -466,6 +466,7 @@ class SBahnGui {
 
         this.trains = new Map([...this.trains.entries()].sort(([, train1], [, train2]) => {
             let res = train1.lineIsOld - train2.lineIsOld;
+            if (res == 0) res = (train1.line.id === 0) - (train2.line.id === 0);
             if (res == 0) res = train1.line.id - train2.line.id;
             // gerade Zugnummern Richtung Westen, ungerade Richtung Osten:
             if (res == 0) res = train1.number % 2 - train2.number % 2;
@@ -499,63 +500,67 @@ class SBahnGui {
         logNode.appendChild(messageNode);
     }
 
-    updateLines(train) {
-        let linesNode = document.getElementById('lines');
-        let lineId = train.line.id;
+    handleLine(rawLine) {
+        if (!rawLine) rawLine = { id: 0, name: 'S?', color: '#808080', text_color: '#ffffff' };
 
-        if (!this.lines.has(lineId)) {
-            this.lines.set(lineId, {
-                id: lineId,
-                _gui: {
-                    node: this.createLineContainer(train.line)
-                }
-            });
+        let line = this.lines.get(rawLine.id);
+        if (!line) {
+            line = { id: rawLine.id };
+            this.createLineGui(line);
+            this.lines.set(line.id, line);
 
-            this.lines = new Map([...this.lines.entries()].sort(([, line1], [, line2]) => {
-                return line1.id - line2.id;
-            }));
+            this.onLinesUpdate();
         }
 
-        let previousSibling = null;
+        line.name = rawLine.name;
+        line.color = rawLine.color;
+        line.textColor = rawLine.text_color;
 
-        this.lines.forEach(line => {
-            if (!line._gui.node.parentNode) {
-                let refNode = previousSibling ? previousSibling.nextSibling : linesNode.firstChild;
-                linesNode.insertBefore(line._gui.node, refNode);
-            }
-            previousSibling = line._gui.node;
-        });
+        this.onLineUpdate(line);
 
-        this.onLineSelectionChange();
+        return line;
     }
 
-    createLineContainer(line) {
-        let lineNode = document.importNode(document.querySelector('template#line').content.firstElementChild, true);
+    createLineGui(line) {
+        line._gui = {
+            node: document.importNode(document.querySelector('template#line').content.firstElementChild, true)
+        };
 
-        let checkboxNode = lineNode.querySelector('input');
+        let checkboxNode = line._gui.node.querySelector('input');
         checkboxNode.value = line.id;
         checkboxNode.addEventListener('change', () => {
             this.updateUrl(null, {
                 lines: [...document.querySelectorAll('#lines input:checked')].map(node => parseInt(node.value, 10))
             });
         });
-
-        let lineLogoNode = lineNode.querySelector('.line-logo');
-        lineLogoNode.textContent = line.name;
-        lineLogoNode.style.backgroundColor = line.color;
-        lineLogoNode.style.color = line.text_color;
-
-        return lineNode;
     }
 
-    onLineSelectionChange() {
-        let linesNode = document.getElementById('lines');
+    onLinesUpdate() {
+        this.lines = new Map([...this.lines.entries()].sort(([, line1], [, line2]) => {
+            let result = (line1.id === 0) - (line2.id === 0);
+            if (result === 0) result = line1.id - line2.id;
+            return result;
+        }));
 
+        Utils.syncDomNodeList(this.lines, document.getElementById('lines'));
+        this.onLineSelectionChange(true);
+    }
+
+    onLineUpdate(line) {
+        let lineLogoNode = line._gui.node.querySelector('.line-logo');
+        setText(lineLogoNode, line.name);
+        lineLogoNode.style.backgroundColor = line.color;
+        lineLogoNode.style.color = line.textColor;
+    }
+
+    onLineSelectionChange(skipTrainUpdate) {
+        let linesNode = document.getElementById('lines');
         linesNode.querySelectorAll('input').forEach(node => {
             node.checked = this.options.lines.includes(parseInt(node.value, 10));
         });
-
         linesNode.classList.toggle('selectAll', this.options.lines.length === 0);
+
+        if (skipTrainUpdate) return;
 
         if (this.options.lines.length) {
             this.trains.forEach(train => {
