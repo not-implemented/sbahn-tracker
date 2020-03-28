@@ -269,7 +269,7 @@ class SBahnGui {
         }
 
         this.onTrainsUpdate();
-        this.updateTrainContainer(train);
+        this.onTrainUpdate(train);
     }
 
     createTrainGui(train) {
