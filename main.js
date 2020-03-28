@@ -265,7 +265,7 @@ class SBahnGui {
     createTrainGui(train) {
         train._gui = {
             node: Utils.getTemplate('train'),
-            updateInterval: setInterval(() => this.updateTrain(train), 1000),
+            refreshInterval: setInterval(() => this.refreshTrain(train), 1000),
         };
 
         let detailsLink = train._gui.node.querySelector('.to-train-details');
@@ -296,7 +296,7 @@ class SBahnGui {
     }
 
     cleanupTrainGui(train) {
-        if (train._gui.updateInterval) clearInterval(train._gui.updateInterval);
+        if (train._gui.refreshInterval) clearInterval(train._gui.refreshInterval);
         if (train._gui.node.parentNode) train._gui.node.parentNode.removeChild(train._gui.node);
         train._gui.node = null;
         if (train._gui.mapMarker) train._gui.mapMarker.remove();
@@ -378,7 +378,7 @@ class SBahnGui {
         stationPrev.classList.toggle('is-old', train.prevStationIsOld);
         trainNumber.classList.toggle('is-old', train.numberIsOld);
 
-        this.updateTrain(train);
+        this.refreshTrain(train);
         this.updateTrains();
     }
 
@@ -427,7 +427,7 @@ class SBahnGui {
         });
     }
 
-    updateTrain(train) {
+    refreshTrain(train) {
         let seconds = Math.floor((Date.now() - train.lastUpdate) / 1000);
         let infoText = '';
 
