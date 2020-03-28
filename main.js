@@ -263,28 +263,31 @@ class SBahnGui {
     }
 
     createTrainGui(train) {
+        let mapMarkerSvgNode = Utils.getTemplate('train-marker');
+
         train._gui = {
             node: Utils.getTemplate('train'),
-            refreshInterval: setInterval(() => this.refreshTrain(train), 1000),
+            mapMarker: L.marker([0, 0], {
+                icon: L.divIcon({
+                    html: mapMarkerSvgNode,
+                    className: '',
+                    iconSize: [50, 50],
+                    iconAnchor: [25, 25]
+                }),
+                opacity: 0.75
+            }),
+            mapMarkerSvgNode,
+            refreshInterval: setInterval(() => this.refreshTrain(train), 1000)
         };
 
         let detailsLink = train._gui.node.querySelector('.to-train-details');
         detailsLink.href = detailsLink.getAttribute('href').replace('{id}', train.id);
-        detailsLink.addEventListener('click', (event) => {
+        detailsLink.addEventListener('click', event => {
             event.preventDefault();
             this.updateUrl('map', { trains: [train.id] });
         });
 
-        train._gui.mapMarkerSvgNode = Utils.getTemplate('train-marker');
-        train._gui.mapMarker = L.marker([0, 0], {
-            icon: L.divIcon({
-                html: train._gui.mapMarkerSvgNode,
-                className: '',
-                iconSize: [50, 50],
-                iconAnchor: [25, 25]
-            }),
-            opacity: 0.75
-        }).on('click', (event) => {
+        train._gui.mapMarker.on('click', event => {
             if (!event.originalEvent.ctrlKey) this.options.trains = [];
 
             let idx = this.options.trains.indexOf(train.id);
@@ -296,12 +299,11 @@ class SBahnGui {
     }
 
     cleanupTrainGui(train) {
-        if (train._gui.refreshInterval) clearInterval(train._gui.refreshInterval);
         if (train._gui.node.parentNode) train._gui.node.parentNode.removeChild(train._gui.node);
-        train._gui.node = null;
-        if (train._gui.mapMarker) train._gui.mapMarker.remove();
-        train._gui.mapMarker = null;
-        train._gui.mapMarkerSvgNode = null;
+        train._gui.mapMarker.remove();
+        clearInterval(train._gui.refreshInterval);
+
+        train._gui = null;
     }
 
     getStationName(abbrev) {
