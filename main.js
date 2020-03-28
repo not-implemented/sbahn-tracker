@@ -79,8 +79,8 @@ class SBahnGui {
         });
     }
 
-    updateUrl(page, newOptions) {
-        this.page = page || this.page;
+    updateUrl(newPage, newOptions) {
+        this.page = newPage || this.page;
 
         let params = new URLSearchParams();
         Object.keys(this.options).forEach(name => {
