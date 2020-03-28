@@ -124,7 +124,7 @@ class SBahnGui {
 
         let station = this.stationsById.get(event.properties.uic);
         if (station) {
-            station.coordinates = [event.geometry.coordinates[1], event.geometry.coordinates[0]];
+            station.coordinates = event.geometry.coordinates.reverse();
         }
     }
 
@@ -150,7 +150,7 @@ class SBahnGui {
         train.prevStationIsOld = train.prevStation && !rawTrain.stop_point_ds100;
         let pos = stations ? stations.indexOf(rawTrain.stop_point_ds100) : -1;
         train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
-        train.coordinates = [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]];
+        train.coordinates = rawTrain.raw_coordinates.reverse();
 
         let vehicles;
         if (rawTrain.rake !== null) {
@@ -229,8 +229,8 @@ class SBahnGui {
             this.updateTrainContainer(train, trainNode);
             this.logTrainEvent(rawTrain);
 
-            this.map.setView([rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]]);
-            var circle = L.circle([rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]], {
+            this.map.setView(train.coordinates);
+            var circle = L.circle(train.coordinates, {
                 color: train.line.color,
                 fillColor: train.line.color,
                 fillOpacity: 0.5,
@@ -241,7 +241,7 @@ class SBahnGui {
             var polyline = L.polyline(latlng, {color: 'red'}).addTo(this.map);
         }
         if (!this.options.lines.length || this.options.lines.includes(train.line.id)) {
-            train._gui.mapMarker.setLatLng(L.latLng(rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]));
+            train._gui.mapMarker.setLatLng(train.coordinates);
             train._gui.mapMarker.addTo(this.map);
 
             train._gui.mapMarkerSvgNode.querySelector('.main').style.fill = train.line.color;
