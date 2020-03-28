@@ -315,11 +315,6 @@ class SBahnGui {
         train._gui = null;
     }
 
-    getStationName(abbrev) {
-        let station = this.stations.get(abbrev);
-        return station && station.name || abbrev || '';
-    }
-
     onTrainUpdate(train) {
         this.updateTrainContainer(train);
     }
@@ -489,6 +484,11 @@ class SBahnGui {
                 train._gui.mapMarker.addTo(this.map);
             }
         });
+    }
+
+    getStationName(abbrev) {
+        let station = this.stations.get(abbrev);
+        return station && station.name || abbrev || '';
     }
 
     log(message) {
