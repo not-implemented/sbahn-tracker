@@ -491,6 +491,22 @@ class SBahnGui {
                 previousSibling = train._gui.node;
             }
         });
+
+        if (this.options.lines.length) {
+            this.trains.forEach(train => {
+                if (train._gui.mapMarker && !this.options.lines.includes(train.line.id)) {
+                    train._gui.mapMarker.remove();
+                } else if (train._gui.mapMarker && this.map) {
+                    train._gui.mapMarker.addTo(this.map);
+                }
+            });
+        } else {
+            this.trains.forEach(train => {
+                if (train._gui.mapMarker && this.map) {
+                    train._gui.mapMarker.addTo(this.map);
+                }
+            });
+        }
     }
 
     log(message) {
@@ -560,25 +576,7 @@ class SBahnGui {
         });
         linesNode.classList.toggle('selectAll', this.options.lines.length === 0);
 
-        if (skipTrainUpdate) return;
-
-        if (this.options.lines.length) {
-            this.trains.forEach(train => {
-                if (train._gui.mapMarker && !this.options.lines.includes(train.line.id)) {
-                    train._gui.mapMarker.remove();
-                } else if (train._gui.mapMarker && this.map) {
-                    train._gui.mapMarker.addTo(this.map);
-                }
-            });
-        } else {
-            this.trains.forEach(train => {
-                if (train._gui.mapMarker && this.map) {
-                    train._gui.mapMarker.addTo(this.map);
-                }
-            });
-        }
-
-        this.updateTrains();
+        if (!skipTrainUpdate) this.updateTrains();
     }
 }
 
