@@ -350,7 +350,7 @@ class SBahnGui {
         svgNode.querySelector('.name').style.fill = train.line.textColor;
 
         let headingNode = svgNode.querySelector('.heading'), viewBox = svgNode.viewBox.baseVal;
-        headingNode.transform.baseVal.getItem(0).setRotate(train.heading ?? 0, viewBox.width / 2, viewBox.height / 2);
+        headingNode.transform.baseVal.getItem(0).setRotate(train.heading || 0, viewBox.width / 2, viewBox.height / 2);
         headingNode.classList.toggle('is-unknown', train.heading === null);
     }
 
