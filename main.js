@@ -277,7 +277,8 @@ class SBahnGui {
                 opacity: 0.75
             }),
             mapMarkerSvgNode,
-            refreshInterval: setInterval(() => this.refreshTrain(train), 1000)
+            refreshInterval: setInterval(() => this.refreshTrain(train), 1000),
+            isSelected: false
         };
 
         let detailsLink = train._gui.node.querySelector('.to-train-details');
@@ -448,7 +449,7 @@ class SBahnGui {
         this.trains.forEach(train => {
             this.refreshTrainSelection(train);
 
-            if (train.selected) {
+            if (train._gui.isSelected) {
                 let trainNode = document.querySelector('#train-details .train');
                 this.updateTrainContainer(train, trainNode);
                 document.querySelector('#train-events tbody').textContent = '';
@@ -457,8 +458,8 @@ class SBahnGui {
     }
 
     refreshTrainSelection(train) {
-        train.selected = this.options.trains.includes(train.id);
-        train._gui.mapMarkerSvgNode.classList.toggle('is-selected', train.selected);
+        train._gui.isSelected = this.options.trains.includes(train.id);
+        train._gui.mapMarkerSvgNode.classList.toggle('is-selected', train._gui.isSelected);
     }
 
     refreshTrain(train) {
