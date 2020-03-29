@@ -274,7 +274,8 @@ class SBahnGui {
                     iconSize: [50, 50],
                     iconAnchor: [25, 25]
                 }),
-                opacity: 0.75
+                opacity: 0.75,
+                interactive: false
             }),
             mapMarkerSvgNode,
             refreshInterval: setInterval(() => this.refreshTrain(train), 1000),
@@ -289,8 +290,8 @@ class SBahnGui {
             this.updateUrl('map', { trains: [train.id] });
         });
 
-        train._gui.mapMarker.on('click', event => {
-            if (!event.originalEvent.ctrlKey) this.options.trains = [];
+        train._gui.mapMarkerSvgNode.querySelector('.container').addEventListener('click', event => {
+            if (!event.ctrlKey) this.options.trains = [];
 
             let idx = this.options.trains.indexOf(train.id);
             if (idx === -1) this.options.trains.push(train.id);

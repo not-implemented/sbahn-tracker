@@ -530,6 +530,10 @@ a:hover, a:active {
         flex-basis: 50%;
     }
 }
+#map .train-marker .container {
+    cursor: pointer;
+    pointer-events: visiblePainted;
+}
 #map .train-marker .marker {
     stroke: #ffffff;
     stroke-width: 0.3;
