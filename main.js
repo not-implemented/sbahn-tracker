@@ -278,6 +278,7 @@ class SBahnGui {
             }),
             mapMarkerSvgNode,
             refreshInterval: setInterval(() => this.refreshTrain(train), 1000),
+            isVisible: true,
             isSelected: false
         };
 
@@ -318,18 +319,19 @@ class SBahnGui {
             return result;
         }));
 
-        Utils.syncDomNodeList(this.trains, document.getElementById('trains'), train => {
-            return this.options.lines.length === 0 || this.options.lines.includes(train.line.id);
-        });
-
         this.trains.forEach(train => {
-            if (this.options.lines.length === 0 || this.options.lines.includes(train.line.id)) {
+            train._gui.isVisible = this.options.lines.length === 0 || this.options.lines.includes(train.line.id);
+            this.refreshTrainSelection(train);
+
+            if (train._gui.isVisible) {
                 train._gui.mapMarker.addTo(this.map);
             } else {
                 train._gui.mapMarker.remove();
             }
+        });
 
-            this.refreshTrainSelection(train);
+        Utils.syncDomNodeList(this.trains, document.getElementById('trains'), train => {
+            return train._gui.isVisible;
         });
     }
 
