@@ -97,7 +97,7 @@ class SBahnGui {
             if (this.options[name].length) params.set(name, this.options[name].join(','));
         });
 
-        params = params.toString();
+        params = params.toString().replace(/%2C/g, ',');
         let hashUrl = '#' + this.page + (params ? '?' + params : '');
 
         if (location.hash !== hashUrl) {
