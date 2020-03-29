@@ -337,6 +337,8 @@ class SBahnGui {
             } else {
                 train._gui.mapMarker.remove();
             }
+
+            this.refreshTrainSelection(train);
         });
     }
 
@@ -443,18 +445,19 @@ class SBahnGui {
         document.querySelector('#train-details').classList.toggle('is-active', this.options.trains.length > 0);
 
         this.trains.forEach(train => {
-            let selected = this.options.trains.includes(train.id);
+            this.refreshTrainSelection(train);
 
-            if (train._gui.mapMarkerSvgNode) {
-                train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = selected ? '#f00' : '#fff';
-            }
-
-            if (selected) {
+            if (train.selected) {
                 let trainNode = document.querySelector('#train-details .train');
                 this.updateTrainContainer(train, trainNode);
                 document.querySelector('#train-events tbody').textContent = '';
             }
         });
+    }
+
+    refreshTrainSelection(train) {
+        train.selected = this.options.trains.includes(train.id);
+        train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = train.selected ? '#f00' : '#fff';
     }
 
     refreshTrain(train) {
