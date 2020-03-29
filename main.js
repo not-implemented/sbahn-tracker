@@ -275,6 +275,7 @@ class SBahnGui {
                     iconAnchor: [25, 25]
                 }),
                 opacity: 0.75,
+                keyboard: false,
                 interactive: false
             }),
             mapMarkerSvgNode,
@@ -290,7 +291,8 @@ class SBahnGui {
             this.updateUrl('map', { trains: [train.id] });
         });
 
-        train._gui.mapMarkerSvgNode.querySelector('.container').addEventListener('click', event => {
+        let container = train._gui.mapMarkerSvgNode.querySelector('.container');
+        container.addEventListener('click', event => {
             if (!event.ctrlKey) this.options.trains = [];
 
             let idx = this.options.trains.indexOf(train.id);
@@ -299,6 +301,10 @@ class SBahnGui {
 
             this.updateUrl();
         });
+
+        // As "pointer-events: visiblePainted" only works in SVG, we can't use Leaflet's "riseOnHover" feature here:
+        container.addEventListener('mouseover', () => train._gui.mapMarker.setZIndexOffset(250));
+        container.addEventListener('mouseout', () => train._gui.mapMarker.setZIndexOffset(0));
     }
 
     cleanupTrainGui(train) {
