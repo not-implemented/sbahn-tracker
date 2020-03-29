@@ -530,6 +530,19 @@ a:hover, a:active {
         flex-basis: 50%;
     }
 }
+#map .train-marker .marker {
+    stroke: #ffffff;
+    stroke-width: 0.3;
+}
+#map .train-marker .is-selected .marker {
+    stroke: #406fff;
+}
+#map .train-marker .heading.is-unknown {
+    display: none;
+}
+#map .train-marker .name {
+    font: bold 3px sans-serif;
+}
 table {
     border-collapse: collapse;
     border-spacing: 0;

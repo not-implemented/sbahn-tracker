@@ -161,6 +161,14 @@ class SBahnGui {
         train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
         train.coordinates = rawTrain.raw_coordinates.reverse();
 
+        train.heading = null;
+        if (rawTrain.time_intervals) {
+            let heading = rawTrain.time_intervals[0][2];
+            if (heading) {
+                train.heading = - heading / Math.PI * 180;
+            }
+        }
+
         let vehicles;
         if (rawTrain.rake !== null) {
             vehicles = rawTrain.rake.split(';').chunk(4).map(vehicle => {
@@ -249,24 +257,6 @@ class SBahnGui {
             let latlng = event.geometry.coordinates.map(coord => [coord[1], coord[0]]);
             var polyline = L.polyline(latlng, {color: 'red'}).addTo(this.map);
         }
-        if (!this.options.lines.length || this.options.lines.includes(train.line.id)) {
-            train._gui.mapMarker.setLatLng(train.coordinates);
-
-            train._gui.mapMarkerSvgNode.querySelector('.main').style.fill = train.line.color;
-            train._gui.mapMarkerSvgNode.querySelector('text').style.fill = train.line.textColor;
-            train._gui.mapMarkerSvgNode.querySelector('text').textContent = train.line.name;
-
-            if (rawTrain.time_intervals) {
-                let direction = rawTrain.time_intervals[0][2];
-                if (direction) {
-                    direction = - direction / Math.PI * 180;
-                    train._gui.mapMarkerSvgNode.querySelector('path').transform.baseVal.getItem(0).setRotate(direction, 5, 5);
-                    train._gui.mapMarkerSvgNode.querySelector('path').style.display = null;
-                } else {
-                    train._gui.mapMarkerSvgNode.querySelector('path').style.display = 'none';
-                }
-            }
-        }
 
         this.onTrainsUpdate();
         this.onTrainUpdate(train);
@@ -280,7 +270,7 @@ class SBahnGui {
             mapMarker: L.marker([0, 0], {
                 icon: L.divIcon({
                     html: mapMarkerSvgNode,
-                    className: '',
+                    className: 'train-marker',
                     iconSize: [50, 50],
                     iconAnchor: [25, 25]
                 }),
@@ -344,6 +334,17 @@ class SBahnGui {
 
     onTrainUpdate(train) {
         this.updateTrainContainer(train);
+
+        train._gui.mapMarker.setLatLng(train.coordinates);
+
+        let svgNode = train._gui.mapMarkerSvgNode;
+        svgNode.querySelector('.name').textContent = train.line.name;
+        svgNode.querySelector('.marker').style.fill = train.line.color;
+        svgNode.querySelector('.name').style.fill = train.line.textColor;
+
+        let headingNode = svgNode.querySelector('.heading'), viewBox = svgNode.viewBox.baseVal;
+        headingNode.transform.baseVal.getItem(0).setRotate(train.heading ?? 0, viewBox.width / 2, viewBox.height / 2);
+        headingNode.classList.toggle('is-unknown', train.heading === null);
     }
 
     updateTrainContainer(train, trainNode) {
@@ -457,7 +458,7 @@ class SBahnGui {
 
     refreshTrainSelection(train) {
         train.selected = this.options.trains.includes(train.id);
-        train._gui.mapMarkerSvgNode.querySelector('.main').style.stroke = train.selected ? '#f00' : '#fff';
+        train._gui.mapMarkerSvgNode.classList.toggle('is-selected', train.selected);
     }
 
     refreshTrain(train) {
