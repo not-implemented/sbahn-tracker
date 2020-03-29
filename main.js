@@ -150,13 +150,10 @@ class SBahnGui {
         let stations = rawTrain.calls_stack;
 
         train.line = this.handleLine(rawTrain.line);
-        train.lineIsOld = !rawTrain.line && train.line.id != 0;
         train.destination = stations && stations.length > 0 ? stations[stations.length - 1] : 'Nicht einsteigen';
-        train.number = rawTrain.train_number || train.number || null;
-        train.numberIsOld = train.number && !rawTrain.train_number;
+        train.number = rawTrain.train_number;
         train.state = rawTrain.state;
-        train.prevStation = rawTrain.stop_point_ds100 || train.prevStation || null;
-        train.prevStationIsOld = train.prevStation && !rawTrain.stop_point_ds100;
+        train.prevStation = rawTrain.stop_point_ds100;
         let pos = stations ? stations.indexOf(rawTrain.stop_point_ds100) : -1;
         train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
         train.coordinates = rawTrain.raw_coordinates.reverse();
@@ -198,20 +195,6 @@ class SBahnGui {
             if (prevTrainOfVehicle && prevTrainOfVehicle !== train) {
                 let pos = prevTrainOfVehicle.vehicles.findIndex(v => v.id === vehicle.id);
                 if (pos !== -1) prevTrainOfVehicle.vehicles.splice(pos, 1);
-
-                // merge info from previous train:
-                if (train.line.id === 0) {
-                    train.line = prevTrainOfVehicle.line;
-                    train.lineIsOld = true;
-                }
-                if (!train.number) {
-                    train.number = prevTrainOfVehicle.number;
-                    train.numberIsOld = true;
-                }
-                if (!train.prevStation) {
-                    train.prevStation = prevTrainOfVehicle.prevStation;
-                    train.prevStationIsOld = true;
-                }
 
                 let deletePrevTrain = !prevTrainOfVehicle.vehicles.some(v => v.id !== null);
 
@@ -317,8 +300,7 @@ class SBahnGui {
 
     onTrainsUpdate() {
         this.trains = new Map([...this.trains.entries()].sort(([, train1], [, train2]) => {
-            let result = train1.lineIsOld - train2.lineIsOld;
-            if (result == 0) result = (train1.line.id === 0) - (train2.line.id === 0);
+            let result = (train1.line.id === 0) - (train2.line.id === 0);
             if (result == 0) result = train1.line.id - train2.line.id;
             // gerade Zugnummern Richtung Westen, ungerade Richtung Osten:
             if (result == 0) result = train1.number % 2 - train2.number % 2;
@@ -372,7 +354,7 @@ class SBahnGui {
         setText(trainNumber, train.number || '');
 
         trainNode.classList.toggle('train-stopped', train.state !== 'DRIVING');
-        trainNode.classList.toggle('train-sided', train.lineIsOld || train.line.id === 0);
+        trainNode.classList.toggle('train-sided', train.line.id === 0);
 
         if (train.prevStation === train.destination) {
             setText(stationPrev, '');
@@ -414,10 +396,6 @@ class SBahnGui {
             vehiclesNode.removeChild(vehicleNode);
             vehicleNode = nextNode;
         }
-
-        trainHeader.classList.toggle('is-old', train.lineIsOld);
-        stationPrev.classList.toggle('is-old', train.prevStationIsOld);
-        trainNumber.classList.toggle('is-old', train.numberIsOld);
 
         this.refreshTrain(train);
     }
