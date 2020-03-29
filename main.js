@@ -323,11 +323,8 @@ class SBahnGui {
             train._gui.isVisible = this.options.lines.length === 0 || this.options.lines.includes(train.line.id);
             this.refreshTrainSelection(train);
 
-            if (train._gui.isVisible) {
-                train._gui.mapMarker.addTo(this.map);
-            } else {
-                train._gui.mapMarker.remove();
-            }
+            if (train._gui.isVisible) train._gui.mapMarker.addTo(this.map);
+            else train._gui.mapMarker.remove();
         });
 
         Utils.syncDomNodeList(this.trains, document.getElementById('trains'), train => {
