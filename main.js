@@ -220,7 +220,7 @@ class SBahnGui {
             return vehicle;
         });
 
-        train.lastUpdate = Date.now() - rawTrain.time_since_update;
+        train.lastUpdate = rawTrain.event_timestamp;
 
         if (this.options.trains.includes(train.id)) {
             console.log(rawTrain);
@@ -365,6 +365,8 @@ class SBahnGui {
         let headingNode = svgNode.querySelector('.heading'), viewBox = svgNode.viewBox.baseVal;
         headingNode.transform.baseVal.getItem(0).setRotate(train.heading || 0, viewBox.width / 2, viewBox.height / 2);
         headingNode.classList.toggle('is-unknown', train.heading === null);
+
+        this.refreshTrain(train);
     }
 
     updateTrainContainer(train, trainNode) {
@@ -402,8 +404,6 @@ class SBahnGui {
             vehiclesNode.removeChild(vehicleNode);
             vehicleNode = nextNode;
         }
-
-        this.refreshTrain(train);
     }
 
     getStationName(abbrev, emptyName) {
@@ -411,6 +411,13 @@ class SBahnGui {
 
         let station = this.stations.get(abbrev);
         return station && station.name || abbrev;
+    }
+
+    refreshTrain(train) {
+        let minutes = Math.floor((Date.now() - this.client.clientTimeDiff - train.lastUpdate) / 1000 / 60);
+        let lastUpdateText = minutes >= 1 ? 'Keine Info seit ' + minutes + 'min' : '';
+
+        Utils.setText(train._gui.node.querySelector('.last-update'), lastUpdateText);
     }
 
     onTrainSelectionChange() {
@@ -430,19 +437,6 @@ class SBahnGui {
     refreshTrainSelection(train) {
         train._gui.isSelected = this.options.trains.includes(train.id);
         train._gui.mapMarkerSvgNode.classList.toggle('is-selected', train._gui.isSelected);
-    }
-
-    refreshTrain(train) {
-        let seconds = Math.floor((Date.now() - train.lastUpdate) / 1000);
-        let infoText = '';
-
-        if (seconds > 30) {
-            let minutes = Math.floor(seconds / 60);
-            seconds -= minutes * 60;
-            infoText = 'Keine Info seit ' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
-        }
-
-        Utils.setText(train._gui.node.querySelector('.lastUpdate'), infoText);
     }
 
     logTrainEvent(trainEvent) {

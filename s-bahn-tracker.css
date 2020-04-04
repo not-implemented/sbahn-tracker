@@ -480,7 +480,7 @@ a:hover, a:active {
 }
 /* /train infos like number and vehicles */
 /* error message */
-.lastUpdate {
+.last-update {
     position: absolute;
     bottom: 0;
     right: .3rem;
