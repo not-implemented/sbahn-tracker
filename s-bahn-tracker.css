@@ -590,6 +590,8 @@ table .is-number {
 
     background: #e0e0e0;
     box-shadow: 0 .1rem .3rem 0 rgba(0,0,0,.3);
+
+    list-style: none;
 }
 #log:empty {
     display: none;
@@ -597,7 +599,7 @@ table .is-number {
 #log .message {
     margin-bottom: .6rem;
 }
-#log .message .log-date {
+#log .message .time {
     font-weight: bold;
 }
 /* /LOG MESSAGES */

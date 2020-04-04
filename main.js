@@ -211,7 +211,7 @@ class SBahnGui {
                 if (train.vehicles.length > 0) actions.push('an Wagen ' + train.vehicles.map(v => v.number).join('+') + ' angekuppelt');
 
                 if (actions.length > 0) {
-                    this.log(`${(new Date()).toLocaleTimeString()}: ${this.getStationName(train.prevStation)}: Wagen ${vehicle.number} wurde ${actions.join(' und ')}`);
+                    this.log((new Date()).toLocaleTimeString(), `${this.getStationName(train.prevStation)}: Wagen ${vehicle.number} wurde ${actions.join(' und ')}`);
                 }
             }
 
@@ -459,11 +459,11 @@ class SBahnGui {
         return station && station.name || abbrev || '';
     }
 
-    log(message) {
-        let logNode = document.getElementById('log');
-        let messageNode = createEl('div', 'message');
-        messageNode.textContent = message;
-        logNode.appendChild(messageNode);
+    log(time, text) {
+        let messageNode = Utils.getTemplate('message');
+        messageNode.querySelector('.time').textContent = time;
+        messageNode.querySelector('.text').textContent = text;
+        document.getElementById('log').appendChild(messageNode);
     }
 
     handleLine(rawLine) {
@@ -528,12 +528,6 @@ class SBahnGui {
 
         if (!skipTrainsUpdate) this.onTrainsUpdate();
     }
-}
-
-function createEl(name, className) {
-    let node = document.createElement(name);
-    if (className) node.classList.add(className);
-    return node;
 }
 
 new SBahnGui();
