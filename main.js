@@ -157,6 +157,7 @@ class SBahnGui {
         let pos = stations ? stations.indexOf(rawTrain.stop_point_ds100) : -1;
         train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
         train.coordinates = rawTrain.raw_coordinates.reverse();
+        train.progress = this.calcProgress(train);
 
         train.heading = null;
         if (rawTrain.time_intervals) {
@@ -243,6 +244,36 @@ class SBahnGui {
 
         this.onTrainsUpdate();
         this.onTrainUpdate(train);
+    }
+
+    calcProgress(train) {
+        if (train.state !== 'DRIVING') return 0;
+
+        let prevStation = this.stations.get(train.prevStation);
+        let nextStation = this.stations.get(train.nextStation);
+
+        if (!prevStation || !prevStation.coordinates) return 0;
+        if (!nextStation || !nextStation.coordinates) return 0;
+
+        let distanceToPrev = this.calcDistance(train.coordinates, prevStation.coordinates);
+        let distanceToNext = this.calcDistance(train.coordinates, nextStation.coordinates);
+
+        return distanceToPrev / (distanceToPrev + distanceToNext) * 100;
+    }
+
+    calcDistance(coords1, coords2) {
+        const deg2rad = number => number / 180 * Math.PI;
+        coords1 = coords1.map(deg2rad);
+        coords2 = coords2.map(deg2rad);
+
+        let distanceRadian = Math.acos(
+            Math.sin(coords1[0]) * Math.sin(coords2[0]) +
+            Math.cos(coords1[0]) * Math.cos(coords2[0]) * Math.cos(coords2[1] - coords1[1])
+        );
+        let distanceSm = distanceRadian / Math.PI * 180 * 60;
+        let distanceKm = distanceSm * 1.853248777; // Seemeile bezogen auf den mittleren Erdradius von 6371 km
+
+        return distanceKm;
     }
 
     createTrainGui(train) {
@@ -374,7 +405,7 @@ class SBahnGui {
             setText(stationNext.querySelector('.strip'), this.getStationName(train.nextStation));
         }
 
-        trainNode.querySelector('.progress .bar').style.width = this.calcProgress(train) + '%';
+        trainNode.querySelector('.progress .bar').style.width = train.progress + '%';
 
         let vehicleNode = vehiclesNode.firstElementChild;
         train.vehicles.forEach(vehicle => {
@@ -398,33 +429,6 @@ class SBahnGui {
         }
 
         this.refreshTrain(train);
-    }
-
-    calcProgress(train) {
-        if (train.state !== 'DRIVING') return 0;
-
-        let prevStation = this.stations.get(train.prevStation);
-        let nextStation = this.stations.get(train.nextStation);
-
-        if(prevStation && prevStation.coordinates && nextStation && nextStation.coordinates) {
-            let toPrev = this.calcDistance(train.coordinates, prevStation.coordinates);
-            let toNext = this.calcDistance(train.coordinates, nextStation.coordinates);
-
-            return toPrev / (toPrev + toNext) * 100;
-        }
-
-        return 0;
-    }
-
-    calcDistance(coord1, coord2) {
-        coord1 = [coord1[0] / 180 * Math.PI, coord1[1] / 180 * Math.PI];
-        coord2 = [coord2[0] / 180 * Math.PI, coord2[1] / 180 * Math.PI];
-
-        let distanceRadian = Math.acos(Math.sin(coord1[1]) * Math.sin(coord2[1]) + Math.cos(coord1[1]) * Math.cos(coord2[1]) * Math.cos(coord2[0] - coord1[0]));
-        let distanceSm = distanceRadian / Math.PI * 180 * 60;
-        let distanceKm = distanceSm * 1.851851851;
-
-        return distanceKm;
     }
 
     onTrainSelectionChange() {
