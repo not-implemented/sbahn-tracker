@@ -200,7 +200,7 @@ class SBahnGui {
                 let deletePrevTrain = !prevTrainOfVehicle.vehicles.some(v => v.id !== null);
 
                 if (!deletePrevTrain) {
-                    this.updateTrainContainer(prevTrainOfVehicle);
+                    this.onTrainUpdate(prevTrainOfVehicle);
                 } else {
                     this.trains.delete(prevTrainOfVehicle.id);
                     this.cleanupTrainGui(prevTrainOfVehicle);
