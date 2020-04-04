@@ -353,7 +353,7 @@ class SBahnGui {
     }
 
     onTrainUpdate(train) {
-        this.updateTrainContainer(train);
+        this.updateTrainContainer(train, train._gui.node);
 
         train._gui.mapMarker.setLatLng(train.coordinates);
 
@@ -368,7 +368,6 @@ class SBahnGui {
     }
 
     updateTrainContainer(train, trainNode) {
-        trainNode = trainNode || train._gui.node;
         let lineLogo = trainNode.querySelector('.line-logo');
         let trainNumber = trainNode.querySelector('.train-number');
         let stationPrev = trainNode.querySelector('.station-prev');
