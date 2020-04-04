@@ -7,6 +7,14 @@ export default {
     },
 
     /**
+     * Set textContent of DOM node only if changed
+     */
+    setText: (node, text) => {
+        text = '' + text;
+        if (node.textContent !== text) node.textContent = text;
+    },
+
+    /**
      * Intelligent reordering/inserting/removing of DOM nodes based on a Map (with minimal changes to DOM)
      *
      * @param {Map} map The items need a "._gui.node" property with the DOM node - no matter if it is already in DOM

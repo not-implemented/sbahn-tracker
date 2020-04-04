@@ -372,22 +372,22 @@ class SBahnGui {
         trainNode.classList.toggle('train-sided', train.line.id === 0);
 
         let lineLogoNode = trainNode.querySelector('.line-logo');
-        setText(lineLogoNode, train.line.name);
+        Utils.setText(lineLogoNode, train.line.name);
         lineLogoNode.style.backgroundColor = train.line.color;
         lineLogoNode.style.color = train.line.textColor;
         trainNode.querySelector('.train-header').style.backgroundColor = train.line.color + '20'; // alpha 12.5%
 
-        setText(trainNode.querySelector('.destination'), this.getStationName(train.destination));
-        setText(trainNode.querySelector('.train-number'), train.number || '');
-        setText(trainNode.querySelector('.station-prev .strip'), this.getStationName(train.prevStation));
-        setText(trainNode.querySelector('.station-next .strip'), this.getStationName(train.nextStation));
+        Utils.setText(trainNode.querySelector('.destination'), this.getStationName(train.destination));
+        Utils.setText(trainNode.querySelector('.train-number'), train.number || '');
+        Utils.setText(trainNode.querySelector('.station-prev .strip'), this.getStationName(train.prevStation));
+        Utils.setText(trainNode.querySelector('.station-next .strip'), this.getStationName(train.nextStation));
         trainNode.querySelector('.progress .bar').style.width = train.progress + '%';
 
         let vehiclesNode = trainNode.querySelector('.vehicles');
         let vehicleNode = vehiclesNode.firstElementChild;
         train.vehicles.forEach(vehicle => {
             if (!vehicleNode) vehicleNode = vehiclesNode.appendChild(Utils.getTemplate('vehicle'));
-            setText(vehicleNode, vehicle.number);
+            Utils.setText(vehicleNode, vehicle.number);
             vehicleNode.classList.toggle('is-forward', vehicle.isReverse === false);
             vehicleNode.classList.toggle('is-reverse', vehicle.isReverse === true);
 
@@ -435,7 +435,7 @@ class SBahnGui {
             infoText = 'Keine Info seit ' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
         }
 
-        setText(train._gui.node.querySelector('.lastUpdate'), infoText);
+        Utils.setText(train._gui.node.querySelector('.lastUpdate'), infoText);
     }
 
     logTrainEvent(trainEvent) {
@@ -514,7 +514,7 @@ class SBahnGui {
 
     onLineUpdate(line) {
         let lineLogoNode = line._gui.node.querySelector('.line-logo');
-        setText(lineLogoNode, line.name);
+        Utils.setText(lineLogoNode, line.name);
         lineLogoNode.style.backgroundColor = line.color;
         lineLogoNode.style.color = line.textColor;
     }
@@ -534,11 +534,6 @@ function createEl(name, className) {
     let node = document.createElement(name);
     if (className) node.classList.add(className);
     return node;
-}
-
-function setText(node, text) {
-    text = '' + text;
-    if (node.textContent !== text) node.textContent = text;
 }
 
 new SBahnGui();
