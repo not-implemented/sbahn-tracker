@@ -150,7 +150,7 @@ class SBahnGui {
         let stations = rawTrain.calls_stack;
 
         train.line = this.handleLine(rawTrain.line);
-        train.destination = stations && stations.length > 0 ? stations[stations.length - 1] : 'Nicht einsteigen';
+        train.destination = stations && stations.length > 0 ? stations[stations.length - 1] : null;
         train.number = rawTrain.train_number;
         train.state = rawTrain.state;
         train.prevStation = rawTrain.stop_point_ds100;
@@ -211,7 +211,7 @@ class SBahnGui {
                 if (train.vehicles.length > 0) actions.push('an Wagen ' + train.vehicles.map(v => v.number).join('+') + ' angekuppelt');
 
                 if (actions.length > 0) {
-                    this.log((new Date()).toLocaleTimeString(), `${this.getStationName(train.prevStation)}: Wagen ${vehicle.number} wurde ${actions.join(' und ')}`);
+                    this.log((new Date()).toLocaleTimeString(), `${this.getStationName(train.prevStation, '(Unbekannt)')}: Wagen ${vehicle.number} wurde ${actions.join(' und ')}`);
                 }
             }
 
@@ -377,7 +377,7 @@ class SBahnGui {
         lineLogoNode.style.color = train.line.textColor;
         trainNode.querySelector('.train-header').style.backgroundColor = train.line.color + '20'; // alpha 12.5%
 
-        Utils.setText(trainNode.querySelector('.destination'), this.getStationName(train.destination));
+        Utils.setText(trainNode.querySelector('.destination'), this.getStationName(train.destination, 'Nicht einsteigen'));
         Utils.setText(trainNode.querySelector('.train-number'), train.number || '');
         Utils.setText(trainNode.querySelector('.station-prev .strip'), this.getStationName(train.prevStation));
         Utils.setText(trainNode.querySelector('.station-next .strip'), this.getStationName(train.nextStation));
@@ -404,6 +404,13 @@ class SBahnGui {
         }
 
         this.refreshTrain(train);
+    }
+
+    getStationName(abbrev, emptyName) {
+        if (abbrev === null) return emptyName || '';
+
+        let station = this.stations.get(abbrev);
+        return station && station.name || abbrev;
     }
 
     onTrainSelectionChange() {
@@ -452,11 +459,6 @@ class SBahnGui {
         trainEventNode.querySelector('.position-correction').textContent = trainEvent.position_correction;
         trainEventNode.querySelector('.transmitting-vehicle').textContent = trainEvent.transmitting_vehicle;
         document.querySelector('#train-events tbody').appendChild(trainEventNode);
-    }
-
-    getStationName(abbrev) {
-        let station = this.stations.get(abbrev);
-        return station && station.name || abbrev || '';
     }
 
     log(time, text) {
