@@ -438,7 +438,7 @@ a:hover, a:active {
     padding-right: .8rem;
     border-top-right-radius: .45rem;
 }
-.vehicle:not(.is-reverse)::before {
+.vehicle.is-forward::before {
     content: '‹';
     position: absolute;
     left: .3rem;
@@ -446,7 +446,7 @@ a:hover, a:active {
     line-height: 1.4rem;
     font-weight: bold;
 }
-.vehicle:not(.is-reverse):first-child::before {
+.vehicle.is-forward:first-child::before {
     left: .6rem;
 }
 .vehicle.is-reverse::after {

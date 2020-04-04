@@ -368,52 +368,28 @@ class SBahnGui {
     }
 
     updateTrainContainer(train, trainNode) {
-        let lineLogo = trainNode.querySelector('.line-logo');
-        let trainNumber = trainNode.querySelector('.train-number');
-        let stationPrev = trainNode.querySelector('.station-prev');
-        let stationNext = trainNode.querySelector('.station-next');
-        let trainHeader = trainNode.querySelector('.train-header');
-        let vehiclesNode = trainNode.querySelector('.vehicles');
-
-        setText(lineLogo, train.line.name);
-        lineLogo.style.backgroundColor = train.line.color;
-        lineLogo.style.color = train.line.textColor;
-        trainHeader.style.backgroundColor = train.line.color + '20'; /* alpha 12.5% */
-
-        setText(trainNode.querySelector('.destination'), this.getStationName(train.destination));
-        setText(trainNumber, train.number || '');
-
         trainNode.classList.toggle('train-stopped', train.state !== 'DRIVING');
         trainNode.classList.toggle('train-sided', train.line.id === 0);
 
-        if (train.prevStation === train.destination) {
-            setText(stationPrev, '');
-        } else {
-            if (!stationPrev.querySelector('.strip')) {
-                stationPrev.appendChild(createEl('span', 'strip'));
-            }
-            setText(stationPrev.querySelector('.strip'), this.getStationName(train.prevStation));
-        }
+        let lineLogoNode = trainNode.querySelector('.line-logo');
+        setText(lineLogoNode, train.line.name);
+        lineLogoNode.style.backgroundColor = train.line.color;
+        lineLogoNode.style.color = train.line.textColor;
+        trainNode.querySelector('.train-header').style.backgroundColor = train.line.color + '20'; // alpha 12.5%
 
-        if (train.nextStation === train.destination) {
-            setText(stationNext, '');
-        } else {
-            if (!stationNext.querySelector('.strip')) {
-                stationNext.appendChild(createEl('span', 'strip'));
-            }
-            setText(stationNext.querySelector('.strip'), this.getStationName(train.nextStation));
-        }
-
+        setText(trainNode.querySelector('.destination'), this.getStationName(train.destination));
+        setText(trainNode.querySelector('.train-number'), train.number || '');
+        setText(trainNode.querySelector('.station-prev .strip'), this.getStationName(train.prevStation));
+        setText(trainNode.querySelector('.station-next .strip'), this.getStationName(train.nextStation));
         trainNode.querySelector('.progress .bar').style.width = train.progress + '%';
 
+        let vehiclesNode = trainNode.querySelector('.vehicles');
         let vehicleNode = vehiclesNode.firstElementChild;
         train.vehicles.forEach(vehicle => {
-            if (!vehicleNode) {
-                vehicleNode = createEl('li', 'vehicle');
-                vehiclesNode.appendChild(vehicleNode);
-            }
+            if (!vehicleNode) vehicleNode = vehiclesNode.appendChild(Utils.getTemplate('vehicle'));
             setText(vehicleNode, vehicle.number);
-            vehicleNode.classList.toggle('is-reverse', vehicle.isReverse);
+            vehicleNode.classList.toggle('is-forward', vehicle.isReverse === false);
+            vehicleNode.classList.toggle('is-reverse', vehicle.isReverse === true);
 
             let vehicleInfo = this.vehicleInfos.get(vehicle.id);
             vehicleNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern === true));
