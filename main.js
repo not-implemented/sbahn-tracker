@@ -347,9 +347,7 @@ class SBahnGui {
             else train._gui.mapMarker.remove();
         });
 
-        Utils.syncDomNodeList(this.trains, document.getElementById('trains'), train => {
-            return train._gui.isVisible;
-        });
+        Utils.syncDomNodeList(this.trains, document.getElementById('trains'), train => train._gui.node, train => train._gui.isVisible);
     }
 
     onTrainUpdate(train) {
@@ -504,7 +502,7 @@ class SBahnGui {
             return result;
         }));
 
-        Utils.syncDomNodeList(this.lines, document.getElementById('lines'));
+        Utils.syncDomNodeList(this.lines, document.getElementById('lines'), train => train._gui.node);
         this.onLineSelectionChange(true);
     }
 
