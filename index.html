@@ -50,7 +50,7 @@
                     <aside class="train-aside">
                         <span class="train-number"></span>
                         <ul class="vehicles"></ul>
-                        <a href="#map?trains={id}" class="to-train-details icon-info">ℹ</a>
+                        <a href="#" class="action-link"></a>
                     </aside>
                     <div class="last-update"></div>
                 </li>
@@ -83,24 +83,7 @@
             </template>
 
             <div id="train-details">
-                <div class="train">
-                    <header class="train-header">
-                        <div class="train-line"><span class="line-logo"></span></div>
-                        <h2 class="destination"></h2>
-                    </header>
-                    <main class="train-main">
-                        <ul class="stations">
-                            <li class="station-prev"><span class="strip"></span></li>
-                            <li><div class="progress"><div class="bar"></div></div></li>
-                            <li class="station-next"><span class="strip"></span></li>
-                        </ul>
-                    </main>
-                    <aside class="train-aside">
-                        <span class="train-number"></span>
-                        <ul class="vehicles"></ul>
-                    </aside>
-                    <div class="last-update"></div>
-                </div>
+                <ul id="selected-trains"></ul>
 
                 <div id="train-events">
                     <table>

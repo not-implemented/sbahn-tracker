@@ -463,7 +463,7 @@ a:hover, a:active {
 .vehicle.is-modern {
     background: linear-gradient(180deg, #ff7f7f 50%, #ffd7d7 100%);
 }
-.icon-info {
+.action-link {
     font-size: 1.5rem;
     line-height: 1;
     width: 1em;
@@ -474,7 +474,7 @@ a:hover, a:active {
     color: #fff;
     background: #606060;
 }
-.icon-info:hover {
+.action-link:hover {
     color: #a0a0a0;
     background: #333;
 }
@@ -511,11 +511,17 @@ a:hover, a:active {
 #train-details.is-active {
     display: block;
 }
-#train-details .train {
-    border-radius: 0;
+#selected-trains {
+    display: flex;
+    overflow-x: auto;
+
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
 }
-#train-details .train-header {
-    border-radius: 0;
+#selected-trains .train {
+    width: 20rem;
+    margin: .3rem;
 }
 #train-events {
     padding: .6rem .7rem;

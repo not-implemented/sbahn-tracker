@@ -225,9 +225,6 @@ class SBahnGui {
         if (this.options.trains.includes(train.id)) {
             console.log(rawTrain);
 
-            let trainNode = document.querySelector('#train-details .train');
-
-            this.updateTrainContainer(train, trainNode);
             this.logTrainEvent(rawTrain);
 
             this.map.setView(train.coordinates);
@@ -295,14 +292,28 @@ class SBahnGui {
             mapMarkerSvgNode,
             refreshInterval: setInterval(() => this.refreshTrain(train), 1000),
             isVisible: true,
-            isSelected: false
+            isSelected: false,
+            selectedNode: Utils.getTemplate('train')
         };
 
-        let detailsLink = train._gui.node.querySelector('.to-train-details');
-        detailsLink.href = detailsLink.getAttribute('href').replace('{id}', train.id);
-        detailsLink.addEventListener('click', event => {
+        let selectLink = train._gui.node.querySelector('.action-link');
+        selectLink.textContent = 'ℹ';
+        selectLink.href = '#map?trains=' + train.id;
+        selectLink.addEventListener('click', event => {
             event.preventDefault();
             this.updateUrl('map', { trains: [train.id] });
+        });
+
+        let deselectLink = train._gui.selectedNode.querySelector('.action-link');
+        deselectLink.textContent = '×';
+        deselectLink.href = '#map';
+        deselectLink.addEventListener('click', event => {
+            event.preventDefault();
+
+            let idx = this.options.trains.indexOf(train.id);
+            if (idx !== -1) this.options.trains.splice(idx, 1);
+
+            this.updateUrl();
         });
 
         let container = train._gui.mapMarkerSvgNode.querySelector('.container');
@@ -341,17 +352,19 @@ class SBahnGui {
 
         this.trains.forEach(train => {
             train._gui.isVisible = this.options.lines.length === 0 || this.options.lines.includes(train.line.id);
-            this.refreshTrainSelection(train);
 
             if (train._gui.isVisible) train._gui.mapMarker.addTo(this.map);
             else train._gui.mapMarker.remove();
         });
 
         Utils.syncDomNodeList(this.trains, document.getElementById('trains'), train => train._gui.node, train => train._gui.isVisible);
+
+        this.onTrainSelectionChange();
     }
 
     onTrainUpdate(train) {
         this.updateTrainContainer(train, train._gui.node);
+        this.updateTrainContainer(train, train._gui.selectedNode);
 
         train._gui.mapMarker.setLatLng(train.coordinates);
 
@@ -416,25 +429,18 @@ class SBahnGui {
         let lastUpdateText = minutes >= 1 ? 'Keine Info seit ' + minutes + 'min' : '';
 
         Utils.setText(train._gui.node.querySelector('.last-update'), lastUpdateText);
+        Utils.setText(train._gui.selectedNode.querySelector('.last-update'), lastUpdateText);
     }
 
     onTrainSelectionChange() {
         document.querySelector('#train-details').classList.toggle('is-active', this.options.trains.length > 0);
 
         this.trains.forEach(train => {
-            this.refreshTrainSelection(train);
-
-            if (train._gui.isSelected) {
-                let trainNode = document.querySelector('#train-details .train');
-                this.updateTrainContainer(train, trainNode);
-                document.querySelector('#train-events tbody').textContent = '';
-            }
+            train._gui.isSelected = this.options.trains.includes(train.id);
+            train._gui.mapMarkerSvgNode.classList.toggle('is-selected', train._gui.isSelected);
         });
-    }
 
-    refreshTrainSelection(train) {
-        train._gui.isSelected = this.options.trains.includes(train.id);
-        train._gui.mapMarkerSvgNode.classList.toggle('is-selected', train._gui.isSelected);
+        Utils.syncDomNodeList(this.trains, document.getElementById('selected-trains'), train => train._gui.selectedNode, train => train._gui.isSelected);
     }
 
     logTrainEvent(trainEvent) {
