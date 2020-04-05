@@ -158,6 +158,7 @@ class SBahnGui {
         train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
         train.coordinates = [...rawTrain.raw_coordinates].reverse();
         train.progress = this.calcProgress(train);
+        train.estimatedPath = event.geometry.coordinates.map(coords => [coords[1], coords[0]]);
 
         train.heading = null;
         if (rawTrain.time_intervals) {
@@ -234,9 +235,6 @@ class SBahnGui {
                 fillOpacity: 0.5,
                 radius: 10
             }).addTo(this.map);
-
-            let latlng = event.geometry.coordinates.map(coord => [coord[1], coord[0]]);
-            var polyline = L.polyline(latlng, {color: 'red'}).addTo(this.map);
         }
 
         this.onTrainsUpdate();
@@ -290,6 +288,14 @@ class SBahnGui {
                 interactive: false
             }),
             mapMarkerSvgNode,
+            estimatedPath: L.polyline([], {
+                color: '#406fff',
+                weight: 5,
+                dashArray: '2 10',
+                opacity: 0.5,
+                keyboard: false,
+                interactive: false
+            }),
             refreshInterval: setInterval(() => this.refreshTrain(train), 1000),
             isVisible: true,
             isSelected: false,
@@ -335,6 +341,7 @@ class SBahnGui {
     cleanupTrainGui(train) {
         if (train._gui.node.parentNode) train._gui.node.parentNode.removeChild(train._gui.node);
         train._gui.mapMarker.remove();
+        train._gui.estimatedPath.remove();
         clearInterval(train._gui.refreshInterval);
 
         train._gui = null;
@@ -376,6 +383,8 @@ class SBahnGui {
         let headingNode = svgNode.querySelector('.heading'), viewBox = svgNode.viewBox.baseVal;
         headingNode.transform.baseVal.getItem(0).setRotate(train.heading || 0, viewBox.width / 2, viewBox.height / 2);
         headingNode.classList.toggle('is-unknown', train.heading === null);
+
+        train._gui.estimatedPath.setLatLngs(train.estimatedPath);
 
         this.refreshTrain(train);
     }
@@ -438,6 +447,9 @@ class SBahnGui {
         this.trains.forEach(train => {
             train._gui.isSelected = this.options.trains.includes(train.id);
             train._gui.mapMarkerSvgNode.classList.toggle('is-selected', train._gui.isSelected);
+
+            if (train._gui.isSelected && train._gui.isVisible) train._gui.estimatedPath.addTo(this.map);
+            else train._gui.estimatedPath.remove();
         });
 
         Utils.syncDomNodeList(this.trains, document.getElementById('selected-trains'), train => train._gui.selectedNode, train => train._gui.isSelected);
