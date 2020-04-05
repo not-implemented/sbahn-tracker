@@ -133,7 +133,7 @@ class SBahnGui {
 
         let station = this.stationsById.get(event.properties.uic);
         if (station) {
-            station.coordinates = event.geometry.coordinates.reverse();
+            station.coordinates = [...event.geometry.coordinates].reverse();
         }
     }
 
@@ -156,7 +156,7 @@ class SBahnGui {
         train.prevStation = rawTrain.stop_point_ds100;
         let pos = stations ? stations.indexOf(rawTrain.stop_point_ds100) : -1;
         train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
-        train.coordinates = rawTrain.raw_coordinates.reverse();
+        train.coordinates = [...rawTrain.raw_coordinates].reverse();
         train.progress = this.calcProgress(train);
 
         train.heading = null;
