@@ -327,6 +327,7 @@ a:hover, a:active {
 /* /line-number and destination */
 /* list of previous and next station */
 .train-main {
+    position: relative;
     order: 2;
     flex: 1 0 auto;
     padding: .6rem .7rem;
@@ -348,46 +349,43 @@ a:hover, a:active {
 }
 .station-prev {
     position: relative;
-    margin-top: .3rem;
-    margin-bottom: .6rem;
-}
-.station-prev::before {
-    content: '➤';
-    position: absolute;
-    left: 2.2rem;
-    transform: translateY(calc(50% + .3rem));
-    transform-origin: bottom;
+    margin-top: .9rem;
+    margin-bottom: 1.2rem;
 }
 .station-prev:empty {
     margin-bottom: 0;
-}
-.station-prev:empty::before {
-    display: none;
 }
 .station-prev:empty::after {
     content: "Endhaltestelle";
     color: #a0a0a0;
 }
-.station-next:empty,
-.station-next .strip:empty {
-    margin-top: -.6rem;
+.station-next {
+    margin-bottom: .6rem;
 }
 .progress {
-    margin: 0 0 0 4rem;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 4.8rem;
+    height: .6rem;
+    margin: 0;
+    transform: rotate(90deg);
     background-color: #bdd9f3;
-    width: 10rem;
-    height: 0.5rem;
 }
 .progress .bar {
-    background-color: #2b68a1;
     width: 0;
     height: 100%;
+    background-color: #2b68a1;
+}
+.progress .bar::after {
+    content: "";
+    display: block;
+    height: 1.8rem;
+    border-right: .3rem solid #2b68a1;
+    transform: translateY(calc(-100% + .6rem));
 }
 .train-stopped .station-prev {
     font-weight: bold;
-}
-.train-stopped .station-prev::before {
-     transform: translateY(0);
 }
 /* /list of previous and next station */
 /* train infos like number and vehicles */
@@ -458,10 +456,10 @@ a:hover, a:active {
     font-weight: bold;
 }
 .vehicle.is-classic {
-    background: linear-gradient(180deg, #f07f7f 50%, #be9e9e 100%);
+    box-shadow: inset 0 -.3rem 0 0 brown;
 }
 .vehicle.is-modern {
-    background: linear-gradient(180deg, #ff7f7f 50%, #ffd7d7 100%);
+    box-shadow: inset 0 -.3rem 0 0 blue;
 }
 .action-link {
     font-size: 1.5rem;
@@ -472,8 +470,6 @@ a:hover, a:active {
     text-decoration: none;
     border: .1rem solid rgba(0, 111, 53, .35);
     border-radius: 50%;
-/*    color: #fff;
-    background: #606060;*/
     transition: border .2s ease-in-out, background .2s ease-in-out;
 }
 .action-link:hover,
@@ -481,10 +477,6 @@ a:hover, a:active {
     background: rgba(0, 111, 53, .15);
     border-color: rgba(0, 111, 53, .5);
 }
-/* .action-link:hover {
-    color: #a0a0a0;
-    background: #333;
-}*/
 /* /train infos like number and vehicles */
 /* error message */
 .last-update {
@@ -519,16 +511,15 @@ a:hover, a:active {
     display: block;
 }
 #selected-trains {
-    display: flex;
-    overflow-x: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17.5rem, 1fr));
+    grid-auto-rows: 1fr;
+    grid-gap: .6rem .8rem;
+    gap: .6rem .8rem;
 
     margin: 0;
-    padding-left: 0;
+    padding: .6rem .8rem;
     list-style: none;
-}
-#selected-trains .train {
-    width: 20rem;
-    margin: .3rem;
 }
 #train-events {
     padding: .6rem .7rem;
