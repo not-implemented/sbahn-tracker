@@ -103,7 +103,7 @@ a:hover, a:active {
 #nav > a {
     margin: .6rem .8rem;
     padding: .5rem .8rem .4rem;
-    border: 1px solid rgba(0, 111, 53, .35);
+    border: .1rem solid rgba(0, 111, 53, .35);
     border-radius: .6rem;
     font-size: 1.5rem;
     line-height: 1;
@@ -465,19 +465,26 @@ a:hover, a:active {
 }
 .action-link {
     font-size: 1.5rem;
-    line-height: 1;
+    line-height: 1.3rem;
     width: 1em;
     height: 1em;
     text-align: center;
     text-decoration: none;
+    border: .1rem solid rgba(0, 111, 53, .35);
     border-radius: 50%;
-    color: #fff;
-    background: #606060;
+/*    color: #fff;
+    background: #606060;*/
+    transition: border .2s ease-in-out, background .2s ease-in-out;
 }
-.action-link:hover {
+.action-link:hover,
+.action-link:active {
+    background: rgba(0, 111, 53, .15);
+    border-color: rgba(0, 111, 53, .5);
+}
+/* .action-link:hover {
     color: #a0a0a0;
     background: #333;
-}
+}*/
 /* /train infos like number and vehicles */
 /* error message */
 .last-update {
@@ -571,7 +578,7 @@ td {
 }
 th {
     font-weight: bold;
-    border-bottom: 1px solid #c0c0c0;
+    border-bottom: .1rem solid #c0c0c0;
 }
 tbody tr {
     background: #f0f0f0;
