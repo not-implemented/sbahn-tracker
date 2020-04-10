@@ -324,7 +324,7 @@ class SBahnGui {
 
         let container = train._gui.mapMarkerSvgNode.querySelector('.container');
         container.addEventListener('click', event => {
-            if (!event.ctrlKey) this.options.trains = [];
+            if (!event.ctrlKey && !event.metaKey) this.options.trains = [];
 
             let idx = this.options.trains.indexOf(train.id);
             if (idx === -1) this.options.trains.push(train.id);
