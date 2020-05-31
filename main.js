@@ -67,7 +67,7 @@ class SBahnGui {
                 this.options[name] = parseIdList(params.get(name));
             });
 
-            if (this.updateUrl()) return; // triggers onhashchange again, if url was not canonical
+            if (this.updateUrl(null, null, true)) return; // triggers onhashchange again, if url was not canonical
 
             document.querySelectorAll('main > .page').forEach(pageNode => {
                 pageNode.classList.toggle('is-active', pageNode.id === 'page-' + this.page);
@@ -77,7 +77,7 @@ class SBahnGui {
             this.onTrainSelectionChange();
             if (this.page === 'map') this.map.invalidateSize();
         };
-        window.onhashchange();
+        window.dispatchEvent(new HashChangeEvent('hashchange'));
 
         // handle navigation clicks internally to preserve options in hash url:
         document.querySelectorAll('nav#nav a').forEach(linkNode => {
@@ -88,7 +88,7 @@ class SBahnGui {
         });
     }
 
-    updateUrl(newPage, newOptions) {
+    updateUrl(newPage, newOptions, replaceState) {
         this.page = newPage || this.page;
 
         let params = new URLSearchParams();
@@ -101,7 +101,10 @@ class SBahnGui {
         let hashUrl = '#' + this.page + (params ? '?' + params : '');
 
         if (location.hash !== hashUrl) {
-            location.hash = hashUrl;
+            if (replaceState) history.replaceState(null, '', hashUrl);
+            else history.pushState(null, '', hashUrl);
+
+            window.dispatchEvent(new HashChangeEvent('hashchange'));
             return true;
         }
         return false;
