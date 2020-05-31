@@ -343,6 +343,7 @@ class SBahnGui {
         train._gui.mapMarker.remove();
         train._gui.estimatedPath.remove();
         clearInterval(train._gui.refreshInterval);
+        if (train._gui.selectedNode.parentNode) train._gui.selectedNode.parentNode.removeChild(train._gui.selectedNode);
 
         train._gui = null;
     }
