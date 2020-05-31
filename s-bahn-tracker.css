@@ -325,7 +325,7 @@ a:hover, a:active {
     white-space: nowrap;
 }
 /* /line-number and destination */
-/* list of previous and next station */
+/* list of current and next station */
 .train-main {
     position: relative;
     order: 2;
@@ -347,15 +347,15 @@ a:hover, a:active {
 [class^="station-"] {
     padding: 0 0 0 4rem;
 }
-.station-prev {
+.station-current {
     position: relative;
     margin-top: .9rem;
     margin-bottom: 1.2rem;
 }
-.station-prev:empty {
+.station-current:empty {
     margin-bottom: 0;
 }
-.station-prev:empty::after {
+.station-current:empty::after {
     content: "Endhaltestelle";
     color: #a0a0a0;
 }
@@ -384,10 +384,10 @@ a:hover, a:active {
     border-right: .3rem solid #2b68a1;
     transform: translateY(calc(-100% + .6rem));
 }
-.train-stopped .station-prev {
+.train-stopped .station-current {
     font-weight: bold;
 }
-/* /list of previous and next station */
+/* /list of current and next station */
 /* train infos like number and vehicles */
 .train-aside {
     order: 1;

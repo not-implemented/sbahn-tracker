@@ -156,7 +156,7 @@ class SBahnGui {
         train.destination = stations && stations.length > 0 ? stations[stations.length - 1] : null;
         train.number = rawTrain.train_number;
         train.state = rawTrain.state;
-        train.prevStation = rawTrain.stop_point_ds100;
+        train.currentStation = rawTrain.stop_point_ds100;
         let pos = stations ? stations.indexOf(rawTrain.stop_point_ds100) : -1;
         train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
         train.coordinates = [...rawTrain.raw_coordinates].reverse();
@@ -215,7 +215,7 @@ class SBahnGui {
                 if (train.vehicles.length > 0) actions.push('an Wagen ' + train.vehicles.map(v => v.number).join('+') + ' angekuppelt');
 
                 if (actions.length > 0) {
-                    this.log((new Date()).toLocaleTimeString(), `${this.getStationName(train.prevStation, '(Unbekannt)')}: Wagen ${vehicle.number} wurde ${actions.join(' und ')}`);
+                    this.log((new Date()).toLocaleTimeString(), `${this.getStationName(train.currentStation, '(Unbekannt)')}: Wagen ${vehicle.number} wurde ${actions.join(' und ')}`);
                 }
             }
 
@@ -247,16 +247,16 @@ class SBahnGui {
     calcProgress(train) {
         if (train.state !== 'DRIVING') return 0;
 
-        let prevStation = this.stations.get(train.prevStation);
+        let currentStation = this.stations.get(train.currentStation);
         let nextStation = this.stations.get(train.nextStation);
 
-        if (!prevStation || !prevStation.coordinates) return 0;
+        if (!currentStation || !currentStation.coordinates) return 0;
         if (!nextStation || !nextStation.coordinates) return 0;
 
-        let distanceToPrev = this.calcDistance(train.coordinates, prevStation.coordinates);
+        let distanceToCurrent = this.calcDistance(train.coordinates, currentStation.coordinates);
         let distanceToNext = this.calcDistance(train.coordinates, nextStation.coordinates);
 
-        return distanceToPrev / (distanceToPrev + distanceToNext) * 100;
+        return distanceToCurrent / (distanceToCurrent + distanceToNext) * 100;
     }
 
     calcDistance(coords1, coords2) {
@@ -413,7 +413,7 @@ class SBahnGui {
 
         Utils.setText(trainNode.querySelector('.destination'), this.getStationName(train.destination, 'Nicht einsteigen'));
         Utils.setText(trainNode.querySelector('.train-number'), train.number || '');
-        Utils.setText(trainNode.querySelector('.station-prev .strip'), this.getStationName(train.prevStation));
+        Utils.setText(trainNode.querySelector('.station-current .strip'), this.getStationName(train.currentStation));
         Utils.setText(trainNode.querySelector('.station-next .strip'), this.getStationName(train.nextStation));
         trainNode.querySelector('.progress .bar').style.width = train.progress + '%';
 
