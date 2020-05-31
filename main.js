@@ -145,31 +145,34 @@ class SBahnGui {
         let train = this.trains.get(rawTrain.train_id);
 
         if (!train) {
-            train = { id: rawTrain.train_id };
+            train = { id: rawTrain.train_id, _changed: new Set() };
             this.createTrainGui(train);
             this.trains.set(train.id, train);
         }
 
-        let stations = rawTrain.calls_stack;
-
-        train.line = this.handleLine(rawTrain.line);
-        train.destination = stations && stations.length > 0 ? stations[stations.length - 1] : null;
-        train.number = rawTrain.train_number;
-        train.state = rawTrain.state;
-        train.currentStation = rawTrain.stop_point_ds100;
-        let pos = stations ? stations.indexOf(rawTrain.stop_point_ds100) : -1;
-        train.nextStation = pos !== -1 && stations[pos + 1] ? stations[pos + 1] : null;
-        train.coordinates = [...rawTrain.raw_coordinates].reverse();
-        train.progress = this.calcProgress(train);
-        train.estimatedPath = event.geometry.coordinates.map(coords => [coords[1], coords[0]]);
-
-        train.heading = null;
-        if (rawTrain.time_intervals) {
-            let heading = rawTrain.time_intervals[0][2];
-            if (heading) {
-                train.heading = - heading / Math.PI * 180;
-            }
+        function set(obj, attribute, newValue) {
+            if (obj[attribute] === newValue) return;
+            obj[attribute] = newValue;
+            obj._changed.add(attribute);
         }
+        train._changed.clear();
+
+        let targets = rawTrain.calls_stack; // Zuglauf (Liste aller anzufahrenden Stationen)
+        let currentIdx = targets ? targets.indexOf(rawTrain.stop_point_ds100) : -1;
+
+        set(train, 'line', this.handleLine(rawTrain.line));
+        set(train, 'number', rawTrain.train_number || rawTrain.original_train_number);
+        set(train, 'destination', targets && targets.length > 0 ? targets[targets.length - 1] : null);
+        set(train, 'state', rawTrain.state === 'DRIVING' && ['AN', 'TF', 'SB'].includes(rawTrain.event) ? 'STOPPED' : rawTrain.state);
+        set(train, 'currentStation', rawTrain.stop_point_ds100);
+        set(train, 'prevStation', currentIdx !== -1 && currentIdx > 0 ? targets[currentIdx - 1] : null);
+        set(train, 'nextStation', currentIdx !== -1 && currentIdx + 1 < targets.length ? targets[currentIdx + 1] : null);
+        set(train, 'coordinates', [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]]);
+        set(train, 'progress', this.calcProgress(train));
+        let headingRadian = rawTrain.time_intervals && rawTrain.time_intervals[0][2] || null;
+        set(train, 'heading', headingRadian !== null ? - headingRadian / Math.PI * 180 : null);
+        set(train, 'estimatedPath', event.geometry.coordinates && event.geometry.coordinates.map(coords => [coords[1], coords[0]]) || []);
+        set(train, 'lastUpdate', rawTrain.event_timestamp);
 
         let vehicles;
         if (rawTrain.rake !== null) {
@@ -224,8 +227,6 @@ class SBahnGui {
             return vehicle;
         });
 
-        train.lastUpdate = rawTrain.event_timestamp;
-
         if (this.options.trains.includes(train.id)) {
             console.log(rawTrain);
 
@@ -245,7 +246,7 @@ class SBahnGui {
     }
 
     calcProgress(train) {
-        if (train.state !== 'DRIVING') return 0;
+        if (train.state === 'BOARDING') return 0;
 
         let currentStation = this.stations.get(train.currentStation);
         let nextStation = this.stations.get(train.nextStation);
@@ -402,7 +403,9 @@ class SBahnGui {
     }
 
     updateTrainContainer(train, trainNode) {
-        trainNode.classList.toggle('train-stopped', train.state !== 'DRIVING');
+        trainNode.classList.toggle('train-driving', train.state === 'DRIVING');
+        trainNode.classList.toggle('train-stopped', train.state === 'STOPPED');
+        trainNode.classList.toggle('train-boarding', train.state === 'BOARDING');
         trainNode.classList.toggle('train-sided', train.line.id === 0);
 
         let lineLogoNode = trainNode.querySelector('.line-logo');
@@ -413,6 +416,7 @@ class SBahnGui {
 
         Utils.setText(trainNode.querySelector('.destination'), this.getStationName(train.destination, 'Nicht einsteigen'));
         Utils.setText(trainNode.querySelector('.train-number'), train.number || '');
+        Utils.setText(trainNode.querySelector('.station-prev .strip'), this.getStationName(train.prevStation));
         Utils.setText(trainNode.querySelector('.station-current .strip'), this.getStationName(train.currentStation));
         Utils.setText(trainNode.querySelector('.station-next .strip'), this.getStationName(train.nextStation));
         trainNode.querySelector('.progress .bar').style.width = train.progress + '%';
