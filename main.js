@@ -288,6 +288,7 @@ class SBahnGui {
                 interactive: false
             }),
             mapMarkerSvgNode,
+            mapMoveHandler: null,
             estimatedPath: L.polyline([], {
                 color: '#406fff',
                 weight: 5,
@@ -324,6 +325,7 @@ class SBahnGui {
 
         let container = train._gui.mapMarkerSvgNode.querySelector('.container');
         container.addEventListener('click', event => {
+            if (!container.handleClick) return;
             if (!event.ctrlKey && !event.metaKey) this.options.trains = [];
 
             let idx = this.options.trains.indexOf(train.id);
@@ -333,6 +335,11 @@ class SBahnGui {
             this.updateUrl();
         });
 
+        // ignore clicks when dragged the map directly at a mapMarkerSvgNode:
+        container.addEventListener('mousedown', () => container.handleClick = true);
+        train._gui.mapMoveHandler = () => container.handleClick = false;
+        this.map.on('movestart', train._gui.mapMoveHandler);
+
         // As "pointer-events: visiblePainted" only works in SVG, we can't use Leaflet's "riseOnHover" feature here:
         container.addEventListener('mouseover', () => train._gui.mapMarker.setZIndexOffset(250));
         container.addEventListener('mouseout', () => train._gui.mapMarker.setZIndexOffset(0));
@@ -341,6 +348,7 @@ class SBahnGui {
     cleanupTrainGui(train) {
         if (train._gui.node.parentNode) train._gui.node.parentNode.removeChild(train._gui.node);
         train._gui.mapMarker.remove();
+        this.map.off('movestart', train._gui.mapMoveHandler);
         train._gui.estimatedPath.remove();
         clearInterval(train._gui.refreshInterval);
         if (train._gui.selectedNode.parentNode) train._gui.selectedNode.parentNode.removeChild(train._gui.selectedNode);
