@@ -145,9 +145,11 @@ class SBahnGui {
         let train = this.trains.get(rawTrain.train_id);
 
         if (!train) {
-            train = { id: rawTrain.train_id, _changed: new Set() };
+            train = { id: rawTrain.train_id, _changed: new Set(['isNew']) };
             this.createTrainGui(train);
             this.trains.set(train.id, train);
+        } else {
+            train._changed.clear();
         }
 
         function set(obj, attribute, newValue) {
@@ -155,7 +157,6 @@ class SBahnGui {
             obj[attribute] = newValue;
             obj._changed.add(attribute);
         }
-        train._changed.clear();
 
         let targets = rawTrain.calls_stack; // Zuglauf (Liste aller anzufahrenden Stationen)
         let currentIdx = targets ? targets.indexOf(rawTrain.stop_point_ds100) : -1;
@@ -241,7 +242,10 @@ class SBahnGui {
             }).addTo(this.map);
         }
 
-        this.onTrainsUpdate();
+        if (['isNew', 'line', 'number'].some(attr => train._changed.has(attr))) {
+            this.onTrainsUpdate();
+        }
+
         this.onTrainUpdate(train);
     }
 
@@ -439,6 +443,14 @@ class SBahnGui {
             let nextNode = vehicleNode.nextElementSibling;
             vehiclesNode.removeChild(vehicleNode);
             vehicleNode = nextNode;
+        }
+
+        if (['line', 'number', 'destination', 'state', 'currentStation'].some(attr => train._changed.has(attr))) {
+            if (!train._changed.has('isNew')) {
+                trainNode.classList.toggle('changed', true);
+                trainNode.offsetWidth; // "force reflow" hack to make the toggle work
+                trainNode.classList.toggle('changed', false);
+            }
         }
     }
 

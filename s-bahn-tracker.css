@@ -290,6 +290,7 @@ a:hover, a:active {
 
     display: flex;
     flex-direction: column;
+    transition: background-color 1.5s ease-in;
 }
 .train-sided {
     opacity: .5;
@@ -297,6 +298,10 @@ a:hover, a:active {
 :not(.train-sided) + .train-sided,
 .train-sided + :not(.train-sided) {
     grid-column-start: 1;
+}
+.train.changed {
+    background-color: #ffec86;
+    transition-duration: 0s;
 }
 /* line-number and destination */
 .train-header {
