@@ -450,7 +450,7 @@ class SBahnGui {
         if (['line', 'number', 'destination', 'state', 'currentStation'].some(attr => train._changed.has(attr))) {
             if (!train._changed.has('isNew')) {
                 trainNode.classList.toggle('changed', true);
-                trainNode.offsetWidth; // "force reflow" hack to make the toggle work
+                void trainNode.offsetWidth; // "force reflow" hack to make the toggle work
                 trainNode.classList.toggle('changed', false);
             }
         }
