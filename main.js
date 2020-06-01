@@ -115,14 +115,15 @@ class SBahnGui {
             this.vehicleInfos.clear();
             for (let vehicleInfo of data) {
                 // Bahn-Prüfziffer mit https://de.wikipedia.org/wiki/Luhn-Algorithmus berechnen:
-                let checksum = [...vehicleInfo.model, ...vehicleInfo.number].reverse().reduce((sum, digit, i) => {
+                let id = '94800' + vehicleInfo.model + vehicleInfo.number;
+                let checksum = [...id].reverse().reduce((sum, digit, i) => {
                     digit = parseInt(digit, 10);
                     if (i % 2 === 0) digit *= 2;
                     if (digit > 9) digit -= 9;
                     return sum + digit;
                 }, 0);
-                let id = parseInt('94800' + vehicleInfo.model + vehicleInfo.number + ((1000 - checksum) % 10), 10);
-                this.vehicleInfos.set(id, vehicleInfo);
+                checksum = (1000 - checksum) % 10;
+                this.vehicleInfos.set(parseInt(id + checksum, 10), vehicleInfo);
             }
 
             this.trains.forEach(train => this.onTrainUpdate(train));
