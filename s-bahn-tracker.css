@@ -476,10 +476,10 @@ a:hover, a:active {
     font-weight: bold;
 }
 .vehicle.is-classic {
-    box-shadow: inset 0 -.3rem 0 0 brown;
+    box-shadow: inset 0 -.3rem 0 0 #d78a5b;
 }
 .vehicle.is-modern {
-    box-shadow: inset 0 -.3rem 0 0 blue;
+    box-shadow: inset 0 -.3rem 0 0 #8ca9ee;
 }
 .action-link {
     font-size: 1.5rem;
