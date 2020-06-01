@@ -164,6 +164,7 @@ class SBahnGui {
 
         set(train, 'line', this.handleLine(rawTrain.line));
         set(train, 'number', rawTrain.train_number || rawTrain.original_train_number);
+        set(train, 'numberIsNormal', !!rawTrain.train_number);
         set(train, 'destination', targets && targets.length > 0 ? targets[targets.length - 1] : null);
         set(train, 'state', rawTrain.state === 'DRIVING' && ['AN', 'TF', 'SB'].includes(rawTrain.event) ? 'STOPPED' : rawTrain.state);
         set(train, 'currentStation', rawTrain.stop_point_ds100);
@@ -420,7 +421,7 @@ class SBahnGui {
         trainNode.querySelector('.train-header').style.backgroundColor = train.line.color + '20'; // alpha 12.5%
 
         Utils.setText(trainNode.querySelector('.destination'), this.getStationName(train.destination, 'Nicht einsteigen'));
-        Utils.setText(trainNode.querySelector('.train-number'), train.number || '');
+        Utils.setText(trainNode.querySelector('.train-number'), train.number && !train.numberIsNormal ? '(' + train.number + ')' : (train.number || ''));
         Utils.setText(trainNode.querySelector('.station-prev .strip'), this.getStationName(train.prevStation));
         Utils.setText(trainNode.querySelector('.station-current .strip'), this.getStationName(train.currentStation));
         Utils.setText(trainNode.querySelector('.station-next .strip'), this.getStationName(train.nextStation));
