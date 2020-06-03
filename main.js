@@ -519,8 +519,8 @@ class SBahnGui {
             this.onLinesUpdate();
         }
 
-        if (rawLine.id === 20 && rawLine.color === '#ffffff') {
-            // Farben für S20 werden vertauscht gepushed - workaround:
+        if (rawLine.id === 9 && rawLine.color === '#ffffff') {
+            // Farben für S20 (ID 9) werden vertauscht gepushed - workaround:
             let color = rawLine.text_color;
             rawLine.text_color = rawLine.color;
             rawLine.color = color;
