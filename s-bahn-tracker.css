@@ -147,8 +147,7 @@ a:hover, a:active {
     transition: opacity ease-in-out .15s;
 }
 #lines input:checked ~ .line-logo,
-#lines.select-all .line-logo,
-#lines .line-logo:hover {
+#lines.select-all .line-logo {
     opacity: 1;
 }
 /* /train line filter */
