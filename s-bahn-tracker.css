@@ -500,11 +500,11 @@ a:hover, a:active {
 /* error message */
 .last-update {
     position: absolute;
-    bottom: 0;
-    right: .3rem;
+    bottom: .2rem;
+    right: .4rem;
     font-size: .9rem;
     line-height: 1;
-    color: #b63737;
+    color: #df3333;
 }
 /* /error message */
 /* details of train */
