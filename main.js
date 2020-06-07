@@ -177,18 +177,27 @@ class SBahnGui {
         set(train, 'estimatedPath', event.geometry.coordinates && event.geometry.coordinates.map(coords => [coords[1], coords[0]]) || []);
         set(train, 'lastUpdate', rawTrain.event_timestamp);
 
-        let vehicles;
+        let vehicles, isIncompleteRake = false;
         if (rawTrain.rake !== null) {
-            vehicles = rawTrain.rake.split(';').chunk(4).map(vehicle => {
-                let isReverse = vehicle[0] === '0';
-                let refWaggon = vehicle[isReverse ? 3 : 0];
-                // folgender Fall trat auf - war eigentlich ein Langzug (vermutlich Bug): rake: "948004232062;0;0;0;0;0;0;948004231817;0"
-                if (!refWaggon) return { id: null, number: vehicle[0] || '???', isReverse: null };
-                return { id: parseInt(refWaggon, 10), number: refWaggon.substr(-4, 3), isReverse };
+            vehicles = rawTrain.rake.split(';').chunk(4).map(waggons => {
+                let isReverse = waggons[0] === '0';
+                let refWaggon = waggons[isReverse ? waggons.length - 1 : 0];
+                if (refWaggon === '0') {
+                    // Bug: Manchmal kennt ein Fahrzeug ein anderes gekuppeltes Fahrzeug nicht vollständig, so dass statt 4 Waggons
+                    // nur eine "0" geschickt wird - z.B.: "948004232062;0;0;0;0;0;0;948004231817;0". Die anderen Fahrzeuge
+                    // kennen allerdings normalerweise die vollständige Wagenreihung. Da abwechselnd gepushed wird, wird dann z.T.
+                    // bei jedem Push auch eine neue train_id generiert, da scheinbar auch die train_id-Generierung serverseitig
+                    // an der Wagenreihung hängt. Dies wird hier im Nachgang versucht zu korrigieren.
+                    isIncompleteRake = true;
+                    return { id: null, model: null, number: '???', isReverse: null };
+                }
+                return { id: parseInt(refWaggon, 10), model: refWaggon.substr(-7, 3), number: refWaggon.substr(-4, 3), isReverse };
             });
         } else {
             // fallback if rake is not known:
-            vehicles = [{ id: parseInt(rawTrain.transmitting_vehicle, 10), number: rawTrain.vehicle_number, isReverse: null }];
+            let refWaggon = rawTrain.transmitting_vehicle;
+            vehicles = [{ id: parseInt(refWaggon, 10), model: refWaggon.substr(-7, 3), number: refWaggon.substr(-4, 3), isReverse: null }];
+            isIncompleteRake = true;
         }
 
         train.vehicles = train.vehicles || [];
