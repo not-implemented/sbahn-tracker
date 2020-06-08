@@ -7,6 +7,7 @@ class SBahnGui {
     constructor() {
         this.lines = new Map();
         this.trains = new Map();
+        this.nextImplicitTrainId = 1001; // for split trains - should not overlap with official train_ids (which are very big)
         this.vehicles = new Map();
         this.vehicleInfos = new Map();
         this.stations = new Map(Object.entries(Stations));
@@ -152,6 +153,7 @@ class SBahnGui {
         } else {
             train._changed.clear();
         }
+        let originalTrain = { ...train };
 
         function set(obj, attribute, newValue) {
             if (obj[attribute] === newValue) return;
@@ -200,43 +202,121 @@ class SBahnGui {
             isIncompleteRake = true;
         }
 
-        train.vehicles = train.vehicles || [];
-        train.vehicles = vehicles.map(newVehicle => {
+        if (isIncompleteRake) {
+            // Workaround für o.g. Bug: Wenn alle bekannten Fahrzeuge zum selben vorigen Zug gehören, alle dessen
+            // Fahrzeuge zunächst als gegeben mit übernehmen, falls noch nicht dabei:
+            let prevTrain = null;
+            let usePrevTrain = vehicles.every(newVehicle => {
+                let vehicle = this.vehicles.get(newVehicle.id);
+                if (!vehicle) return true;
+                if (prevTrain === null) prevTrain = vehicle.currentTrain;
+                if (vehicle.currentTrain === prevTrain) return true;
+                return false;
+            });
+
+            if (prevTrain && usePrevTrain) {
+                prevTrain.vehicles.forEach(prevVehicle => {
+                    if (!vehicles.some(v => v.id === prevVehicle.id)) vehicles.push(prevVehicle);
+                });
+            }
+        }
+
+        // map to existing vehicle objects (or use the new ones):
+        vehicles = vehicles.map(newVehicle => {
             let vehicle = this.vehicles.get(newVehicle.id);
             if (!vehicle) {
                 vehicle = newVehicle;
                 if (vehicle.id !== null) this.vehicles.set(vehicle.id, vehicle);
             } else {
+                vehicle.model = newVehicle.model;
                 vehicle.number = newVehicle.number;
                 vehicle.isReverse = newVehicle.isReverse;
             }
-
-            let prevTrainOfVehicle = vehicle.currentTrain;
-            if (prevTrainOfVehicle && prevTrainOfVehicle !== train) {
-                let pos = prevTrainOfVehicle.vehicles.findIndex(v => v.id === vehicle.id);
-                if (pos !== -1) prevTrainOfVehicle.vehicles.splice(pos, 1);
-
-                let deletePrevTrain = !prevTrainOfVehicle.vehicles.some(v => v.id !== null);
-
-                if (!deletePrevTrain) {
-                    this.onTrainUpdate(prevTrainOfVehicle);
-                } else {
-                    this.trains.delete(prevTrainOfVehicle.id);
-                    this.cleanupTrainGui(prevTrainOfVehicle);
-                }
-
-                let actions = [];
-                if (!deletePrevTrain) actions.push('von Wagen ' + prevTrainOfVehicle.vehicles.map(v => v.number).join('+') + ' abgekuppelt');
-                if (train.vehicles.length > 0) actions.push('an Wagen ' + train.vehicles.map(v => v.number).join('+') + ' angekuppelt');
-
-                if (actions.length > 0) {
-                    this.log((new Date()).toLocaleTimeString(), `${this.getStationName(train.currentStation, '(Unbekannt)')}: Wagen ${vehicle.number} wurde ${actions.join(' und ')}`);
-                }
-            }
-
-            vehicle.currentTrain = train;
-            if (train.vehicles.findIndex(v => v.id === vehicle.id) === -1) train.vehicles.push(vehicle);
             return vehicle;
+        });
+
+        let actions = [];
+        train.vehicles = train.vehicles || [];
+
+        let removedVehicles = train.vehicles.filter(vehicle => !vehicles.includes(vehicle));
+        if (removedVehicles.length > 0) {
+            let splittedTrain = { ...originalTrain, id: this.nextImplicitTrainId++, _changed: new Set(['isNew']), vehicles: removedVehicles };
+            splittedTrain.vehicles.forEach(vehicle => vehicle.currentTrain = splittedTrain);
+            train.vehicles = train.vehicles.filter(vehicle => vehicles.includes(vehicle));
+
+            actions.push({
+                type: 'split',
+                vehicles: [...train.vehicles],
+                vehiclesMoved: [...splittedTrain.vehicles]
+            });
+
+            this.createTrainGui(splittedTrain);
+            this.trains.set(splittedTrain.id, splittedTrain);
+            this.onTrainUpdate(splittedTrain);
+            this.onTrainsUpdate();
+
+            train._changed.add('vehicles');
+        }
+
+        let addedVehicles = vehicles.filter(vehicle => vehicle.currentTrain !== train);
+        if (addedVehicles.length > 0) {
+            let oldTrains = new Set();
+            addedVehicles.forEach(vehicle => vehicle.currentTrain && oldTrains.add(vehicle.currentTrain));
+
+            oldTrains.forEach(oldTrain => {
+                let movedVehicles = oldTrain.vehicles.filter(vehicle => addedVehicles.includes(vehicle));
+                oldTrain.vehicles = oldTrain.vehicles.filter(vehicle => !movedVehicles.includes(vehicle));
+
+                actions.push({
+                    type: 'split',
+                    vehicles: [...oldTrain.vehicles],
+                    vehiclesMoved: [...movedVehicles]
+                });
+
+                if (oldTrain.vehicles.some(vehicle => vehicle.id !== null)) {
+                    this.onTrainUpdate(oldTrain);
+                } else {
+                    this.trains.delete(oldTrain.id);
+                    this.cleanupTrainGui(oldTrain);
+                }
+
+                actions.push({
+                    type: 'join',
+                    vehicles: [...train.vehicles],
+                    vehiclesMoved: [...movedVehicles]
+                });
+
+                train.vehicles = train.vehicles.concat(movedVehicles);
+                movedVehicles.forEach(vehicle => vehicle.currentTrain = train);
+            });
+
+            let newVehicles = addedVehicles.filter(vehicle => vehicle.currentTrain !== train);
+
+            actions.push({
+                type: 'join',
+                vehicles: [...train.vehicles],
+                vehiclesMoved: [...newVehicles]
+            });
+
+            train.vehicles = train.vehicles.concat(newVehicles);
+            newVehicles.forEach(vehicle => vehicle.currentTrain = train);
+
+            train._changed.add('vehicles');
+        }
+
+        train.vehicles = vehicles; // reassign for correct (original) order
+
+        actions.forEach(action => {
+            if (action.vehicles.length === 0 || action.vehiclesMoved.length === 0) return;
+
+            this.log(
+                (new Date()).toLocaleTimeString(),
+                this.getStationName(train.currentStation, '(Unbekannt)') + ': ' +
+                'Fahrzeug ' + action.vehiclesMoved.map(v => v.number).join('+') + ' wurde ' +
+                (action.type === 'split' ? 'von' : 'an') + ' ' +
+                'Fahrzeug ' + action.vehicles.map(v => v.number).join('+') + ' ' +
+                (action.type === 'split' ? 'abgekuppelt' : 'angekuppelt')
+            );
         });
 
         if (this.options.trains.includes(train.id)) {
