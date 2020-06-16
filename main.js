@@ -179,7 +179,33 @@ class SBahnGui {
         set(train, 'estimatedPath', event.geometry.coordinates && event.geometry.coordinates.map(coords => [coords[1], coords[0]]) || []);
         set(train, 'lastUpdate', rawTrain.event_timestamp);
 
+        let vehicles = this.parseVehicles(rawTrain);
+        this.handleTrainSplitJoin(train, vehicles, originalTrain);
+
+        if (this.options.trains.includes(train.id)) {
+            console.log(rawTrain);
+
+            this.logTrainEvent(rawTrain);
+
+            this.map.setView(train.coordinates);
+            var circle = L.circle(train.coordinates, {
+                color: train.line.color,
+                fillColor: train.line.color,
+                fillOpacity: 0.5,
+                radius: 10
+            }).addTo(this.map);
+        }
+
+        if (['isNew', 'line', 'number'].some(attr => train._changed.has(attr))) {
+            this.onTrainsUpdate();
+        }
+
+        this.onTrainUpdate(train);
+    }
+
+    parseVehicles(rawTrain) {
         let vehicles, isIncompleteRake = false;
+
         if (rawTrain.rake !== null) {
             vehicles = rawTrain.rake.split(';').chunk(4).map(waggons => {
                 let isReverse = waggons[0] === '0';
@@ -235,6 +261,10 @@ class SBahnGui {
             return vehicle;
         });
 
+        return vehicles;
+    }
+
+    handleTrainSplitJoin(train, vehicles, originalTrain) {
         let actions = [];
         train.vehicles = train.vehicles || [];
 
@@ -318,26 +348,6 @@ class SBahnGui {
                 (action.type === 'split' ? 'abgekuppelt' : 'angekuppelt')
             );
         });
-
-        if (this.options.trains.includes(train.id)) {
-            console.log(rawTrain);
-
-            this.logTrainEvent(rawTrain);
-
-            this.map.setView(train.coordinates);
-            var circle = L.circle(train.coordinates, {
-                color: train.line.color,
-                fillColor: train.line.color,
-                fillOpacity: 0.5,
-                radius: 10
-            }).addTo(this.map);
-        }
-
-        if (['isNew', 'line', 'number'].some(attr => train._changed.has(attr))) {
-            this.onTrainsUpdate();
-        }
-
-        this.onTrainUpdate(train);
     }
 
     calcProgress(train) {
