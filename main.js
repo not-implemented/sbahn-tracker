@@ -249,6 +249,9 @@ class SBahnGui {
                     if (!vehicles.some(v => v.id === prevVehicle.id)) {
                         this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung vervollständigt mit Fahrzeug ' + prevVehicle.id);
                         vehicles.push(prevVehicle);
+
+                        let pos = vehicles.findIndex(v => v.id === null);
+                        if (pos != -1) vehicles.splice(pos, 1);
                     }
                 });
             }
