@@ -218,6 +218,7 @@ class SBahnGui {
                     // kennen allerdings normalerweise die vollständige Wagenreihung. Da abwechselnd gepushed wird, wird dann z.T.
                     // bei jedem Push auch eine neue train_id generiert, da scheinbar auch die train_id-Generierung serverseitig
                     // an der Wagenreihung hängt. Dies wird hier im Nachgang versucht zu korrigieren.
+                    this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unvollständig: ' + rawTrain.rake);
                     isIncompleteRake = true;
                     return { id: null, model: null, number: '???', isReverse: null };
                 }
@@ -225,6 +226,7 @@ class SBahnGui {
             });
         } else {
             // fallback if rake is not known:
+            this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unbekannt');
             let refWaggon = rawTrain.transmitting_vehicle;
             vehicles = [{ id: parseInt(refWaggon, 10), model: refWaggon.substr(-7, 3), number: refWaggon.substr(-4, 3), isReverse: null }];
             isIncompleteRake = true;
@@ -244,7 +246,10 @@ class SBahnGui {
 
             if (prevTrain && usePrevTrain) {
                 prevTrain.vehicles.forEach(prevVehicle => {
-                    if (!vehicles.some(v => v.id === prevVehicle.id)) vehicles.push(prevVehicle);
+                    if (!vehicles.some(v => v.id === prevVehicle.id)) {
+                        this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung vervollständigt mit Fahrzeug ' + prevVehicle.id);
+                        vehicles.push(prevVehicle);
+                    }
                 });
             }
         }
@@ -342,7 +347,6 @@ class SBahnGui {
             if (action.vehicles.length === 0 || action.vehiclesMoved.length === 0) return;
 
             this.log(
-                (new Date()).toLocaleTimeString(),
                 this.getStationName(train.currentStation, '(Unbekannt)') + ': ' +
                 'Fahrzeug ' + action.vehiclesMoved.map(v => v.number).join('+') + ' wurde ' +
                 (action.type === 'split' ? 'von' : 'an') + ' ' +
@@ -601,9 +605,9 @@ class SBahnGui {
         document.querySelector('#train-events tbody').appendChild(trainEventNode);
     }
 
-    log(time, text) {
+    log(text) {
         let messageNode = Utils.getTemplate('message');
-        messageNode.querySelector('.time').textContent = time;
+        messageNode.querySelector('.time').textContent = (new Date()).toLocaleTimeString();
         messageNode.querySelector('.text').textContent = text;
         document.getElementById('log').appendChild(messageNode);
     }
