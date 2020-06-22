@@ -143,6 +143,8 @@ class SBahnGui {
     }
 
     onTrajectoryEvent(event) {
+        if (!event) return; // "content": null seems to happen on bigger server problems
+
         let rawTrain = event.properties;
         let train = this.trains.get(rawTrain.train_id);
 
