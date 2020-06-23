@@ -233,27 +233,22 @@ class SBahnGui {
         }
 
         if (isIncompleteRake) {
-            // Workaround für o.g. Bug: Wenn alle bekannten Fahrzeuge zum selben vorigen Zug gehören, alle dessen
-            // Fahrzeuge zunächst als gegeben mit übernehmen, falls noch nicht dabei:
+            // Workaround für o.g. Bug: Wenn alle bekannten Fahrzeuge zum selben vorigen Zug gehören, dessen Fahrzeuge/Reihenfolge
+            // komplett übernehmen (dadurch werden auch die selben vehicle-Objekte der unbekannten Fahrzeuge übernommen,
+            // so dass später keine sinnlosen Kuppelaktionen mit "neuem/alten" unbekannten Fahrzeug generiert werden):
             let prevTrain = null;
             let usePrevTrain = vehicles.every(newVehicle => {
+                if (newVehicle.id === null) return true;
                 let vehicle = this.vehicles.get(newVehicle.id);
-                if (!vehicle) return true;
+                if (!vehicle) return false;
                 if (prevTrain === null) prevTrain = vehicle.currentTrain;
                 if (vehicle.currentTrain === prevTrain) return true;
                 return false;
             });
 
             if (prevTrain && usePrevTrain) {
-                prevTrain.vehicles.forEach(prevVehicle => {
-                    if (!vehicles.some(v => v.id === prevVehicle.id)) {
-                        this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung vervollständigt mit Fahrzeug ' + prevVehicle.id);
-                        vehicles.push(prevVehicle);
-
-                        let pos = vehicles.findIndex(v => v.id === null);
-                        if (pos != -1) vehicles.splice(pos, 1);
-                    }
-                });
+                vehicles = [...prevTrain.vehicles];
+                this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung korrigiert auf ' + vehicles.map(v => v.number).join('+'));
             }
         }
 
