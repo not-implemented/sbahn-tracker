@@ -174,7 +174,7 @@ class SBahnGui {
         set(train, 'currentStation', rawTrain.stop_point_ds100);
         set(train, 'prevStation', currentIdx !== -1 && currentIdx > 0 ? targets[currentIdx - 1] : null);
         set(train, 'nextStation', currentIdx !== -1 && currentIdx + 1 < targets.length ? targets[currentIdx + 1] : null);
-        set(train, 'coordinates', [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]]);
+        set(train, 'coordinates', rawTrain.raw_coordinates ? [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]] : null);
         set(train, 'progress', this.calcProgress(train));
         let headingRadian = rawTrain.time_intervals && rawTrain.time_intervals[0][2] || null;
         set(train, 'heading', headingRadian !== null ? - headingRadian / Math.PI * 180 : null);
@@ -189,13 +189,15 @@ class SBahnGui {
 
             this.logTrainEvent(rawTrain);
 
-            this.map.setView(train.coordinates);
-            var circle = L.circle(train.coordinates, {
-                color: train.line.color,
-                fillColor: train.line.color,
-                fillOpacity: 0.5,
-                radius: 10
-            }).addTo(this.map);
+            if (train.coordinates !== null) {
+                this.map.setView(train.coordinates);
+                var circle = L.circle(train.coordinates, {
+                    color: train.line.color,
+                    fillColor: train.line.color,
+                    fillOpacity: 0.5,
+                    radius: 10
+                }).addTo(this.map);
+            }
         }
 
         if (['isNew', 'line', 'number'].some(attr => train._changed.has(attr))) {
@@ -360,6 +362,7 @@ class SBahnGui {
 
     calcProgress(train) {
         if (train.state === 'BOARDING') return 0;
+        if (train.coordinates === null) return 0;
 
         let currentStation = this.stations.get(train.currentStation);
         let nextStation = this.stations.get(train.nextStation);
@@ -499,7 +502,7 @@ class SBahnGui {
         this.updateTrainContainer(train, train._gui.node);
         this.updateTrainContainer(train, train._gui.selectedNode);
 
-        train._gui.mapMarker.setLatLng(train.coordinates);
+        train._gui.mapMarker.setLatLng(train.coordinates || [47.9052567, 11.3084582]); // Starnberger See als "Fallback"
 
         let svgNode = train._gui.mapMarkerSvgNode;
         svgNode.querySelector('.name').textContent = train.line.name;
