@@ -171,7 +171,7 @@ class SBahnGui {
         set(train, 'numberIsNormal', !!rawTrain.train_number);
         set(train, 'destination', targets && targets.length > 0 ? targets[targets.length - 1] : null);
         set(train, 'state', rawTrain.state === 'DRIVING' && ['AN', 'TF', 'SB'].includes(rawTrain.event) ? 'STOPPED' : rawTrain.state);
-        set(train, 'currentStation', rawTrain.stop_point_ds100);
+        set(train, 'currentStation', rawTrain.stop_point_ds100 || null);
         set(train, 'prevStation', currentIdx !== -1 && currentIdx > 0 ? targets[currentIdx - 1] : null);
         set(train, 'nextStation', currentIdx !== -1 && currentIdx + 1 < targets.length ? targets[currentIdx + 1] : null);
         set(train, 'coordinates', rawTrain.raw_coordinates ? [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]] : null);
