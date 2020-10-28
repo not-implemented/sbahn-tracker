@@ -224,11 +224,15 @@ class SBahnGui {
                 }
                 return { id: parseInt(refWaggon, 10), model: refWaggon.substr(-7, 3), number: refWaggon.substr(-4, 3), isReverse };
             });
-        } else {
+        } else if (rawTrain.transmitting_vehicle) {
             // fallback if rake is not known:
             this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unbekannt');
             let refWaggon = rawTrain.transmitting_vehicle;
             vehicles = [{ id: parseInt(refWaggon, 10), model: refWaggon.substr(-7, 3), number: refWaggon.substr(-4, 3), isReverse: null }];
+            isIncompleteRake = true;
+        } else {
+            // unknown transmitting_vehicle (if has_realtime = false):
+            vehicles = [{ id: null, model: null, number: '???', isReverse: null }];
             isIncompleteRake = true;
         }
 
