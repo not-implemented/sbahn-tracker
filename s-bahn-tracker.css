@@ -562,6 +562,12 @@ a:hover, a:active {
     stroke: #ffffff;
     stroke-width: 0.3;
 }
+#map .train-marker .no-gps-cordinates {
+    fill: #ff4f4f;
+}
+#map .train-marker .no-gps-cordinates.hide {
+    display: none;
+}
 #map .train-marker .is-selected .marker {
     stroke: #406fff;
 }

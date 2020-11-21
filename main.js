@@ -174,7 +174,19 @@ class SBahnGui {
         set(train, 'currentStation', rawTrain.stop_point_ds100 || null);
         set(train, 'prevStation', currentIdx !== -1 && currentIdx > 0 ? targets[currentIdx - 1] : null);
         set(train, 'nextStation', currentIdx !== -1 && currentIdx + 1 < targets.length ? targets[currentIdx + 1] : null);
-        set(train, 'coordinates', rawTrain.raw_coordinates ? [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]] : null);
+
+        if (rawTrain.raw_coordinates) {
+            set(train, 'coordinates', [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]]);
+            set(train, 'hasGpsCordinates', true);
+        } else if (event.geometry.coordinates) {
+            let coords = event.geometry.coordinates[0];
+            set(train, 'coordinates', [coords[1], coords[0]]);
+            set(train, 'hasGpsCordinates', false);
+        } else {
+            set(train, 'coordinates', null);
+            set(train, 'hasGpsCordinates', false);
+        }
+
         set(train, 'progress', this.calcProgress(train));
         let headingRadian = rawTrain.time_intervals && rawTrain.time_intervals[0][2] || null;
         set(train, 'heading', headingRadian !== null ? - headingRadian / Math.PI * 180 : null);
@@ -519,6 +531,8 @@ class SBahnGui {
         svgNode.querySelector('.name').textContent = train.line.name;
         svgNode.querySelector('.marker').style.fill = train.line.color;
         svgNode.querySelector('.name').style.fill = train.line.textColor;
+
+        svgNode.querySelector('.no-gps-cordinates').classList.toggle('hide', train.hasGpsCordinates);
 
         let headingNode = svgNode.querySelector('.heading'), viewBox = svgNode.viewBox.baseVal;
         headingNode.transform.baseVal.getItem(0).setRotate(train.heading || 0, viewBox.width / 2, viewBox.height / 2);
