@@ -220,7 +220,8 @@ class SBahnGui {
                     // kennen allerdings normalerweise die vollständige Wagenreihung. Da abwechselnd gepushed wird, wird dann z.T.
                     // bei jedem Push auch eine neue train_id generiert, da scheinbar auch die train_id-Generierung serverseitig
                     // an der Wagenreihung hängt. Dies wird hier im Nachgang versucht zu korrigieren.
-                    this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unvollständig: ' + rawTrain.rake);
+                    // TODO: 0;0;0;948004232047;0;0 => Langzug mit 2 unbekannten Fahrzeugen
+                    //this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unvollständig: ' + rawTrain.rake);
                     isIncompleteRake = true;
                     return { id: null, model: null, number: '???', isReverse: null };
                 }
@@ -228,7 +229,7 @@ class SBahnGui {
             });
         } else if (rawTrain.transmitting_vehicle) {
             // fallback if rake is not known:
-            this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unbekannt');
+            //this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unbekannt');
             let refWaggon = rawTrain.transmitting_vehicle;
             vehicles = [{ id: parseInt(refWaggon, 10), model: refWaggon.substr(-7, 3), number: refWaggon.substr(-4, 3), isReverse: null }];
             isIncompleteRake = true;
@@ -262,7 +263,7 @@ class SBahnGui {
 
             if (prevTrain && usePrevTrain) {
                 vehicles = [...prevTrain.vehicles];
-                this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung korrigiert auf ' + vehicles.map(v => v.number).join('+'));
+                //this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung korrigiert auf ' + vehicles.map(v => v.number).join('+'));
             }
         }
 
