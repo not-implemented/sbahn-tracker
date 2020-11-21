@@ -35,10 +35,7 @@ class SBahnGui {
         L.tileLayer('https://a.tile.openstreetmap.de/{z}/{x}/{y}.png', {
             attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
             maxZoom: 18,
-            className: 'main-tile-layer'
         }).addTo(this.map);
-
-        L.tileLayer('http://a.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png').addTo(this.map);
 
         // Lama easter egg:
         L.marker([-16.6073271, -65.4916048], {

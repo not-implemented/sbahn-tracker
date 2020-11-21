@@ -554,9 +554,6 @@ a:hover, a:active {
         flex-basis: 50%;
     }
 }
-#map .main-tile-layer {
-    filter: grayscale();
-}
 #map .train-marker .container {
     cursor: pointer;
     pointer-events: visiblePainted;
