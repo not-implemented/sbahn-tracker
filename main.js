@@ -32,14 +32,13 @@ class SBahnGui {
     initMap() {
         this.map = L.map('map').setView([48.137187, 11.575501], 11);
 
-        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        L.tileLayer('https://a.tile.openstreetmap.de/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
             maxZoom: 18,
-            id: 'mapbox/streets-v11',
-            tileSize: 512,
-            zoomOffset: -1,
-            accessToken: 'pk.eyJ1Ijoibm90LWltcGxlbWVudGVkIiwiYSI6ImNrN3Mxc3BicDA5OTczbnBjaWp3aG9vbGwifQ.QXUwqP4R70UpPPxzNfewEA'
+            className: 'main-tile-layer'
         }).addTo(this.map);
+
+        L.tileLayer('http://a.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png').addTo(this.map);
 
         // Lama easter egg:
         L.marker([-16.6073271, -65.4916048], {
