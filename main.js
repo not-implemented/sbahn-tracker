@@ -193,6 +193,14 @@ class SBahnGui {
         set(train, 'estimatedPath', event.geometry.coordinates && event.geometry.coordinates.map(coords => [coords[1], coords[0]]) || []);
         set(train, 'lastUpdate', rawTrain.event_timestamp);
 
+        train.historyPath = train.historyPath || [];
+        if (train.coordinates !== null) {
+            train.historyPath.push(train.coordinates);
+            if (train.historyPath.length > 1000) {
+                train.historyPath.shift(); // ring-buffer
+            }
+        }
+
         let vehicles = this.parseVehicles(rawTrain, originalTrain);
         this.handleTrainSplitJoin(train, vehicles, originalTrain);
 
@@ -200,16 +208,6 @@ class SBahnGui {
             console.log(rawTrain);
 
             this.logTrainEvent(rawTrain);
-
-            if (train.coordinates !== null) {
-                this.map.setView(train.coordinates);
-                var circle = L.circle(train.coordinates, {
-                    color: train.line.color,
-                    fillColor: train.line.color,
-                    fillOpacity: 0.5,
-                    radius: 10
-                }).addTo(this.map);
-            }
         }
 
         if (['isNew', 'line', 'number'].some(attr => train._changed.has(attr))) {
@@ -432,6 +430,13 @@ class SBahnGui {
             }),
             mapMarkerSvgNode,
             mapMoveHandler: null,
+            historyPath: L.polyline([], {
+                color: '#406fff',
+                weight: 3,
+                opacity: 0.5,
+                keyboard: false,
+                interactive: false
+            }),
             estimatedPath: L.polyline([], {
                 color: '#406fff',
                 weight: 5,
@@ -492,6 +497,7 @@ class SBahnGui {
         if (train._gui.node.parentNode) train._gui.node.parentNode.removeChild(train._gui.node);
         train._gui.mapMarker.remove();
         this.map.off('movestart', train._gui.mapMoveHandler);
+        train._gui.historyPath.remove();
         train._gui.estimatedPath.remove();
         clearInterval(train._gui.refreshInterval);
         if (train._gui.selectedNode.parentNode) train._gui.selectedNode.parentNode.removeChild(train._gui.selectedNode);
@@ -538,6 +544,7 @@ class SBahnGui {
         headingNode.transform.baseVal.getItem(0).setRotate(train.heading || 0, viewBox.width / 2, viewBox.height / 2);
         headingNode.classList.toggle('is-unknown', train.heading === null);
 
+        train._gui.historyPath.setLatLngs(train.historyPath);
         train._gui.estimatedPath.setLatLngs(train.estimatedPath);
 
         this.refreshTrain(train);
@@ -611,6 +618,9 @@ class SBahnGui {
         this.trains.forEach(train => {
             train._gui.isSelected = this.options.trains.includes(train.id);
             train._gui.mapMarkerSvgNode.classList.toggle('is-selected', train._gui.isSelected);
+
+            if (train._gui.isSelected && train._gui.isVisible) train._gui.historyPath.addTo(this.map);
+            else train._gui.historyPath.remove();
 
             if (train._gui.isSelected && train._gui.isVisible) train._gui.estimatedPath.addTo(this.map);
             else train._gui.estimatedPath.remove();
