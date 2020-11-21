@@ -168,7 +168,7 @@ a:hover, a:active {
 .site-main {
     flex: 1 1 auto;
     position: relative;
-    overflow-y: auto;
+    overflow-y: scroll;
     background: #d0d0d0;
     -webkit-overflow-scrolling: touch;
     overflow-scrolling: touch;
@@ -191,7 +191,7 @@ a:hover, a:active {
 #trains {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(16.5rem, 1fr));
-    grid-auto-rows: 1fr;
+    grid-auto-rows: 14rem;
     grid-gap: .6rem .8rem;
     gap: .6rem .8rem;
 
