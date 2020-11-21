@@ -429,7 +429,6 @@ class SBahnGui {
             historyPath: L.polyline([], {
                 color: '#406fff',
                 weight: 3,
-                opacity: 0.5,
                 keyboard: false,
                 interactive: false
             }),
@@ -437,7 +436,6 @@ class SBahnGui {
                 color: '#406fff',
                 weight: 5,
                 dashArray: '2 10',
-                opacity: 0.5,
                 keyboard: false,
                 interactive: false
             }),
