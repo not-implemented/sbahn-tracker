@@ -181,7 +181,7 @@ class SBahnGui {
         set(train, 'estimatedPath', event.geometry.coordinates && event.geometry.coordinates.map(coords => [coords[1], coords[0]]) || []);
         set(train, 'lastUpdate', rawTrain.event_timestamp);
 
-        let vehicles = this.parseVehicles(rawTrain);
+        let vehicles = this.parseVehicles(rawTrain, originalTrain);
         this.handleTrainSplitJoin(train, vehicles, originalTrain);
 
         if (this.options.trains.includes(train.id)) {
@@ -207,7 +207,7 @@ class SBahnGui {
         this.onTrainUpdate(train);
     }
 
-    parseVehicles(rawTrain) {
+    parseVehicles(rawTrain, originalTrain) {
         let vehicles, isIncompleteRake = false;
 
         if (rawTrain.rake !== null) {
@@ -252,6 +252,14 @@ class SBahnGui {
                 return false;
             });
 
+            if (prevTrain === null && originalTrain.vehicles) {
+                if (originalTrain.vehicles.every(vehicle => vehicle.id === null)) {
+                    // Wenn alle Fahrzeuge des Zugs unbekannt sind, und auch die des vorigen, per train_id verknüpften Zugs,
+                    // dann dessen Fahrzeuge übernehmen:
+                    prevTrain = originalTrain;
+                }
+            }
+
             if (prevTrain && usePrevTrain) {
                 vehicles = [...prevTrain.vehicles];
                 this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung korrigiert auf ' + vehicles.map(v => v.number).join('+'));
@@ -291,10 +299,12 @@ class SBahnGui {
                 vehiclesMoved: [...splittedTrain.vehicles]
             });
 
-            this.createTrainGui(splittedTrain);
-            this.trains.set(splittedTrain.id, splittedTrain);
-            this.onTrainUpdate(splittedTrain);
-            this.onTrainsUpdate();
+            if (splittedTrain.vehicles.some(vehicle => vehicle.id !== null)) {
+                this.createTrainGui(splittedTrain);
+                this.trains.set(splittedTrain.id, splittedTrain);
+                this.onTrainUpdate(splittedTrain);
+                this.onTrainsUpdate();
+            }
 
             train._changed.add('vehicles');
         }
