@@ -574,6 +574,7 @@ class SBahnGui {
             let vehicleInfo = this.vehicleInfos.get(vehicle.id);
             vehicleNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern === true));
             vehicleNode.classList.toggle('is-classic', !!(vehicleInfo && vehicleInfo.isModern === false));
+            vehicleNode.classList.toggle('is-up-to-date', !!(vehicleInfo && vehicleInfo.isUpToDate));
 
             vehicleNode = vehicleNode.nextElementSibling;
         });

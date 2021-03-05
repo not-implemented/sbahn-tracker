@@ -480,6 +480,12 @@ a:hover, a:active {
 .vehicle.is-modern {
     box-shadow: inset 0 -.3rem 0 0 #8ca9ee;
 }
+.vehicle {
+    background-color: #e7e7e7;
+}
+.vehicle.is-up-to-date {
+    background-color: #c0c0c0;
+}
 .action-link {
     font-size: 1.5rem;
     line-height: 1.3rem;
