@@ -120,10 +120,9 @@ a:hover, a:active {
     transition: border .2s ease-in-out, background .2s ease-in-out;
     white-space: nowrap;
 }
+#nav > a.is-active,
 #nav > a:hover,
-#nav > a:active,
-.is-active-list #nav > [href="#list"],
-.is-active-map #nav > [href="#map"] {
+#nav > a:active {
     background: rgba(0, 111, 53, .15);
     border-color: rgba(0, 111, 53, .5);
 }
