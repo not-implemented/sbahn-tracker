@@ -19,12 +19,12 @@ html {
     -webkit-text-size-adjust: 100%;
     height: 100%;
 }
-@media (min-width: 18.125em) {
+@media (min-width: 22.875em) {
     html {
         font-size: 50%;
     }
 }
-@media (min-width: 27em) {
+@media (min-width: 28.75em) {
     html {
         font-size: 62.5%;
     }
@@ -56,11 +56,13 @@ a:hover, a:active {
 }
 .line-logo {
     display: inline-block;
-    padding: .5rem .8rem .4rem;
+    min-width: 3.5rem;
+    padding: .5rem .4rem .4rem;
     border-radius: .6rem;
     font-size: 1.5rem;
     line-height: 1;
     font-weight: bold;
+    text-align: center;
 }
 /* /DEFAULTS */
 
@@ -456,7 +458,6 @@ a:hover, a:active {
     margin: -.1rem .3rem -.2rem -.3rem;
     padding-left: .3rem;
     padding-bottom: .3rem;
-    border-bottom: .1rem solid #dfdfdf;
     list-style: none;
     font-size: 0;
     white-space: nowrap;
