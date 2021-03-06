@@ -37,6 +37,8 @@ class SBahnGui {
             maxZoom: 18,
         }).addTo(this.map);
 
+        L.control.scale({ imperial: false }).addTo(this.map);
+
         // Lama easter egg:
         L.marker([-16.6073271, -65.4916048], {
             icon: L.icon({
