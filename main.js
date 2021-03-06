@@ -66,6 +66,8 @@ class SBahnGui {
 
             if (this.updateUrl(null, null, true)) return; // triggers onhashchange again, if url was not canonical
 
+            document.body.classList.remove('is-active-map').remove('is-active-list').add('is-active-' + page);
+
             document.querySelectorAll('main > .page').forEach(pageNode => {
                 pageNode.classList.toggle('is-active', pageNode.id === 'page-' + this.page);
             });

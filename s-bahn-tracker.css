@@ -13,13 +13,18 @@
 
 html {
     box-sizing: border-box;
-    font-size: 50%;
+    font-size: 40%;
     font-family: sans-serif;
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     height: 100%;
 }
-@media (min-width: 21.875em) {
+@media (min-width: 18.125em) {
+    html {
+        font-size: 50%;
+    }
+}
+@media (min-width: 27em) {
     html {
         font-size: 62.5%;
     }
@@ -83,7 +88,7 @@ a:hover, a:active {
 }
 .site-header h1 {
     flex: 0 0 auto;
-    margin: .6rem 0;
+    margin: .3rem 0;
     font-size: 2.4rem;
     line-height: 1;
 }
@@ -101,23 +106,56 @@ a:hover, a:active {
 }
 /* train line filter */
 #nav > a {
-    margin: .6rem .8rem;
-    padding: .5rem .8rem .4rem;
+    display: inline-block;
+    min-width: 3.2rem;
+    margin: .3rem 0;
+    padding: .4rem .7rem .3rem;
     border: .1rem solid rgba(0, 111, 53, .35);
     border-radius: .6rem;
     font-size: 1.5rem;
     line-height: 1;
     font-weight: bold;
     text-decoration: none;
+    text-align: center;
     transition: border .2s ease-in-out, background .2s ease-in-out;
+    white-space: nowrap;
 }
 #nav > a:hover,
-#nav > a:active {
+#nav > a:active,
+.is-active-list #nav > [href="#list"],
+.is-active-map #nav > [href="#map"] {
     background: rgba(0, 111, 53, .15);
     border-color: rgba(0, 111, 53, .5);
 }
+#nav a::before {
+    display: inline-block;
+    height: 1.2rem;
+    width: 1rem;
+    margin: 0;
+    vertical-align: top;
+}
+#nav [href="#list"]::before {
+    content: url(img/icon-list.svg);
+}
+#nav [href="#map"]::before {
+    content: url(img/icon-map.svg);
+}
+@media (min-width: 27em) {
+    #nav a::before {
+        margin-right: .3rem;
+    }
+}
+#nav span {
+    display: none;
+}
+@media (min-width: 27em) {
+    #nav span {
+        display: inline-block;
+    }
+}
 #filter {
     flex: 0 1 auto;
+    margin: .3rem 0;
 }
 #filter > a:hover,
 #filter > a:active {
@@ -155,7 +193,6 @@ a:hover, a:active {
 
 /* SITE FOOTER: Copyright and stuff */
 .site-footer {
-    /*margin: 2.4rem -.8rem 0;*/
     padding: .6rem .8rem;
     background: #f0f0f0;
     box-shadow: 0 -.1rem .3rem 0 rgba(0,0,0,.3);
@@ -417,16 +454,15 @@ a:hover, a:active {
 }
 .vehicles {
     flex: 1 1 auto;
-    margin: 0;
-    padding-left: 0;
+    margin: -.1rem .3rem -.2rem -.3rem;
+    padding-left: .3rem;
+    padding-bottom: .3rem;
+    border-bottom: .1rem solid #dfdfdf;
     list-style: none;
     font-size: 0;
     white-space: nowrap;
     overflow: hidden;
-
-    padding-bottom: 0.1rem;
-    background: linear-gradient(90deg, #c0c0c0 40%, transparent 40%) repeat-x 0 100%/1rem 0.2rem,
-        linear-gradient(90deg, #dfdfdf 20%, #efefef 60%, #dfdfdf 100%) repeat-x 0 calc(100% - 0.2rem)/1rem 0.1rem;
+    background: linear-gradient(90deg, #c0c0c0 40%, transparent 40%) repeat-x left bottom / 1rem .2rem, linear-gradient(90deg, #cfcfcf 0%, #cfcfcf 100%) repeat-x left 0 bottom .2rem / 100% .1rem;
     animation: train-driving 1s infinite linear paused;
 }
 .train-driving .vehicles {
@@ -521,7 +557,7 @@ a:hover, a:active {
     align-items: stretch;
     overflow: auto;
 }
-@media (orientation: landscape) and (min-width: 21.875em) {
+@media (orientation: landscape) and (min-width: 27em) {
     #page-map.is-active {
         flex-direction: row;
     }
@@ -555,7 +591,7 @@ a:hover, a:active {
     flex: 1 0 25%;
     box-shadow: 0 0 .6rem .3rem rgba(0,0,0,.15);
 }
-@media (orientation: landscape) and (min-width: 21.875em) {
+@media (orientation: landscape) and (min-width: 27em) {
     #map {
         flex-basis: 50%;
     }
