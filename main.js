@@ -16,7 +16,9 @@ class SBahnGui {
         this.page = null;
         this.options = {
             lines: [],
-            trains: []
+            trains: [],
+            direction: [],
+            lastSeen: []
         };
 
         this.initMap();
@@ -50,6 +52,9 @@ class SBahnGui {
     }
 
     initNavigation() {
+        function parseStrList(str) {
+            return str ? str.split(',').filter(value => value !== '') : [];
+        }
         function parseIdList(str) {
             return str ? str.split(',').map(id => parseInt(id, 10)).filter(id => id >= 0) : [];
         }
@@ -63,7 +68,8 @@ class SBahnGui {
             this.page = page;
 
             Object.keys(this.options).forEach(name => {
-                this.options[name] = parseIdList(params.get(name));
+                if (name === 'direction' || name === 'lastSeen') this.options[name] = parseStrList(params.get(name));
+                else this.options[name] = parseIdList(params.get(name));
             });
 
             if (this.updateUrl(null, null, true)) return; // triggers onhashchange again, if url was not canonical
@@ -75,6 +81,7 @@ class SBahnGui {
                 pageNode.classList.toggle('is-active', pageNode.id === 'page-' + this.page);
             });
 
+            this.onFilterSelectionChange();
             this.onLineSelectionChange();
             this.onTrainSelectionChange();
             if (this.page === 'map') this.map.invalidateSize();
@@ -88,6 +95,8 @@ class SBahnGui {
                 this.updateUrl(linkNode.getAttribute('href').replace(/^#/, ''));
             });
         });
+
+        this.initFilter();
     }
 
     updateUrl(newPage, newOptions, replaceState) {
@@ -517,6 +526,18 @@ class SBahnGui {
         this.trains.forEach(train => {
             train._gui.isVisible = this.options.lines.length === 0 || this.options.lines.includes(train.line.id);
 
+            if (train._gui.isVisible && this.options.direction.length > 0) {
+                train._gui.isVisible = !!train.number && this.options.direction.includes(train.number % 2 === 1 ? 'east' : 'west');
+            }
+
+            if (train._gui.isVisible && this.options.lastSeen.length > 0) {
+                train._gui.isVisible = train.vehicles.some(vehicle => {
+                    let vehicleInfo = this.vehicleInfos.get(vehicle.id);
+                    if (!vehicleInfo) return false;
+                    return this.options.lastSeen.includes(vehicleInfo.isOutdated ? 'outdated' : 'current');
+                });
+            }
+
             if (train._gui.isVisible) train._gui.mapMarker.addTo(this.map);
             else train._gui.mapMarker.remove();
         });
@@ -720,6 +741,29 @@ class SBahnGui {
         linesNode.classList.toggle('select-all', this.options.lines.length === 0);
 
         if (!skipTrainsUpdate) this.onTrainsUpdate();
+    }
+
+    initFilter() {
+        ['direction', 'lastSeen'].forEach(filter => {
+            let filterNode = document.getElementById(filter);
+            filterNode.querySelectorAll('input').forEach(node => {
+                node.addEventListener('change', () => {
+                    this.updateUrl(null, {
+                        [filter]: [...filterNode.querySelectorAll('input:checked')].map(node => node.value)
+                    });
+                });
+            });
+        });
+    }
+
+    onFilterSelectionChange() {
+        ['direction', 'lastSeen'].forEach(filter => {
+            let filterNode = document.getElementById(filter);
+            filterNode.querySelectorAll('input').forEach(node => {
+                node.checked = this.options[filter].includes(node.value);
+            });
+            filterNode.classList.toggle('select-all', this.options[filter].length === 0);
+        });
     }
 }
 
