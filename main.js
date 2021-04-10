@@ -28,6 +28,8 @@ class SBahnGui {
         this.client = new SBahnClient('put-api-key-here', console);
         this.client.on('station', event => this.onStationEvent(event));
         this.client.on('trajectory', event => this.onTrajectoryEvent(event));
+        this.client.on('deleted_vehicles', event => this.onDeletedVehiclesEvent(event));
+        this.client.onReconnect(() => this.onReconnectEvent());
         this.client.connect();
     }
 
@@ -184,6 +186,7 @@ class SBahnGui {
         set(train, 'currentStation', rawTrain.stop_point_ds100 || null);
         set(train, 'prevStation', currentIdx !== -1 && currentIdx > 0 ? targets[currentIdx - 1] : null);
         set(train, 'nextStation', currentIdx !== -1 && currentIdx + 1 < targets.length ? targets[currentIdx + 1] : null);
+        set(train, 'isActive', true);
 
         if (rawTrain.raw_coordinates) {
             set(train, 'coordinates', [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]]);
@@ -225,6 +228,35 @@ class SBahnGui {
         }
 
         this.onTrainUpdate(train);
+    }
+
+    onDeletedVehiclesEvent(event) {
+        if (!event) return; // "content": null is sent on initial subscribe
+
+        let train = this.trains.get(event);
+        if (!train) return;
+
+        if (train.hasGpsCordinates) {
+            // Züge mit Echtzeitdaten (und Fahrzeuginfos) nicht löschen, nur markieren:
+            train.isActive = false;
+            this.onTrainUpdate(train);
+        } else {
+            // Züge, die nur aus dem Fahrplan berechnet sind, direkt löschen (wird sonst
+            // auch nicht durch Kupplungslogik aufgeräumt):
+            this.trains.delete(train.id);
+            this.cleanupTrainGui(train);
+        }
+    }
+
+    onReconnectEvent() {
+        // Beim Reconnect ist der Stand der Züge ohne Echtzeitdaten evtl. inkonsistent - deshalb alle löschen,
+        // denn diese werden direkt anschließend wieder gepusht:
+        this.trains.forEach(train => {
+            if (train.hasGpsCordinates) return;
+
+            this.trains.delete(train.id);
+            this.cleanupTrainGui(train);
+        });
     }
 
     parseVehicles(rawTrain, originalTrain) {
@@ -559,6 +591,7 @@ class SBahnGui {
         svgNode.querySelector('.marker').style.fill = train.line.color;
         svgNode.querySelector('.name').style.fill = train.line.textColor;
 
+        svgNode.querySelector('.container').classList.toggle('inactive', !train.isActive);
         svgNode.querySelector('.no-gps-cordinates').classList.toggle('hide', train.hasGpsCordinates);
 
         let headingNode = svgNode.querySelector('.heading'), viewBox = svgNode.viewBox.baseVal;
@@ -575,6 +608,7 @@ class SBahnGui {
         trainNode.classList.toggle('train-driving', train.state === 'DRIVING');
         trainNode.classList.toggle('train-stopped', train.state === 'STOPPED');
         trainNode.classList.toggle('train-boarding', train.state === 'BOARDING');
+        trainNode.classList.toggle('train-inactive', !train.isActive);
         trainNode.classList.toggle('train-sided', train.line.id === 0);
 
         let lineLogoNode = trainNode.querySelector('.line-logo');

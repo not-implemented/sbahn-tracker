@@ -355,7 +355,7 @@ a:hover, a:active {
     flex-direction: column;
     transition: background-color 0.5s ease-in;
 }
-.train-sided {
+.train-inactive {
     opacity: .5;
 }
 :not(.train-sided) + .train-sided,
@@ -622,6 +622,9 @@ a:hover, a:active {
 #map .train-marker .container {
     cursor: pointer;
     pointer-events: visiblePainted;
+}
+#map .train-marker .container.inactive {
+    opacity: 0.6;
 }
 #map .train-marker .marker {
     stroke: #ffffff;

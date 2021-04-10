@@ -137,7 +137,13 @@ TODO
 Event-Quelle "deleted_vehicles"
 -------------------------------
 
-TODO
+Wird geschickt, wenn ein Zug aus der Liste wieder entfernt werden soll, weil die Fahrt zu Ende ist
+oder der Zug durch eine neue train_id ersetzt wurde. Dies scheint teilweise pauschal nach 2 Minuten
+Inaktivität zu passieren. Die selbe train_id kann aber auch danach wieder als trajectory-Event gepusht
+werden, wenn sie wieder aktiv wird.
+
+**content** (uint64|null): train_id - Eindeutige Zug-ID (Beispiel: 140477388333184). Beim initialen
+Subscribe wird das Event mit "null" gesendet.
 
 
 Event-Quelle "deleted_vehicles_schematic"

@@ -13,6 +13,10 @@ export default class SBahnClient {
         this.clientTimeDiff = null;
     }
 
+    onReconnect(callback) {
+        this._onReconnectCallback = callback;
+    }
+
     on(source, callback) {
         if (this._socket && this._socket.readyState === 1) {
             this._socket.send('GET ' + source);
@@ -49,6 +53,8 @@ export default class SBahnClient {
         this._socket = new WebSocket('wss://api.geops.io/realtime-ws/stag/?key=' + this._apiKey);
 
         this._socket.onopen = () => {
+            this._onReconnectCallback();
+
             Object.keys(this._callbacks).forEach(source => {
                 this._socket.send('GET ' + source);
                 this._socket.send('SUB ' + source);
