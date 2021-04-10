@@ -532,8 +532,9 @@ class SBahnGui {
 
             if (train._gui.isVisible && this.options.lastSeen.length > 0) {
                 train._gui.isVisible = train.vehicles.some(vehicle => {
+                    if (vehicle.id === null) return false;
                     let vehicleInfo = this.vehicleInfos.get(vehicle.id);
-                    if (!vehicleInfo) return false;
+                    if (!vehicleInfo) vehicleInfo = { isOutdated: true };
                     return this.options.lastSeen.includes(vehicleInfo.isOutdated ? 'outdated' : 'current');
                 });
             }
