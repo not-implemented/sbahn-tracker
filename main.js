@@ -31,6 +31,8 @@ class SBahnGui {
         this.client.on('deleted_vehicles', event => this.onDeletedVehiclesEvent(event));
         this.client.onReconnect(() => this.onReconnectEvent());
         this.client.connect();
+
+        this.reconnectSyncTimeout = null;
     }
 
     initMap() {
@@ -187,6 +189,7 @@ class SBahnGui {
         set(train, 'prevStation', currentIdx !== -1 && currentIdx > 0 ? targets[currentIdx - 1] : null);
         set(train, 'nextStation', currentIdx !== -1 && currentIdx + 1 < targets.length ? targets[currentIdx + 1] : null);
         set(train, 'isActive', true);
+        set(train, 'isSynced', true); // for consistent reconnects
 
         if (rawTrain.raw_coordinates) {
             set(train, 'coordinates', [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]]);
@@ -249,14 +252,18 @@ class SBahnGui {
     }
 
     onReconnectEvent() {
-        // Beim Reconnect ist der Stand der Züge ohne Echtzeitdaten evtl. inkonsistent - deshalb alle löschen,
-        // denn diese werden direkt anschließend wieder gepusht:
-        this.trains.forEach(train => {
-            if (train.hasGpsCordinates) return;
+        // Nach einem Reconnect ist der Stand der Züge evtl. inkonsistent - deshalb ein implizites
+        // deletedVehiclesEvent generieren für Züge, die nicht innerhalb von 5 Sekunden wieder gepusht
+        // werden:
+        this.trains.forEach(train => train.isSynced = false);
 
-            this.trains.delete(train.id);
-            this.cleanupTrainGui(train);
-        });
+        if (this.reconnectSyncTimeout) clearTimeout(this.reconnectSyncTimeout);
+        this.reconnectSyncTimeout = setTimeout(() => {
+            this.reconnectSyncTimeout = null;
+            this.trains.forEach(train => {
+                if (!train.isSynced) this.onDeletedVehiclesEvent(train.id);
+            });
+        }, 5000);
     }
 
     parseVehicles(rawTrain, originalTrain) {
