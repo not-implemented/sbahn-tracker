@@ -809,4 +809,4 @@ class SBahnGui {
     }
 }
 
-new SBahnGui();
+window.sBahnGui = new SBahnGui();
