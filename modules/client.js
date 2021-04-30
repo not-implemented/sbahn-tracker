@@ -50,7 +50,7 @@ export default class SBahnClient {
     }
 
     _connect() {
-        this._socket = new WebSocket('wss://api.geops.io/realtime-ws/stag/?key=' + this._apiKey);
+        this._socket = new WebSocket('wss://api.geops.io/realtime-ws/v1/?key=' + this._apiKey);
 
         this._socket.onopen = () => {
             this._onReconnectCallback();

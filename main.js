@@ -267,12 +267,24 @@ class SBahnGui {
     }
 
     parseVehicles(rawTrain, originalTrain) {
-        let vehicles, isIncompleteRake = false;
+        let vehicles = [], isIncompleteRake = false;
 
         if (rawTrain.rake !== null) {
-            vehicles = rawTrain.rake.split(';').chunk(4).map(waggons => {
-                let isReverse = waggons[0] === '0';
-                let refWaggon = waggons[isReverse ? waggons.length - 1 : 0];
+            let waggons = rawTrain.rake.split(';');
+
+            while (waggons.length > 0) {
+                let refWaggon, isReverse = null;
+
+                // Manchmal werden für ein Fahrzeug (Kurzzug) alle 4 Waggons gepusht (die anderen 3 als "0"), manchmal nur einer.
+                // Dies wird hier unterschieden - die Fahrzeugrichtung "isReverse" kann bei einzelnem Waggon leider nicht bestimmt werden:
+                if (waggons.length >= 4 && waggons.slice(0, 4).filter(waggon => waggon === '0').length >= 3) {
+                    let vehicleWaggons = waggons.splice(0, 4);
+                    isReverse = vehicleWaggons[0] === '0';
+                    refWaggon = vehicleWaggons[isReverse ? vehicleWaggons.length - 1 : 0];
+                } else {
+                    refWaggon = waggons.shift();
+                }
+
                 if (refWaggon === '0') {
                     // Bug: Manchmal kennt ein Fahrzeug ein anderes gekuppeltes Fahrzeug nicht vollständig, so dass statt 4 Waggons
                     // nur eine "0" geschickt wird - z.B.: "948004232062;0;0;0;0;0;0;948004231817;0". Die anderen Fahrzeuge
@@ -282,10 +294,11 @@ class SBahnGui {
                     // TODO: 0;0;0;948004232047;0;0 => Langzug mit 2 unbekannten Fahrzeugen
                     //this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unvollständig: ' + rawTrain.rake);
                     isIncompleteRake = true;
-                    return { id: null, model: null, number: '???', isReverse: null };
+                    vehicles.push({ id: null, model: null, number: '???', isReverse: null });
+                } else {
+                    vehicles.push({ id: parseInt(refWaggon, 10), model: refWaggon.substr(-7, 3), number: refWaggon.substr(-4, 3), isReverse });
                 }
-                return { id: parseInt(refWaggon, 10), model: refWaggon.substr(-7, 3), number: refWaggon.substr(-4, 3), isReverse };
-            });
+            }
         } else if (rawTrain.transmitting_vehicle) {
             // fallback if rake is not known:
             //this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unbekannt');
