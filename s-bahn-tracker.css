@@ -547,7 +547,7 @@ a:hover, a:active {
 }
 .vehicle.has-wifi, .vehicle.has-no-wifi {
     background-repeat: no-repeat;
-    background-position: -10px 0;
+    background-position: -1rem 0;
     background-size: 80% 80%;
 }
 .vehicle.has-wifi {
