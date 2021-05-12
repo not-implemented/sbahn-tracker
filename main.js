@@ -656,6 +656,8 @@ class SBahnGui {
             vehicleNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern === true));
             vehicleNode.classList.toggle('is-classic', !!(vehicleInfo && vehicleInfo.isModern === false));
             vehicleNode.classList.toggle('is-outdated', !!(vehicleInfo && vehicleInfo.isOutdated));
+            vehicleNode.classList.toggle('has-wifi', !!(vehicleInfo && vehicleInfo.hasWiFi === true));
+            vehicleNode.classList.toggle('has-no-wifi', !!(vehicleInfo && vehicleInfo.hasWiFi === false));
 
             vehicleNode = vehicleNode.nextElementSibling;
         });

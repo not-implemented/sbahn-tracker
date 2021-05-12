@@ -545,6 +545,17 @@ a:hover, a:active {
 .vehicle.is-outdated {
     background-color: #e7e7e7;
 }
+.vehicle.has-wifi, .vehicle.has-no-wifi {
+    background-repeat: no-repeat;
+    background-position: -10px 0;
+    background-size: 80% 80%;
+}
+.vehicle.has-wifi {
+    background-image: url(img/wifi.svg);
+}
+.vehicle.has-no-wifi {
+    background-image: url(img/wifi-no.svg);
+}
 .action-link {
     font-size: 1.5rem;
     line-height: 1.3rem;
