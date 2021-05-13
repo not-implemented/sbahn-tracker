@@ -10,7 +10,7 @@ class SBahnGui {
         this.nextImplicitTrainId = 1001; // for split trains - should not overlap with official train_ids (which are very big)
         this.vehicles = new Map();
         this.vehicleInfos = new Map();
-        this.stations = new Map(Object.entries(Stations));
+        this.stations = new Map(Object.entries(Stations).map(([abbrev, station]) => [station.id, station]));
 
         // navigation:
         this.page = null;
@@ -147,11 +147,7 @@ class SBahnGui {
     }
 
     onStationEvent(event) {
-        if (!this.stationsById) {
-            this.stationsById = new Map([...this.stations.entries()].map(([, station]) => [station.id, station]));
-        }
-
-        let station = this.stationsById.get(event.properties.uic);
+        let station = this.stations.get(event.properties.uic);
         if (station) {
             station.coordinates = [...event.geometry.coordinates].reverse();
         }
@@ -172,23 +168,19 @@ class SBahnGui {
         }
         let originalTrain = { ...train };
 
-        function set(obj, attribute, newValue) {
-            if (obj[attribute] === newValue) return;
-            obj[attribute] = newValue;
-            obj._changed.add(attribute);
+        if (train._changed.has('isNew') || !train.isActive) {
+            // we have to subscribe separately for each train for the stop points:
+            this.client.on('stopsequence_' + train.id, event => this.onStopSequenceEvent(event));
         }
-
-        let targets = rawTrain.calls_stack; // Zuglauf (Liste aller anzufahrenden Stationen)
-        let currentIdx = targets ? targets.indexOf(rawTrain.stop_point_ds100) : -1;
 
         set(train, 'line', this.handleLine(rawTrain.line));
         set(train, 'number', rawTrain.train_number || rawTrain.original_train_number);
         set(train, 'numberIsNormal', !!rawTrain.train_number);
-        set(train, 'destination', targets && targets.length > 0 ? targets[targets.length - 1] : null);
+        if (train.destinationId === undefined) train.destinationId = null; // filled by onStopSequenceEvent()
         set(train, 'state', rawTrain.state === 'DRIVING' && ['AN', 'TF', 'SB'].includes(rawTrain.event) ? 'STOPPED' : rawTrain.state);
-        set(train, 'currentStation', rawTrain.stop_point_ds100 || null);
-        set(train, 'prevStation', currentIdx !== -1 && currentIdx > 0 ? targets[currentIdx - 1] : null);
-        set(train, 'nextStation', currentIdx !== -1 && currentIdx + 1 < targets.length ? targets[currentIdx + 1] : null);
+        if (train.currentStationId === undefined) train.currentStationId = null; // filled by onStopSequenceEvent()
+        if (train.prevStationId === undefined) train.prevStationId = null; // filled by onStopSequenceEvent()
+        if (train.nextStationId === undefined) train.nextStationId = null; // filled by onStopSequenceEvent()
         set(train, 'isActive', true);
         set(train, 'isSynced', true); // for consistent reconnects
 
@@ -234,11 +226,38 @@ class SBahnGui {
         this.onTrainUpdate(train);
     }
 
+    onStopSequenceEvent(event) {
+        if (!event) return; // "content": null happens sometimes
+
+        // Es kann mehrere Ziele/Zugläufe pro Zug geben (z.B. Freising + Flughafen) - aktuell verarbeiten
+        // wir nur den ersten Eintrag:
+        let route = event[0];
+        let train = this.trains.get(route.id);
+        if (!train) return;
+        train._changed.clear();
+
+        let stations = route.stations; // Zuglauf (Liste aller anzufahrenden Stationen)
+        let currentIdx = stations ? stations.findIndex(station => station.state !== 'LEAVING') : -1;
+
+        if (currentIdx > 0 && stations[currentIdx].state === null) {
+            currentIdx--; // wenn unterwegs, letzte "LEAVING"-Station als current setzen
+        }
+
+        set(train, 'destinationId', stations && stations.length > 0 ? stations[stations.length - 1].stationId : null);
+        set(train, 'currentStationId', currentIdx !== -1 ? stations[currentIdx].stationId : null);
+        set(train, 'prevStationId', currentIdx !== -1 && currentIdx > 0 ? stations[currentIdx - 1].stationId : null);
+        set(train, 'nextStationId', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].stationId : null);
+
+        if (train._changed.size > 0) this.onTrainUpdate(train);
+    }
+
     onDeletedVehiclesEvent(event) {
         if (!event) return; // "content": null is sent on initial subscribe
 
         let train = this.trains.get(event);
         if (!train) return;
+
+        this.client.remove('stopsequence_' + train.id);
 
         if (train.hasGpsCordinates) {
             // Züge mit Echtzeitdaten (und Fahrzeuginfos) nicht löschen, nur markieren:
@@ -442,7 +461,7 @@ class SBahnGui {
             if (action.vehicles.length === 0 || action.vehiclesMoved.length === 0) return;
 
             this.log(
-                this.getStationName(train.currentStation, '(Unbekannt)') + ': ' +
+                this.getStationName(train.currentStationId, '(Unbekannt)') + ': ' +
                 'Fahrzeug ' + action.vehiclesMoved.map(v => v.number).join('+') + ' wurde ' +
                 (action.type === 'split' ? 'von' : 'an') + ' ' +
                 'Fahrzeug ' + action.vehicles.map(v => v.number).join('+') + ' ' +
@@ -455,8 +474,8 @@ class SBahnGui {
         if (train.state === 'BOARDING') return 0;
         if (train.coordinates === null) return 0;
 
-        let currentStation = this.stations.get(train.currentStation);
-        let nextStation = this.stations.get(train.nextStation);
+        let currentStation = this.stations.get(train.currentStationId);
+        let nextStation = this.stations.get(train.nextStationId);
 
         if (!currentStation || !currentStation.coordinates) return 0;
         if (!nextStation || !nextStation.coordinates) return 0;
@@ -645,11 +664,11 @@ class SBahnGui {
         lineLogoNode.style.color = train.line.textColor;
         trainNode.querySelector('.train-header').style.backgroundColor = train.line.color + '20'; // alpha 12.5%
 
-        Utils.setText(trainNode.querySelector('.destination'), this.getStationName(train.destination, 'Nicht einsteigen'));
+        Utils.setText(trainNode.querySelector('.destination'), this.getStationName(train.destinationId, 'Nicht einsteigen'));
         Utils.setText(trainNode.querySelector('.train-number'), train.number && !train.numberIsNormal ? '(' + train.number + ')' : (train.number || ''));
-        Utils.setText(trainNode.querySelector('.station-prev .strip'), this.getStationName(train.prevStation));
-        Utils.setText(trainNode.querySelector('.station-current .strip'), this.getStationName(train.currentStation));
-        Utils.setText(trainNode.querySelector('.station-next .strip'), this.getStationName(train.nextStation));
+        Utils.setText(trainNode.querySelector('.station-prev .strip'), this.getStationName(train.prevStationId));
+        Utils.setText(trainNode.querySelector('.station-current .strip'), this.getStationName(train.currentStationId));
+        Utils.setText(trainNode.querySelector('.station-next .strip'), this.getStationName(train.nextStationId));
         trainNode.querySelector('.progress .bar').style.width = train.progress + '%';
 
         let vehiclesNode = trainNode.querySelector('.vehicles');
@@ -675,7 +694,7 @@ class SBahnGui {
             vehicleNode = nextNode;
         }
 
-        if (['line', 'number', 'destination', 'state', 'currentStation'].some(attr => train._changed.has(attr))) {
+        if (['line', 'number', 'destinationId', 'state', 'currentStationId'].some(attr => train._changed.has(attr))) {
             if (!train._changed.has('isNew')) {
                 trainNode.classList.toggle('changed', true);
                 setTimeout(() => trainNode.classList.toggle('changed', false), 1500);
@@ -683,11 +702,11 @@ class SBahnGui {
         }
     }
 
-    getStationName(abbrev, emptyName) {
-        if (abbrev === null) return emptyName || '';
+    getStationName(stationId, emptyName) {
+        if (stationId === null) return emptyName || '';
 
-        let station = this.stations.get(abbrev);
-        return station && station.name || abbrev;
+        let station = this.stations.get(stationId);
+        return station && station.name || stationId;
     }
 
     refreshTrain(train) {
@@ -830,6 +849,15 @@ class SBahnGui {
             filterNode.classList.toggle('select-all', this.options[filter].length === 0);
         });
     }
+}
+
+/**
+ * Setter helper for change detection
+ */
+function set(obj, attribute, newValue) {
+    if (obj[attribute] === newValue) return;
+    obj[attribute] = newValue;
+    obj._changed.add(attribute);
 }
 
 window.sBahnGui = new SBahnGui();
