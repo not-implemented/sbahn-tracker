@@ -8,6 +8,7 @@ export default class SBahnClient {
 
         this._isActive = false;
         this._socket = null;
+        this._pingInterval = null;
         this._reconnectDelay = null;
 
         this.clientTimeDiff = null;
@@ -76,9 +77,13 @@ export default class SBahnClient {
                 this._send('GET ' + source);
                 this._send('SUB ' + source);
             });
+
+            this._pingInterval = setTimeout(() => this._send('PING'), 10000);
         };
 
         this._socket.onclose = () => {
+            if (this._pingInterval) clearTimeout(this._pingInterval);
+
             this._socket = null;
 
             if (this._isActive) {
@@ -109,8 +114,7 @@ export default class SBahnClient {
             }
 
             if (message.source === 'websocket') {
-                // ignoring message: content: {status: "open"}
-                // TODO: implement ping/pong
+                // ignoring messages: content: {status: "open"} and "content": "PONG"
             } else if (this._callbacks.hasOwnProperty(message.source)) {
                 this._callbacks[message.source](message.content);
             } else {
