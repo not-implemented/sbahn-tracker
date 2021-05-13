@@ -179,8 +179,12 @@ class SBahnGui {
         if (train.destinationId === undefined) train.destinationId = null; // filled by onStopSequenceEvent()
         set(train, 'state', rawTrain.state === 'DRIVING' && ['AN', 'TF', 'SB'].includes(rawTrain.event) ? 'STOPPED' : rawTrain.state);
         if (train.currentStationId === undefined) train.currentStationId = null; // filled by onStopSequenceEvent()
+        if (train.currentStationDepartureTime === undefined) train.currentStationDepartureTime = null; // filled by onStopSequenceEvent()
+        if (train.currentStationDepartureDelay === undefined) train.currentStationDepartureDelay = null; // filled by onStopSequenceEvent()
         if (train.prevStationId === undefined) train.prevStationId = null; // filled by onStopSequenceEvent()
         if (train.nextStationId === undefined) train.nextStationId = null; // filled by onStopSequenceEvent()
+        if (train.nextStationDepartureTime === undefined) train.nextStationDepartureTime = null; // filled by onStopSequenceEvent()
+        if (train.nextStationDepartureDelay === undefined) train.nextStationDepartureDelay = null; // filled by onStopSequenceEvent()
         set(train, 'isActive', true);
         set(train, 'isSynced', true); // for consistent reconnects
 
@@ -245,8 +249,12 @@ class SBahnGui {
 
         set(train, 'destinationId', stations && stations.length > 0 ? stations[stations.length - 1].stationId : null);
         set(train, 'currentStationId', currentIdx !== -1 ? stations[currentIdx].stationId : null);
+        set(train, 'currentStationDepartureTime', currentIdx !== -1 ? stations[currentIdx].departureTime : null);
+        set(train, 'currentStationDepartureDelay', currentIdx !== -1 ? stations[currentIdx].departureDelay : null);
         set(train, 'prevStationId', currentIdx !== -1 && currentIdx > 0 ? stations[currentIdx - 1].stationId : null);
         set(train, 'nextStationId', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].stationId : null);
+        set(train, 'nextStationDepartureTime', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].departureTime : null);
+        set(train, 'nextStationDepartureDelay', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].departureDelay : null);
 
         if (train._changed.size > 0) this.onTrainUpdate(train);
     }
@@ -666,9 +674,13 @@ class SBahnGui {
 
         Utils.setText(trainNode.querySelector('.destination'), this.getStationName(train.destinationId, 'Nicht einsteigen'));
         Utils.setText(trainNode.querySelector('.train-number'), train.number && !train.numberIsNormal ? '(' + train.number + ')' : (train.number || ''));
-        Utils.setText(trainNode.querySelector('.station-prev .strip'), this.getStationName(train.prevStationId));
-        Utils.setText(trainNode.querySelector('.station-current .strip'), this.getStationName(train.currentStationId));
-        Utils.setText(trainNode.querySelector('.station-next .strip'), this.getStationName(train.nextStationId));
+        Utils.setText(trainNode.querySelector('.station-prev .name'), this.getStationName(train.prevStationId));
+        Utils.setText(trainNode.querySelector('.station-current .time'), Utils.formatTime(train.currentStationDepartureTime));
+        Utils.setText(trainNode.querySelector('.station-current .delay'), train.currentStationDepartureDelay ? '(+' + train.currentStationDepartureDelay + ')' : '');
+        Utils.setText(trainNode.querySelector('.station-current .name'), this.getStationName(train.currentStationId));
+        Utils.setText(trainNode.querySelector('.station-next .time'), Utils.formatTime(train.nextStationDepartureTime));
+        Utils.setText(trainNode.querySelector('.station-next .delay'), train.nextStationDepartureDelay ? '(+' + train.nextStationDepartureDelay + ')' : '');
+        Utils.setText(trainNode.querySelector('.station-next .name'), this.getStationName(train.nextStationId));
         trainNode.querySelector('.progress .bar').style.width = train.progress + '%';
 
         let vehiclesNode = trainNode.querySelector('.vehicles');

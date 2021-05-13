@@ -46,6 +46,11 @@ export default {
         });
     },
 
+    formatTime: (timestamp) => {
+        if (timestamp === null) return '';
+        return (new Date(timestamp)).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    },
+
     formatBytes: (bytes, decimals = 2) => {
         if (bytes === 0) return '0 Bytes';
 
