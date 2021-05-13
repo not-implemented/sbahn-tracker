@@ -226,6 +226,9 @@ a:hover, a:active {
     text-align: center;
     z-index: 1;
 }
+.site-footer .stats {
+    float: right;
+}
 /* /SITE FOOTER */
 
 /* SITE MAIN: main content, displays train cards and site footer */

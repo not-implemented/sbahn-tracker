@@ -11,25 +11,32 @@ export default class SBahnClient {
         this._reconnectDelay = null;
 
         this.clientTimeDiff = null;
+
+        this._stats = {
+            messagesReceived: 0,
+            bytesReceived: 0,
+            messagesSent: 0,
+            bytesSent: 0,
+        };
     }
 
     onReconnect(callback) {
         this._onReconnectCallback = callback;
     }
 
+    onStatsUpdate(callback) {
+        this._onStatsUpdateCallback = callback;
+    }
+
     on(source, callback) {
-        if (this._socket && this._socket.readyState === 1) {
-            this._socket.send('GET ' + source);
-            this._socket.send('SUB ' + source);
-        }
+        this._send('GET ' + source);
+        this._send('SUB ' + source);
 
         this._callbacks[source] = callback;
     }
 
     remove(source) {
-        if (this._socket && this._socket.readyState === 1) {
-            this._socket.send('DEL ' + source);
-        }
+        this._send('DEL ' + source);
 
         delete this._callbacks[source];
     }
@@ -39,6 +46,16 @@ export default class SBahnClient {
 
         this._isActive = true;
         this._connect();
+    }
+
+    _send(message) {
+        if (!this._isActive) return;
+        if (!this._socket || this._socket.readyState !== 1) return;
+
+        this._socket.send(message);
+        this._stats.messagesSent++;
+        this._stats.bytesSent += message.length;
+        if (this._onStatsUpdateCallback) this._onStatsUpdateCallback(this._stats);
     }
 
     close() {
@@ -56,8 +73,8 @@ export default class SBahnClient {
             this._onReconnectCallback();
 
             Object.keys(this._callbacks).forEach(source => {
-                this._socket.send('GET ' + source);
-                this._socket.send('SUB ' + source);
+                this._send('GET ' + source);
+                this._send('SUB ' + source);
             });
         };
 
@@ -71,6 +88,10 @@ export default class SBahnClient {
         };
 
         this._socket.onmessage = (event) => {
+            this._stats.messagesReceived++;
+            this._stats.bytesReceived += event.data.length;
+            if (this._onStatsUpdateCallback) this._onStatsUpdateCallback(this._stats);
+
             let message = null;
             try {
                 message = JSON.parse(event.data);

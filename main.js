@@ -30,6 +30,7 @@ class SBahnGui {
         this.client.on('trajectory', event => this.onTrajectoryEvent(event));
         this.client.on('deleted_vehicles', event => this.onDeletedVehiclesEvent(event));
         this.client.onReconnect(() => this.onReconnectEvent());
+        this.client.onStatsUpdate((stats) => this.onStatsUpdate(stats));
         this.client.connect();
 
         this.reconnectSyncTimeout = null;
@@ -264,6 +265,13 @@ class SBahnGui {
                 if (!train.isSynced) this.onDeletedVehiclesEvent(train.id);
             });
         }, 5000);
+    }
+
+    onStatsUpdate(stats) {
+        document.getElementById('messages-received').innerText = stats.messagesReceived;
+        document.getElementById('bytes-received').innerText = Utils.formatBytes(stats.bytesReceived);
+        document.getElementById('messages-sent').innerText = stats.messagesSent;
+        document.getElementById('bytes-sent').innerText = Utils.formatBytes(stats.bytesSent);
     }
 
     parseVehicles(rawTrain, originalTrain) {
