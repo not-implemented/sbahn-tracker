@@ -60,5 +60,23 @@ export default {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
 
         return (bytes / Math.pow(k, i)).toFixed(i > 0 ? decimals : 0) + ' ' + sizes[i];
+    },
+
+    pointInPolygon: (point, polygon) => {
+        let x = point[0], y = point[1];
+        let inside = false;
+        let len = polygon.length;
+
+        for (let i = 0, j = len - 1; i < len; j = i++) {
+            let xi = polygon[i][0], yi = polygon[i][1];
+            let xj = polygon[j][0], yj = polygon[j][1];
+
+            let intersect = ((yi > y) !== (yj > y))
+                && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+
+            if (intersect) inside = !inside;
+        }
+
+        return inside;
     }
 }

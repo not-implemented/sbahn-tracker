@@ -12,6 +12,19 @@ class SBahnGui {
         this.vehicleInfos = new Map();
         this.stations = new Map(Object.entries(Stations).map(([abbrev, station]) => [station.id, station]));
 
+        this.areas = [
+            { name: 'S-Bahn-Netz München', isUsual: true, polygon: [[48.38619,11.253659],[48.421661,11.47699],[48.402768,11.754867],[48.306862,11.917548],[48.213578,11.895103],[48.074523,11.974465],[48.045841,11.96806],[48.03686,11.944842],[47.9122,11.759663],[47.876937,11.705739],[47.907684,11.430266],[47.898319,11.267273],[47.997173,11.168675],[48.092299,11.14254],[48.104795,11.02212],[48.217396,11.16153]] },
+            { name: 'Strecke Holzkirchen - Kreuzstraße', polygon: [[47.886996,11.698465],[47.880045,11.706963],[47.913322,11.75992],[47.919707,11.750393]] },
+            { name: 'Strecke Solln - Deisenhofen', polygon: [[48.072961,11.533241],[48.075556,11.532962],[48.077333,11.559076],[48.027447,11.583216],[48.023587,11.579289]] },
+            { name: 'Südring', polygon: [[48.127565,11.538745],[48.130444,11.53896],[48.118491,11.566844],[48.123161,11.59622],[48.121371,11.595833],[48.113964,11.565857]] },
+            { name: 'Rangierbahnhof München Nord', polygon: [[48.19985,11.466465],[48.20763,11.463461],[48.194243,11.51865],[48.18855,11.513457]] },
+            { name: 'Nordring', polygon: [[48.188407,11.516976],[48.193886,11.522148],[48.206486,11.540687],[48.191361,11.597604],[48.189694,11.608644],[48.184744,11.642976],[48.178278,11.641388],[48.185803,11.613493],[48.187177,11.5662],[48.187033,11.535258]] },
+            { name: 'DB Systemtechnik Freimann', polygon: [[48.191311,11.598258],[48.191583,11.59711],[48.193785,11.603107],[48.191926,11.612313],[48.189537,11.611133]] },
+            { name: 'Werk Nürnberg', polygon: [[49.424011,11.086664],[49.419363,11.098809],[49.414303,11.098938],[49.414031,11.098101],[49.417046,11.092565],[49.420717,11.083939]] },
+            { name: 'Werk Krefeld', polygon: [[51.33332,6.613727],[51.327769,6.613641],[51.32793,6.625657],[51.340049,6.634326],[51.340827,6.630249]] },
+            { name: 'Werk Hagen', polygon: [[51.382509,7.455575],[51.382495,7.462528],[51.364252,7.464051],[51.365042,7.459288]] }
+        ];
+
         // navigation:
         this.page = null;
         this.options = {
@@ -45,6 +58,10 @@ class SBahnGui {
         }).addTo(this.map);
 
         L.control.scale({ imperial: false }).addTo(this.map);
+
+        this.areas.forEach(area => {
+            L.polygon([area.polygon], { fill: false, weight: 2, color: '#28ad47', dashArray: '2 10' }).addTo(this.map);
+        });
 
         // Lama easter egg:
         L.marker([-16.6073271, -65.4916048], {
@@ -216,6 +233,30 @@ class SBahnGui {
 
         let vehicles = this.parseVehicles(rawTrain, originalTrain);
         this.handleTrainSplitJoin(train, vehicles, originalTrain);
+
+        let newAreaId = null;
+        if (train.coordinates !== null) {
+            this.areas.forEach((area, areaId) => {
+                if (Utils.pointInPolygon(train.coordinates, area.polygon)) newAreaId = areaId;
+            });
+        }
+
+        if (newAreaId !== train.areaId) {
+            let action = 'ist in unbekanntem Gebiet unterwegs!';
+
+            if (train.areaId !== null && train.areaId !== undefined) action = 'verlässt ' + this.areas[train.areaId].name;
+            if (newAreaId !== null) {
+                if (this.areas[newAreaId].isUsual && train.areaId === undefined) {
+                    action = null;
+                } else if (!this.areas[newAreaId].isUsual || train.areaId === null || train.areaId === undefined) {
+                    action = 'erreicht ' + this.areas[newAreaId].name;
+                }
+            }
+
+            if (action !== null) this.log('Fahrzeug ' + train.vehicles.map(v => v.number).join('+') + ' ' + action);
+
+            set(train, 'areaId', newAreaId);
+        }
 
         if (this.options.trains.includes(train.id)) {
             console.log(rawTrain);
