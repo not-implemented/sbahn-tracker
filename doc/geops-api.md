@@ -49,12 +49,12 @@ offiziellen Echtzeitmap nicht zu sehen).
 - **stop_point_ds100** (string): Letzte Haltestelle (Kürzel) - *null*, wenn unbekannt (z.B. bei Fahrtende / "Nicht einsteigen") (Beispiel: MHT)
 - **calls_stack** (array[string, ...]): Array aller anzufahrenden Stationen (Kürzel) - *null*, wenn unbekannt (z.B. bei Fahrtende / "Nicht einsteigen")
 - **event** (string): Event-Typ:
-    - FA: Fahrt?
-    - AN: Anhalten?
-    - AF: Abfahrt?
-    - TF: Türen frei?
-    - SB: Wird am Bahnsteig gepushed
-    - ZT: Wird v.a. an Endstation gepushed
+    - FA: Fahrt
+    - AN: Angehalten
+    - AF: Abfahrt
+    - TF: Türen freigegeben
+    - SB: Steht bereit zum Boarding
+    - ZT: Zugtaufe
 - **state** (string):
     - BOARDING: Türen offen
     - DRIVING: Türen zu
@@ -73,7 +73,11 @@ offiziellen Echtzeitmap nicht zu sehen).
     - 5 = Prüfziffer (nach Luhn-Algorithmus)
 - **vehicle_number** (string): Reine Fahrzeugnummer des pushenden Fahrzeugs (Beispiel: 144)
 - **raw_coordinates** (array[lon, lat]): Geogr. Breite/Länge - Position zum Zeitpunkt des event_timestamp (Beispiel: [11.780573806573102, 48.100563853952934])
-- **position_correction** (int): Werte von 0 bis 3 gesehen - noch unklar
+- **position_correction** (int): Bezieht sich auf die raw_coordinates:
+    - 0: Unkorrigierte Werte (GPS-Messung)
+    - 1: Erratener Wert (z.B. bei GPS-Ausfall)
+    - 2: Auf die Strecke gesnappte GPS-Position
+    - 3: Auf's Gleis gesnappte GPS-Position
 - **rake** (string|null): Wagenreihung (Beispiel: "948004231445;0;0;0;0;0;0;948004233540")
     - Jeder Kurzzug besteht aus 4 Wagen - eine Seite hat eine um 500 höhere Wagennummer, die beiden mittleren Wagen
       haben jeweils die Nummer des angrenzenden Endwagens, jedoch die Baureihe 433 statt 423
