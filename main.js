@@ -90,7 +90,7 @@ class SBahnGui {
             this.page = page;
 
             Object.keys(this.options).forEach(name => {
-                if (name === 'direction' || name === 'lastSeen') this.options[name] = parseStrList(params.get(name));
+                if (name === 'trains' || name === 'direction' || name === 'lastSeen') this.options[name] = parseStrList(params.get(name));
                 else this.options[name] = parseIdList(params.get(name));
             });
 
@@ -438,7 +438,7 @@ class SBahnGui {
 
         let removedVehicles = train.vehicles.filter(vehicle => !vehicles.includes(vehicle));
         if (removedVehicles.length > 0) {
-            let splittedTrain = { ...originalTrain, id: this.nextImplicitTrainId++, _changed: new Set(['isNew']), vehicles: removedVehicles };
+            let splittedTrain = { ...originalTrain, id: '' + this.nextImplicitTrainId++, _changed: new Set(['isNew']), vehicles: removedVehicles };
             splittedTrain.vehicles.forEach(vehicle => vehicle.currentTrain = splittedTrain);
             train.vehicles = train.vehicles.filter(vehicle => vehicles.includes(vehicle));
 
