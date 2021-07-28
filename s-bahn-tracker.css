@@ -646,6 +646,8 @@ a:hover, a:active {
     pointer-events: visiblePainted;
 }
 #map .train-marker .container.inactive {
+    transform: scale(0.7);
+    transform-origin: center;
     opacity: 0.6;
 }
 #map .train-marker .marker {
