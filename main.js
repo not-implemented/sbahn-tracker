@@ -165,9 +165,16 @@ class SBahnGui {
 
     onStationEvent(event) {
         let station = this.stations.get(event.properties.uic);
-        if (station) {
-            station.coordinates = [...event.geometry.coordinates].reverse();
+
+        if (!station) {
+            station = {
+                id: event.properties.uic,
+                name: event.properties.name
+            };
+            this.stations.set(station.id, station);
         }
+
+        station.coordinates = [...event.geometry.coordinates].reverse();
     }
 
     onTrajectoryEvent(event) {
