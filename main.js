@@ -2,6 +2,7 @@ import './modules/polyfills.js';
 import Utils from './modules/utils.js';
 import SBahnClient from './modules/client.js';
 import Stations from './modules/stations.js';
+import apiKey from './modules/api-key.js';
 
 class SBahnGui {
     constructor() {
@@ -38,7 +39,7 @@ class SBahnGui {
         this.initNavigation();
         this.loadVehicleInfos();
 
-        this.client = new SBahnClient('put-api-key-here', console);
+        this.client = new SBahnClient(apiKey, console);
         this.client.on('station', event => this.onStationEvent(event));
         this.client.on('trajectory', event => this.onTrajectoryEvent(event));
         this.client.on('deleted_vehicles', event => this.onDeletedVehiclesEvent(event));
