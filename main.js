@@ -380,6 +380,13 @@ class SBahnGui {
                     //this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unvollständig: ' + rake);
                     isIncompleteRake = true;
                     vehicles.push({ id: null, model: null, number: '???', isReverse: null });
+                } else if (refWaggon === '948004230009') {
+                    // Bug: Manchmal kennt ein Fahrzeug seine Nummer selbst nicht korrekt und wird als "000" inkl. korrekter Prüfziffer
+                    // gepusht. Vermutlich ist da im Fahrzeug die Config verlorengegangen und "000" ist die Standardeinstellung. Es
+                    // sind Fahrzeuge oft mehrere Tage unterwegs, bis dies korrigiert wird. In diesem Fall kann aber "isReverse"
+                    // bestimmt werden:
+                    isIncompleteRake = true;
+                    vehicles.push({ id: null, model: refWaggon.substr(-7, 3), number: '???', isReverse });
                 } else {
                     vehicles.push({ id: parseInt(refWaggon, 10), model: refWaggon.substr(-7, 3), number: refWaggon.substr(-4, 3), isReverse });
                 }
