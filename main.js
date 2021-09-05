@@ -350,16 +350,18 @@ class SBahnGui {
     }
 
     parseVehicles(rawTrain, originalTrain) {
-        let vehicles = [], isIncompleteRake = false;
+        let vehicles = [], isIncompleteRake = false, rake = rawTrain.original_rake || rawTrain.rake;
 
-        if (rawTrain.rake !== null) {
-            let waggons = rawTrain.rake.split(';');
+        if (rake !== null) {
+            let waggons = rake.split(';');
 
             while (waggons.length > 0) {
                 let refWaggon, isReverse = null;
 
                 // Manchmal werden für ein Fahrzeug (Kurzzug) alle 4 Waggons gepusht (die anderen 3 als "0"), manchmal nur einer.
-                // Dies wird hier unterschieden - die Fahrzeugrichtung "isReverse" kann bei einzelnem Waggon leider nicht bestimmt werden:
+                // Dies wird hier unterschieden - die Fahrzeugrichtung "isReverse" kann bei einzelnem Waggon leider nicht bestimmt werden.
+                // Das gilt für "original_rake" - in "rake" wird dies normalisiert auf 4 Waggons pro Fahrzeug, allerdings ist dann die
+                // Fahrzeugrichtung nicht mehr bestimmbar. Deshalb verwenden wir "original_rake", wenn verfügbar.
                 if (waggons.length >= 4 && waggons.slice(0, 4).filter(waggon => waggon === '0').length >= 3) {
                     let vehicleWaggons = waggons.splice(0, 4);
                     isReverse = vehicleWaggons[0] === '0';
@@ -375,7 +377,7 @@ class SBahnGui {
                     // bei jedem Push auch eine neue train_id generiert, da scheinbar auch die train_id-Generierung serverseitig
                     // an der Wagenreihung hängt. Dies wird hier im Nachgang versucht zu korrigieren.
                     // TODO: 0;0;0;948004232047;0;0 => Langzug mit 2 unbekannten Fahrzeugen
-                    //this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unvollständig: ' + rawTrain.rake);
+                    //this.log('Fahrzeug ' + rawTrain.transmitting_vehicle + ': Wagenreihung unvollständig: ' + rake);
                     isIncompleteRake = true;
                     vehicles.push({ id: null, model: null, number: '???', isReverse: null });
                 } else {
