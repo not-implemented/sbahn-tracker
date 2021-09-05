@@ -39,6 +39,11 @@ class SBahnGui {
         this.initNavigation();
         this.loadVehicleInfos();
 
+        document.getElementById('clear-train-events').addEventListener('click', () => {
+            const trainEventsBody = document.querySelector('#train-events tbody');
+            while (trainEventsBody.firstChild) trainEventsBody.removeChild(trainEventsBody.lastChild);
+        });
+
         this.client = new SBahnClient(apiKey, console);
         this.client.on('station', event => this.onStationEvent(event));
         this.client.on('trajectory', event => this.onTrajectoryEvent(event));
