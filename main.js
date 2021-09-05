@@ -181,6 +181,9 @@ class SBahnGui {
         if (!event) return; // "content": null seems to happen on bigger server problems
 
         let rawTrain = event.properties;
+
+        if (rawTrain.train_id.substr(0, 4) === 'sbh_') return; // filter out "S-Bahn Hamburg"
+
         let train = this.trains.get(rawTrain.train_id);
 
         if (!train) {
