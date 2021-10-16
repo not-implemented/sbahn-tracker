@@ -5,12 +5,12 @@ $config = require 'config.php';
 $db = new PDO($config->dsn, $config->user, $config->password);
 $db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
 
-$vehicleInfos = $db->query('SELECT model, `number`, isModern, hasWiFi, IF(`lastSeenAt` < \'2021-05-10\' OR `lastSeenAt` IS NULL OR isModern = 0, 1, 0) AS isOutdated FROM vehicle_info')->fetchAll();
+$vehicleInfos = $db->query('SELECT model, `number`, isModern, hasWiFi, isTagged FROM vehicle_info')->fetchAll();
 
 foreach ($vehicleInfos as $vehicleInfo) {
     if ($vehicleInfo->isModern !== null) $vehicleInfo->isModern = (bool) $vehicleInfo->isModern;
     if ($vehicleInfo->hasWiFi !== null) $vehicleInfo->hasWiFi = (bool) $vehicleInfo->hasWiFi;
-    $vehicleInfo->isOutdated = (bool) $vehicleInfo->isOutdated;
+    $vehicleInfo->isTagged = (bool) $vehicleInfo->isTagged;
 }
 
 header('Content-Type: application/json');

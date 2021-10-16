@@ -553,7 +553,7 @@ a:hover, a:active {
 .vehicle.is-modern {
     box-shadow: inset 0 -.3rem 0 0 #8ca9ee;
 }
-.vehicle.is-outdated {
+.vehicle.is-tagged {
     background-color: #e7e7e7;
 }
 .vehicle.has-wifi, .vehicle.has-no-wifi {

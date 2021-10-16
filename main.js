@@ -32,7 +32,7 @@ class SBahnGui {
             lines: [],
             trains: [],
             direction: [],
-            lastSeen: []
+            isTagged: []
         };
 
         this.initMap();
@@ -96,7 +96,7 @@ class SBahnGui {
             this.page = page;
 
             Object.keys(this.options).forEach(name => {
-                if (name === 'trains' || name === 'direction' || name === 'lastSeen') this.options[name] = parseStrList(params.get(name));
+                if (name === 'trains' || name === 'direction' || name === 'isTagged') this.options[name] = parseStrList(params.get(name));
                 else this.options[name] = parseIdList(params.get(name));
             });
 
@@ -683,12 +683,12 @@ class SBahnGui {
                 train._gui.isVisible = !!train.number && this.options.direction.includes(train.number % 2 === 1 ? 'east' : 'west');
             }
 
-            if (train._gui.isVisible && this.options.lastSeen.length > 0) {
+            if (train._gui.isVisible && this.options.isTagged.length > 0) {
                 train._gui.isVisible = train.vehicles.some(vehicle => {
                     if (vehicle.id === null) return false;
                     let vehicleInfo = this.vehicleInfos.get(vehicle.id);
-                    if (!vehicleInfo) vehicleInfo = { isOutdated: true };
-                    return this.options.lastSeen.includes(vehicleInfo.isOutdated ? 'outdated' : 'current');
+                    if (!vehicleInfo) vehicleInfo = { isTagged: true };
+                    return vehicleInfo.isTagged;
                 });
             }
 
@@ -760,7 +760,7 @@ class SBahnGui {
             let vehicleInfo = this.vehicleInfos.get(vehicle.id);
             vehicleNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern === true));
             vehicleNode.classList.toggle('is-classic', !!(vehicleInfo && vehicleInfo.isModern === false));
-            vehicleNode.classList.toggle('is-outdated', !!(vehicleInfo && vehicleInfo.isOutdated));
+            vehicleNode.classList.toggle('is-tagged', !!(vehicleInfo && vehicleInfo.isTagged));
             vehicleNode.classList.toggle('has-wifi', !!(vehicleInfo && vehicleInfo.hasWiFi === true));
             vehicleNode.classList.toggle('has-no-wifi', !!(vehicleInfo && vehicleInfo.hasWiFi === false));
 
@@ -906,7 +906,7 @@ class SBahnGui {
     }
 
     initFilter() {
-        ['direction', 'lastSeen'].forEach(filter => {
+        ['direction', 'isTagged'].forEach(filter => {
             let filterNode = document.getElementById(filter);
             filterNode.querySelectorAll('input').forEach(node => {
                 node.addEventListener('change', () => {
@@ -919,12 +919,14 @@ class SBahnGui {
     }
 
     onFilterSelectionChange() {
-        ['direction', 'lastSeen'].forEach(filter => {
+        ['direction', 'isTagged'].forEach(filter => {
             let filterNode = document.getElementById(filter);
             filterNode.querySelectorAll('input').forEach(node => {
                 node.checked = this.options[filter].includes(node.value);
             });
-            filterNode.classList.toggle('select-all', this.options[filter].length === 0);
+            if (filter !== 'isTagged') {
+                filterNode.classList.toggle('select-all', this.options[filter].length === 0);
+            }
         });
     }
 }
