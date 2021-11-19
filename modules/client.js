@@ -73,6 +73,8 @@ export default class SBahnClient {
         this._socket.onopen = () => {
             this._onReconnectCallback();
 
+            this._send('PROJECTION epsg:4326');
+
             Object.keys(this._callbacks).forEach(source => {
                 this._send('GET ' + source);
                 this._send('SUB ' + source);
