@@ -145,6 +145,9 @@ a:hover, a:active {
 #nav [href="#newsticker"]::before {
     content: url(img/icon-newsticker.svg);
 }
+#nav [href="#debug"]::before {
+    content: url(img/icon-debug.svg);
+}
 @media (min-width: 27em) {
     #nav a::before {
         margin-right: .3rem;
@@ -629,7 +632,7 @@ a:hover, a:active {
 }
 #train-details {
     display: none;
-    flex: 1 0 50%;
+    flex: 1 0 25%;
     overflow: auto;
     z-index: -1;
 }
@@ -647,19 +650,9 @@ a:hover, a:active {
     padding: .6rem .8rem;
     list-style: none;
 }
-#train-events {
-    padding: .6rem .7rem;
-    background: #fff;
-    overflow: auto;
-}
 #map {
-    flex: 1 0 25%;
+    flex: 1 0 75%;
     box-shadow: 0 0 .6rem .3rem rgba(0,0,0,.15);
-}
-@media (orientation: landscape) and (min-width: 27em) {
-    #map {
-        flex-basis: 50%;
-    }
 }
 #map .train-marker .container {
     cursor: pointer;
@@ -688,34 +681,6 @@ a:hover, a:active {
 }
 #map .train-marker .name {
     font: bold 3px sans-serif;
-}
-table {
-    border-collapse: collapse;
-    border-spacing: 0;
-    width: 100%;
-    border: 0;
-    background: #fff;
-}
-th,
-td {
-    vertical-align: top;
-    padding: .3rem .4rem;
-    text-align: left;
-    font-size: 1.2rem;
-    line-height: 1.5;
-}
-th {
-    font-weight: bold;
-    border-bottom: .1rem solid #c0c0c0;
-}
-tbody tr {
-    background: #f0f0f0;
-}
-tbody tr:nth-child(odd) {
-    background: #fff;
-}
-table .is-number {
-    text-align: right;
 }
 /* /details of train */
 /* news messages */
@@ -752,6 +717,41 @@ table .is-number {
     margin: .8rem 0;
 }
 /* /news messages */
+/* debug window */
+#train-events {
+    padding: .6rem .7rem;
+    background: #fff;
+    overflow: auto;
+}
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    border: 0;
+    background: #fff;
+}
+th,
+td {
+    vertical-align: top;
+    padding: .3rem .4rem;
+    text-align: left;
+    font-size: 1.2rem;
+    line-height: 1.5;
+}
+th {
+    font-weight: bold;
+    border-bottom: .1rem solid #c0c0c0;
+}
+tbody tr {
+    background: #f0f0f0;
+}
+tbody tr:nth-child(odd) {
+    background: #fff;
+}
+table .is-number {
+    text-align: right;
+}
+/* /debug window */
 /* /SITE MAIN */
 
 /* LOG MESSAGES */
