@@ -53,6 +53,10 @@ class SBahnGui {
         this.client.connect();
 
         this.reconnectSyncTimeout = null;
+
+        if (navigator.geolocation) {
+            this.positionWatchId = navigator.geolocation.watchPosition(position => this.onPosition(position));
+        }
     }
 
     initMap() {
@@ -64,6 +68,8 @@ class SBahnGui {
         }).addTo(this.map);
 
         L.control.scale({ imperial: false }).addTo(this.map);
+
+        this.positionMarker = L.circleMarker([0, 0]).addTo(this.map);
 
         this.areas.forEach(area => {
             L.polygon([area.polygon], { fill: false, weight: 2, color: '#28ad47', dashArray: '2 10' }).addTo(this.map);
@@ -356,6 +362,10 @@ class SBahnGui {
         document.getElementById('bytes-received').innerText = Utils.formatBytes(stats.bytesReceived);
         document.getElementById('messages-sent').innerText = stats.messagesSent;
         document.getElementById('bytes-sent').innerText = Utils.formatBytes(stats.bytesSent);
+    }
+
+    onPosition(position) {
+        this.positionMarker.setLatLng([position.coords.latitude, position.coords.longitude]);
     }
 
     parseVehicles(rawTrain, originalTrain) {
