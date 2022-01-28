@@ -121,6 +121,7 @@ a:hover, a:active {
     text-align: center;
     transition: border .2s ease-in-out, background .2s ease-in-out;
     white-space: nowrap;
+    position: relative;
 }
 #nav > a.is-active,
 #nav > a:hover,
@@ -141,18 +142,37 @@ a:hover, a:active {
 #nav [href="#map"]::before {
     content: url(img/icon-map.svg);
 }
+#nav [href="#newsticker"]::before {
+    content: url(img/icon-newsticker.svg);
+}
 @media (min-width: 27em) {
     #nav a::before {
         margin-right: .3rem;
     }
 }
-#nav span {
+#nav span.text {
     display: none;
 }
 @media (min-width: 27em) {
-    #nav span {
+    #nav span.text {
         display: inline-block;
     }
+}
+#nav > a .badge {
+    display: none;
+    position: absolute;
+    top: -0.6rem;
+    right: -1.1rem;
+    background: red;
+    border-radius: 3rem;
+    color: #fff;
+    font-size: 1.1rem;
+    min-width: 2rem;
+    padding: 0.2rem;
+    text-align: center;
+}
+#nav > a.has-badge .badge {
+    display: block;
 }
 #filter {
     flex: 0 1 auto;
@@ -698,6 +718,40 @@ table .is-number {
     text-align: right;
 }
 /* /details of train */
+/* news messages */
+#newsticker {
+    padding: 4rem;
+}
+#newsticker:empty {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#newsticker:empty::after {
+    flex: 0 0 auto;
+    font-size: 1.8rem;
+    line-height: 1;
+    color: #606060;
+    content: "Keine Störungen bekannt :-)";
+}
+.news-message {
+    max-width: 60rem;
+    margin: 1rem auto;
+    padding-bottom: 1rem;
+    border-bottom: .1rem #333 solid;
+}
+.news-message .time {
+    font-style: italic;
+}
+.news-message .line-logo {
+    margin-left: 0.5rem;
+    vertical-align: text-bottom;
+}
+.news-message .title {
+    margin: .8rem 0;
+}
+/* /news messages */
 /* /SITE MAIN */
 
 /* LOG MESSAGES */

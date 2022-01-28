@@ -48,6 +48,7 @@ class SBahnGui {
         this.client.on('station', event => this.onStationEvent(event));
         this.client.on('trajectory', event => this.onTrajectoryEvent(event));
         this.client.on('deleted_vehicles', event => this.onDeletedVehiclesEvent(event));
+        this.client.on('sbm_newsticker', event => this.onNewsticker(event));
         this.client.onReconnect(() => this.onReconnectEvent());
         this.client.onStatsUpdate((stats) => this.onStatsUpdate(stats));
         this.client.connect();
@@ -362,6 +363,38 @@ class SBahnGui {
         document.getElementById('bytes-received').innerText = Utils.formatBytes(stats.bytesReceived);
         document.getElementById('messages-sent').innerText = stats.messagesSent;
         document.getElementById('bytes-sent').innerText = Utils.formatBytes(stats.bytesSent);
+    }
+
+    onNewsticker(news) {
+        let newstickerNode = document.getElementById('newsticker');
+        while (newstickerNode.firstChild) newstickerNode.removeChild(newstickerNode.lastChild);
+
+        news.messages.reverse().forEach(newsMessage => {
+            let time = new Date(newsMessage.updated), now = new Date();
+            let isSameDay = time.getDate() === now.getDate() && time.getMonth() === now.getMonth() && time.getFullYear() === now.getFullYear();
+            let timeFormat = isSameDay ? { hour: 'numeric', minute: 'numeric' } :
+                { day: '2-digit', month: '2-digit', hour: 'numeric', minute: 'numeric' };
+
+            let newsMessageNode = Utils.getTemplate('news-message');
+            newsMessageNode.querySelector('.time').textContent = time.toLocaleTimeString(undefined, timeFormat);
+            newsMessageNode.querySelector('.title').textContent = newsMessage.title;
+            newsMessageNode.querySelector('.content').innerHTML = newsMessage.content;
+
+            newsMessage.lines.forEach(line => {
+                let lineLogoNode = Utils.getTemplate('line-logo');
+                lineLogoNode.textContent = line.name;
+                lineLogoNode.style.backgroundColor = line.color;
+                lineLogoNode.style.color = line.text_color;
+
+                newsMessageNode.querySelector('.lines').appendChild(lineLogoNode);
+            });
+
+            newstickerNode.appendChild(newsMessageNode);
+        });
+
+        let navLinkNode = document.querySelector('#nav > a[href="#newsticker"]');
+        navLinkNode.classList.toggle('has-badge', news.messages.length > 0);
+        navLinkNode.querySelector('.badge').textContent = news.messages.length;
     }
 
     onPosition(position) {

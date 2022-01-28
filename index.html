@@ -25,8 +25,9 @@
     <header class="site-header">
         <h1><a href="#"><img src="img/s-bahn-logo.svg" alt="S" class="logo" height="30px"> Bahn München <span>Live</span></a></h1>
         <nav id="nav">
-            <a href="#list"><span>Liste</span></a>
-            <a href="#map"><span>Karte</span></a>
+            <a href="#list"><span class="text">Liste</span></a>
+            <a href="#map"><span class="text">Karte</span></a>
+            <a href="#newsticker"><span class="text">Newsticker</span><span class="badge"></span></a>
         </nav>
         <nav id="filter">
             <h3>Filter</h3>
@@ -148,6 +149,23 @@
                     </tr>
                 </template>
             </div>
+        </div>
+
+        <div id="page-newsticker" class="page">
+            <div id="newsticker"></div>
+            <template id="news-message">
+                <div class="news-message">
+                    <div class="news-header">
+                        <span class="time"></span>
+                        <span class="lines"></span>
+                    </div>
+                    <h3 class="title"></h3>
+                    <div class="content"></div>
+                </div>
+            </template>
+            <template id="line-logo">
+                <span class="line-logo"></span>
+            </template>
         </div>
 
         <footer class="site-footer">
