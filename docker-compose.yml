@@ -1,0 +1,9 @@
+version: '3.7'
+
+services:
+  sbahn:
+    build:
+      context: .
+    container_name: sbahn
+    ports:
+      - "127.0.0.1:8080:80"
