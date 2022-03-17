@@ -785,10 +785,10 @@ class SBahnGui {
         Utils.setText(trainNode.querySelector('.train-number'), train.number && !train.numberIsNormal ? '(' + train.number + ')' : (train.number || ''));
         Utils.setText(trainNode.querySelector('.station-prev .name'), this.getStationName(train.prevStationId));
         Utils.setText(trainNode.querySelector('.station-current .time'), Utils.formatTime(train.currentStationDepartureTime));
-        Utils.setText(trainNode.querySelector('.station-current .delay'), train.currentStationDepartureDelay ? '(+' + train.currentStationDepartureDelay + ')' : '');
+        Utils.setText(trainNode.querySelector('.station-current .delay'), train.currentStationDepartureDelay ? '(+' + Utils.formatDuration(train.currentStationDepartureDelay) + ')' : '');
         Utils.setText(trainNode.querySelector('.station-current .name'), this.getStationName(train.currentStationId));
         Utils.setText(trainNode.querySelector('.station-next .time'), Utils.formatTime(train.nextStationDepartureTime));
-        Utils.setText(trainNode.querySelector('.station-next .delay'), train.nextStationDepartureDelay ? '(+' + train.nextStationDepartureDelay + ')' : '');
+        Utils.setText(trainNode.querySelector('.station-next .delay'), train.nextStationDepartureDelay ? '(+' + Utils.formatDuration(train.nextStationDepartureDelay) + ')' : '');
         Utils.setText(trainNode.querySelector('.station-next .name'), this.getStationName(train.nextStationId));
         trainNode.querySelector('.progress .bar').style.width = train.progress + '%';
 

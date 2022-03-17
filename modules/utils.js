@@ -51,6 +51,17 @@ export default {
         return (new Date(timestamp)).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
     },
 
+    formatDuration: (duration) => {
+        let isNegative = duration < 0;
+        duration = Math.round(Math.abs(duration / 1000));
+
+        let minutes = Math.floor(duration / 60);
+        let seconds = duration - minutes * 60;
+        let durationStr = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+
+        return (isNegative ? '-' : '') + durationStr;
+    },
+
     formatBytes: (bytes, decimals = 2) => {
         if (bytes === 0) return '0 Bytes';
 
