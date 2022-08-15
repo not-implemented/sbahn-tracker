@@ -32,6 +32,7 @@ class SBahnGui {
             lines: [],
             trains: [],
             direction: [],
+            isOutdated: [],
             isTagged: []
         };
 
@@ -103,7 +104,7 @@ class SBahnGui {
             this.page = page;
 
             Object.keys(this.options).forEach(name => {
-                if (name === 'trains' || name === 'direction' || name === 'isTagged') this.options[name] = parseStrList(params.get(name));
+                if (name === 'trains' || name === 'direction' || name === 'isOutdated' || name === 'isTagged') this.options[name] = parseStrList(params.get(name));
                 else this.options[name] = parseIdList(params.get(name));
             });
 
@@ -726,6 +727,15 @@ class SBahnGui {
                 train._gui.isVisible = !!train.number && this.options.direction.includes(train.number % 2 === 1 ? 'east' : 'west');
             }
 
+            if (train._gui.isVisible && this.options.isOutdated.length > 0) {
+                train._gui.isVisible = train.vehicles.some(vehicle => {
+                    if (vehicle.id === null) return false;
+                    let vehicleInfo = this.vehicleInfos.get(vehicle.id);
+                    if (!vehicleInfo) vehicleInfo = { isModern: null };
+                    return vehicleInfo.isModern === null;
+                });
+            }
+
             if (train._gui.isVisible && this.options.isTagged.length > 0) {
                 train._gui.isVisible = train.vehicles.some(vehicle => {
                     if (vehicle.id === null) return false;
@@ -949,7 +959,7 @@ class SBahnGui {
     }
 
     initFilter() {
-        ['direction', 'isTagged'].forEach(filter => {
+        ['direction', 'isOutdated', 'isTagged'].forEach(filter => {
             let filterNode = document.getElementById(filter);
             filterNode.querySelectorAll('input').forEach(node => {
                 node.addEventListener('change', () => {
@@ -962,12 +972,12 @@ class SBahnGui {
     }
 
     onFilterSelectionChange() {
-        ['direction', 'isTagged'].forEach(filter => {
+        ['direction', 'isOutdated', 'isTagged'].forEach(filter => {
             let filterNode = document.getElementById(filter);
             filterNode.querySelectorAll('input').forEach(node => {
                 node.checked = this.options[filter].includes(node.value);
             });
-            if (filter !== 'isTagged') {
+            if (filter !== 'isOutdated' && filter !== 'isTagged') {
                 filterNode.classList.toggle('select-all', this.options[filter].length === 0);
             }
         });
