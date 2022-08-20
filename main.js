@@ -57,7 +57,7 @@ class SBahnGui {
         this.reconnectSyncTimeout = null;
 
         if (navigator.geolocation) {
-            this.positionWatchId = navigator.geolocation.watchPosition(position => this.onPosition(position));
+            this.positionWatchId = navigator.geolocation.watchPosition(position => this.onPosition(position), null, { enableHighAccuracy: true });
         }
     }
 
