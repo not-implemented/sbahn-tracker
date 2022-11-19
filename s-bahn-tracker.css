@@ -654,6 +654,9 @@ a:hover, a:active {
     flex: 1 0 75%;
     box-shadow: 0 0 .6rem .3rem rgba(0,0,0,.15);
 }
+#map.leaflet-container {
+    font-size: 12px;
+}
 #map .train-marker .container {
     cursor: pointer;
     pointer-events: visiblePainted;
