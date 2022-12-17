@@ -323,6 +323,10 @@ class SBahnGui {
         set(train, 'nextStationDepartureTime', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].departureTime : null);
         set(train, 'nextStationDepartureDelay', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].departureDelay : null);
 
+        if (this.options.trains.includes(train.id)) {
+            console.log(event);
+        }
+
         if (train._changed.size > 0) this.onTrainUpdate(train);
     }
 
