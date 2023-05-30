@@ -590,6 +590,21 @@ a:hover, a:active {
 .vehicle.has-no-wifi {
     background-image: url(img/wifi-no.svg);
 }
+.vehicle .model {
+    display: block;
+    position: absolute;
+    right: -0.2rem;
+    top: 0;
+    width: .6rem;
+    height: .6rem;
+    border-radius: 50%;
+}
+.vehicle.model-420 .model {
+    background-color: #e1bc4b;
+}
+.vehicle.model-423 .model {
+    background-color: #f073d1;
+}
 .action-link {
     font-size: 1.5rem;
     line-height: 1.3rem;
@@ -669,6 +684,15 @@ a:hover, a:active {
 #map .train-marker .marker {
     stroke: #ffffff;
     stroke-width: 0.3;
+}
+#map .train-marker .model {
+    stroke-width: 0.1;
+}
+#map .train-marker .model.model-420 {
+    fill: #e1bc4b;
+}
+#map .train-marker .model.model-423 {
+    fill: #f073d1;
 }
 #map .train-marker .no-gps-cordinates {
     fill: #ff4f4f;

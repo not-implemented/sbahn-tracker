@@ -773,6 +773,8 @@ class SBahnGui {
 
         svgNode.querySelector('.container').classList.toggle('inactive', !train.isActive);
         svgNode.querySelector('.no-gps-cordinates').classList.toggle('hide', train.hasGpsCordinates);
+        svgNode.querySelector('.model').classList.toggle('model-420', train.vehicles.some((v) => v.model === '420'));
+        svgNode.querySelector('.model').classList.toggle('model-423', train.vehicles.some((v) => v.model === '423'));
 
         let headingNode = svgNode.querySelector('.heading'), viewBox = svgNode.viewBox.baseVal;
         headingNode.transform.baseVal.getItem(0).setRotate(train.heading || 0, viewBox.width / 2, viewBox.height / 2);
@@ -812,9 +814,11 @@ class SBahnGui {
         let vehicleNode = vehiclesNode.firstElementChild;
         train.vehicles.forEach(vehicle => {
             if (!vehicleNode) vehicleNode = vehiclesNode.appendChild(Utils.getTemplate('vehicle'));
-            Utils.setText(vehicleNode, vehicle.number);
+            Utils.setText(vehicleNode.querySelector('.number'), vehicle.number);
             vehicleNode.classList.toggle('is-forward', vehicle.isReverse === false);
             vehicleNode.classList.toggle('is-reverse', vehicle.isReverse === true);
+            vehicleNode.classList.toggle('model-420', vehicle.model === '420');
+            vehicleNode.classList.toggle('model-423', vehicle.model === '423');
 
             let vehicleInfo = this.vehicleInfos.get(vehicle.id);
             vehicleNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern === true));
