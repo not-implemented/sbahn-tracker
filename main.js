@@ -815,6 +815,7 @@ class SBahnGui {
         train.vehicles.forEach(vehicle => {
             if (!vehicleNode) vehicleNode = vehiclesNode.appendChild(Utils.getTemplate('vehicle'));
             Utils.setText(vehicleNode.querySelector('.number'), vehicle.number);
+            vehicleNode.querySelector('.model').title = 'Baureihe ' + vehicle.model;
             vehicleNode.classList.toggle('is-forward', vehicle.isReverse === false);
             vehicleNode.classList.toggle('is-reverse', vehicle.isReverse === true);
             vehicleNode.classList.toggle('model-420', vehicle.model === '420');
