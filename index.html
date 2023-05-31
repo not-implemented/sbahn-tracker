@@ -106,12 +106,32 @@
             <div id="map"></div>
             <template id="train-marker">
                 <svg viewBox="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <radialGradient id="gradient-green">
+                            <stop stop-color="#33ff6d" offset=".05"/>
+                            <stop stop-color="#04d461" offset=".9"/>
+                        </radialGradient>
+                        <radialGradient id="gradient-yellow">
+                            <stop stop-color="#ffe060" offset=".2"/>
+                            <stop stop-color="#fac412" offset=".9"/>
+                        </radialGradient>
+                        <radialGradient id="gradient-red">
+                            <stop stop-color="#ee665f" offset=".2"/>
+                            <stop stop-color="#df413a" offset=".9"/>
+                        </radialGradient>
+                    </defs>
                     <g class="container">
                         <g class="marker">
                             <circle cy="5" cx="5" r="3"/>
-                            <path class="heading" d="m 8,3.5 c 0.5692502,0.3737847 0.6334476,2.5249143 0,3 l 2,-1.5 z" transform="rotate(0, 0, 0)"/>
-                            <circle class="model" cy="7" cx="5" r="0.7"/>
-                            <circle class="no-gps-cordinates" cy="2.5" cx="5" r="1"/>
+                            <!--
+                            // Berechnung Kreisabschnitt:
+                            let angle = 120 * Math.PI / 180, center = 5, fullRadius = 3, strokeWidth = 0.3, radius = fullRadius - strokeWidth / 2;
+                            let deltaX = radius * Math.sin(angle / 2), deltaY = radius * Math.cos(angle / 2);
+                            console.log('M ' + (center - deltaX) + ' ' + (center + deltaY) + ' A ' + radius + ' ' + radius + ' 0 0 0 ' + (center + deltaX) + ' ' + (center + deltaY));
+                            -->
+                            <path class="type" d="M 2.5318 6.425 A 2.85 2.85 0 0 0 7.4682 6.425"/>
+                            <circle class="state" cy="3" cx="5" r="0.5"/>
+                            <path class="heading" d="m 8,3.5 A 3.3 3.3 0 0 1 8,6.5 l 2,-1.5 z" transform="rotate(0, 0, 0)"/>
                         </g>
                         <text class="name" x="2.8" y="6.2" textLength="4.5" lengthAdjust="spacingAndGlyphs"></text>
                     </g>

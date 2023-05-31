@@ -772,9 +772,12 @@ class SBahnGui {
         svgNode.querySelector('.name').style.fill = train.line.textColor;
 
         svgNode.querySelector('.container').classList.toggle('inactive', !train.isActive);
-        svgNode.querySelector('.no-gps-cordinates').classList.toggle('hide', train.hasGpsCordinates);
-        svgNode.querySelector('.model').classList.toggle('model-420', train.vehicles.some((v) => v.model === '420'));
-        svgNode.querySelector('.model').classList.toggle('model-423', train.vehicles.some((v) => v.model === '423'));
+        svgNode.querySelector('.type').classList.toggle('no-gps-cordinates', !train.hasGpsCordinates);
+        svgNode.querySelector('.type').classList.toggle('model-420', train.vehicles.some((v) => v.model === '420'));
+        svgNode.querySelector('.type').classList.toggle('model-423', train.vehicles.some((v) => v.model === '423'));
+        svgNode.querySelector('.state').classList.toggle('driving', train.state === 'DRIVING');
+        svgNode.querySelector('.state').classList.toggle('stopped', train.state === 'STOPPED');
+        svgNode.querySelector('.state').classList.toggle('boarding', train.state === 'BOARDING');
 
         let headingNode = svgNode.querySelector('.heading'), viewBox = svgNode.viewBox.baseVal;
         headingNode.transform.baseVal.getItem(0).setRotate(train.heading || 0, viewBox.width / 2, viewBox.height / 2);
