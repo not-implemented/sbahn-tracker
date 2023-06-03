@@ -602,8 +602,6 @@ a:hover, a:active {
 .vehicle.model-420 .model {
     background-color: #8094ff;
 }
-.vehicle.model-423 .model {
-}
 .action-link {
     font-size: 1.5rem;
     line-height: 1.3rem;
@@ -687,13 +685,13 @@ a:hover, a:active {
 #map .train-marker .type {
     stroke: none;
 }
-#map .train-marker .type.model-420 {
-    fill: #8094ff;
+#map .train-marker .type.show {
+    fill: #fffc;
 }
-#map .train-marker .type.model-423 {
-}
-#map .train-marker .type.no-gps-cordinates {
-    fill: #ffc0c0;
+#map .train-marker .type-text {
+    font: bold 1.3px sans-serif;
+    fill: #333;
+    stroke: none;
 }
 #map .train-marker .state {
     stroke-width: 0.1;

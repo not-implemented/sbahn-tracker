@@ -771,10 +771,15 @@ class SBahnGui {
         svgNode.querySelector('.marker').style.fill = train.line.color;
         svgNode.querySelector('.name').style.fill = train.line.textColor;
 
+        let typeText = null;
+        if (!train.hasGpsCordinates) {
+            typeText = '???';
+        } else if (train.vehicles.some((v) => v.model === '420')) {
+            typeText = '420';
+        }
         svgNode.querySelector('.container').classList.toggle('inactive', !train.isActive);
-        svgNode.querySelector('.type').classList.toggle('no-gps-cordinates', !train.hasGpsCordinates);
-        svgNode.querySelector('.type').classList.toggle('model-420', train.vehicles.some((v) => v.model === '420'));
-        svgNode.querySelector('.type').classList.toggle('model-423', train.vehicles.some((v) => v.model === '423'));
+        svgNode.querySelector('.type').classList.toggle('show', typeText !== null);
+        svgNode.querySelector('.type-text').textContent = typeText;
         svgNode.querySelector('.state').classList.toggle('driving', train.state === 'DRIVING');
         svgNode.querySelector('.state').classList.toggle('stopped', train.state === 'STOPPED');
         svgNode.querySelector('.state').classList.toggle('boarding', train.state === 'BOARDING');
