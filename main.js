@@ -310,7 +310,7 @@ class SBahnGui {
         let stations = route.stations; // Zuglauf (Liste aller anzufahrenden Stationen)
         let currentIdx = stations ? stations.findIndex(station => station.state !== 'LEAVING' && station.state !== 'JOURNEY_CANCELLED') : -1;
 
-        if (currentIdx > 0 && stations[currentIdx].state === null) {
+        if (currentIdx > 0 && stations[currentIdx].state !== 'BOARDING') {
             currentIdx--; // wenn unterwegs, letzte "LEAVING"-Station als current setzen
         }
 
