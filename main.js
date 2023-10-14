@@ -314,7 +314,9 @@ class SBahnGui {
             currentIdx--; // wenn unterwegs, letzte "LEAVING"-Station als current setzen
         }
 
-        set(train, 'destinationId', stations && stations.length > 0 ? stations[stations.length - 1].stationId : null);
+        let destinationIdx = stations ? stations.findLastIndex(station => station.state !== 'JOURNEY_CANCELLED') : -1;
+
+        set(train, 'destinationId', destinationIdx !== -1 ? stations[destinationIdx].stationId : null);
         set(train, 'currentStationId', currentIdx !== -1 ? stations[currentIdx].stationId : null);
         set(train, 'currentStationDepartureTime', currentIdx !== -1 ? stations[currentIdx].departureTime : null);
         set(train, 'currentStationDepartureDelay', currentIdx !== -1 ? stations[currentIdx].departureDelay : null);
