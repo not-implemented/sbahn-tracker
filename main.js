@@ -322,6 +322,7 @@ class SBahnGui {
         set(train, 'nextStationId', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].stationId : null);
         set(train, 'nextStationDepartureTime', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].departureTime : null);
         set(train, 'nextStationDepartureDelay', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].departureDelay : null);
+        set(train, 'progress', this.calcProgress(train));
 
         if (this.options.trains.includes(train.id)) {
             console.log(event);
