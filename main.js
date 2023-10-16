@@ -318,12 +318,12 @@ class SBahnGui {
 
         set(train, 'destinationId', destinationIdx !== -1 ? stations[destinationIdx].stationId : null);
         set(train, 'currentStationId', currentIdx !== -1 ? stations[currentIdx].stationId : null);
-        set(train, 'currentStationDepartureTime', currentIdx !== -1 ? stations[currentIdx].departureTime : null);
+        set(train, 'currentStationDepartureTime', currentIdx !== -1 ? stations[currentIdx].aimedDepartureTime : null);
         set(train, 'currentStationDepartureDelay', currentIdx !== -1 ? stations[currentIdx].departureDelay : null);
         set(train, 'prevStationId', currentIdx !== -1 && currentIdx > 0 ? stations[currentIdx - 1].stationId : null);
         set(train, 'nextStationId', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].stationId : null);
-        set(train, 'nextStationDepartureTime', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].departureTime : null);
-        set(train, 'nextStationDepartureDelay', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].departureDelay : null);
+        set(train, 'nextStationDepartureTime', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].aimedArrivalTime : null);
+        set(train, 'nextStationDepartureDelay', currentIdx !== -1 && currentIdx + 1 < stations.length ? stations[currentIdx + 1].arrivalDelay : null);
         set(train, 'progress', this.calcProgress(train));
 
         if (this.options.trains.includes(train.id)) {
