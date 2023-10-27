@@ -190,16 +190,13 @@ class SBahnGui {
             this.stations.set(station.id, station);
         }
 
-        station.coordinates = [...event.geometry.coordinates].reverse();
+        station.coordinates = this.convertCoordinates(event.geometry.coordinates);
     }
 
     onTrajectoryEvent(event) {
         if (!event) return; // "content": null seems to happen on bigger server problems
 
         let rawTrain = event.properties;
-
-        if (rawTrain.train_id.substr(0, 4) === 'sbh_') return; // filter out "S-Bahn Hamburg"
-
         let train = this.trains.get(rawTrain.train_id);
 
         if (!train) {
@@ -235,8 +232,7 @@ class SBahnGui {
             set(train, 'coordinates', [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]]);
             set(train, 'hasGpsCordinates', true);
         } else if (event.geometry.coordinates) {
-            let coords = event.geometry.coordinates[0];
-            set(train, 'coordinates', [coords[1], coords[0]]);
+            set(train, 'coordinates', this.convertCoordinates(event.geometry.coordinates[0]));
             set(train, 'hasGpsCordinates', false);
         } else {
             set(train, 'coordinates', null);
@@ -246,7 +242,7 @@ class SBahnGui {
         set(train, 'progress', this.calcProgress(train));
         let headingRadian = rawTrain.time_intervals && rawTrain.time_intervals[0][2] || null;
         set(train, 'heading', headingRadian !== null ? - headingRadian / Math.PI * 180 : null);
-        set(train, 'estimatedPath', event.geometry.coordinates && event.geometry.coordinates.map(coords => [coords[1], coords[0]]) || []);
+        set(train, 'estimatedPath', event.geometry.coordinates && event.geometry.coordinates.map(coords => this.convertCoordinates(coords)) || []);
         set(train, 'lastUpdate', rawTrain.event_timestamp);
 
         train.historyPath = train.historyPath || [];
@@ -295,6 +291,11 @@ class SBahnGui {
         }
 
         this.onTrainUpdate(train);
+    }
+
+    convertCoordinates(coords) {
+        let latLng = L.CRS.EPSG3857.unproject(L.point(coords[0], coords[1]));
+        return [latLng.lat, latLng.lng];
     }
 
     onStopSequenceEvent(event) {

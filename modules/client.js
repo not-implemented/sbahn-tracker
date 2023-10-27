@@ -30,8 +30,10 @@ export default class SBahnClient {
     }
 
     on(source, callback) {
-        this._send('GET ' + source);
-        this._send('SUB ' + source);
+        if (source !== 'trajectory') {
+            this._send('GET ' + source);
+            this._send('SUB ' + source);
+        }
 
         this._callbacks[source] = callback;
     }
@@ -73,11 +75,13 @@ export default class SBahnClient {
         this._socket.onopen = () => {
             this._onReconnectCallback();
 
-            this._send('PROJECTION epsg:4326');
-
             Object.keys(this._callbacks).forEach(source => {
-                this._send('GET ' + source);
-                this._send('SUB ' + source);
+                if (source === 'trajectory') {
+                    this._send('BBOX -9999999 -9999999 9999999 9999999 14 tenant=sbm');
+                } else {
+                    this._send('GET ' + source);
+                    this._send('SUB ' + source);
+                }
             });
 
             this._pingInterval = setTimeout(() => this._send('PING'), 10000);
@@ -111,7 +115,7 @@ export default class SBahnClient {
             let timeDiff = Date.now() - message.timestamp;
             this.clientTimeDiff = this.clientTimeDiff !== null ? Math.min(timeDiff, this.clientTimeDiff) : timeDiff;
 
-            if (message.client_reference !== null) {
+            if (message.client_reference !== null && message.client_reference !== '') {
                 this._log.info('client_reference is not null in WebSocket message', message);
             }
 
