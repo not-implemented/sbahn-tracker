@@ -309,13 +309,13 @@ class SBahnGui {
         train._changed.clear();
 
         let stations = route.stations; // Zuglauf (Liste aller anzufahrenden Stationen)
-        let currentIdx = stations ? stations.findIndex(station => station.state !== 'LEAVING' && station.state !== 'STOP_CANCELLED') : -1;
+        let currentIdx = stations ? stations.findIndex(station => !['LEAVING', 'STOP_CANCELLED', 'JOURNEY_CANCELLED'].includes(station.state)) : -1;
 
         if (currentIdx > 0 && stations[currentIdx].state !== 'BOARDING') {
             currentIdx--; // wenn unterwegs, letzte "LEAVING"-Station als current setzen
         }
 
-        let destinationIdx = stations ? stations.findLastIndex(station => station.state !== 'STOP_CANCELLED') : -1;
+        let destinationIdx = stations ? stations.findLastIndex(station => !['STOP_CANCELLED', 'JOURNEY_CANCELLED'].includes(station.state)) : -1;
 
         set(train, 'destinationId', destinationIdx !== -1 ? stations[destinationIdx].stationId : null);
         set(train, 'currentStationId', currentIdx !== -1 ? stations[currentIdx].stationId : null);
