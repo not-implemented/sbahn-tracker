@@ -787,6 +787,8 @@ class SBahnGui {
         svgNode.querySelector('.state').classList.toggle('driving', train.state === 'DRIVING');
         svgNode.querySelector('.state').classList.toggle('stopped', train.state === 'STOPPED');
         svgNode.querySelector('.state').classList.toggle('boarding', train.state === 'BOARDING');
+        svgNode.querySelector('.delay-container').classList.toggle('show', train.currentStationDepartureDelay >= 180000);
+        svgNode.querySelector('.delay').textContent = '+' + Math.round(train.currentStationDepartureDelay / 60000);
 
         let headingNode = svgNode.querySelector('.heading'), viewBox = svgNode.viewBox.baseVal;
         headingNode.transform.baseVal.getItem(0).setRotate(train.heading || 0, viewBox.width / 2, viewBox.height / 2);

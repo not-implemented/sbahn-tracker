@@ -718,6 +718,22 @@ a:hover, a:active {
 .train-marker .name {
     font: bold 3px sans-serif;
 }
+.train-marker .delay-container {
+    display: none;
+}
+.train-marker .delay-container.show {
+    display: unset;
+}
+.train-marker .delay-badge {
+    fill: #ffffff;
+    stroke: #df3333;
+    stroke-width: 0.2;
+}
+.train-marker .delay {
+    font: bold 1.6px sans-serif;
+    fill: #df3333;
+    stroke: none;
+}
 /* /details of train */
 /* news messages */
 #newsticker {
