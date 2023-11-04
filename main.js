@@ -820,6 +820,7 @@ class SBahnGui {
 
         Utils.setText(trainNode.querySelector('.destination'), this.getStationName(train.destinationId, 'Nicht einsteigen'));
         Utils.setText(trainNode.querySelector('.train-number'), train.number && !train.numberIsNormal ? '(' + train.number + ')' : (train.number || ''));
+        Utils.setText(trainNode.querySelector('.train-model'), 'BR ' + [...new Set(train.vehicles.map((v) => v.model ?? '???'))].join(', '));
         Utils.setText(trainNode.querySelector('.station-prev .name'), this.getStationName(train.prevStationId));
         Utils.setText(trainNode.querySelector('.station-current .time'), Utils.formatTime(train.currentStationDepartureTime));
         Utils.setText(trainNode.querySelector('.station-current .delay'), train.currentStationDepartureDelay ? '(+' + Utils.formatDuration(train.currentStationDepartureDelay) + ')' : '');
@@ -834,11 +835,8 @@ class SBahnGui {
         train.vehicles.forEach(vehicle => {
             if (!vehicleNode) vehicleNode = vehiclesNode.appendChild(Utils.getTemplate('vehicle'));
             Utils.setText(vehicleNode.querySelector('.number'), vehicle.number);
-            vehicleNode.querySelector('.model').title = 'Baureihe ' + vehicle.model;
             vehicleNode.classList.toggle('is-forward', vehicle.isReverse === false);
             vehicleNode.classList.toggle('is-reverse', vehicle.isReverse === true);
-            vehicleNode.classList.toggle('model-420', vehicle.model === '420');
-            vehicleNode.classList.toggle('model-423', vehicle.model === '423');
 
             let vehicleInfo = this.vehicleInfos.get(vehicle.id);
             vehicleNode.classList.toggle('is-modern', !!(vehicleInfo && vehicleInfo.isModern === true));

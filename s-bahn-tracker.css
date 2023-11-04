@@ -513,24 +513,29 @@ a:hover, a:active {
     text-align: center;
     color: #a0a0a0;
 }
-.vehicles {
+.vehicles-wrapper {
     flex: 1 1 auto;
     margin: -.1rem .3rem -.2rem -.3rem;
     padding-left: .3rem;
     padding-bottom: .3rem;
-    list-style: none;
     font-size: 0;
     white-space: nowrap;
     overflow: hidden;
     background: linear-gradient(90deg, #c0c0c0 40%, transparent 40%) repeat-x left bottom / 1rem .2rem, linear-gradient(90deg, #cfcfcf 0%, #cfcfcf 100%) repeat-x left 0 bottom .2rem / 100% .1rem;
     animation: train-driving 1s infinite linear paused;
 }
-.train-driving .vehicles {
+.train-driving .vehicles-wrapper {
     animation-play-state: running;
 }
 @keyframes train-driving {
     0% { background-position-x: 0; }
     100% { background-position-x: 1rem; }
+}
+.vehicles {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 .vehicle {
     position: relative;
@@ -590,17 +595,12 @@ a:hover, a:active {
 .vehicle.has-no-wifi {
     background-image: url(img/wifi-no.svg);
 }
-.vehicle .model {
-    display: block;
-    position: absolute;
-    right: -0.2rem;
-    top: 0;
-    width: .6rem;
-    height: .6rem;
-    border-radius: 50%;
-}
-.vehicle.model-420 .model {
-    background-color: #8094ff;
+.train-model {
+    display: inline-block;
+    margin-left: .3rem;
+    font-size: .9rem;
+    line-height: 1.5rem;
+    color: #a0a0a0;
 }
 .action-link {
     font-size: 1.5rem;

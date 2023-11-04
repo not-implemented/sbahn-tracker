@@ -83,14 +83,17 @@
                     </main>
                     <aside class="train-aside">
                         <span class="train-number" title="Zugnummer"></span>
-                        <ul class="vehicles"></ul>
+                        <div class="vehicles-wrapper">
+                            <ul class="vehicles"></ul>
+                            <span class="train-model" title="Baureihe"></span>
+                        </div>
                         <a href="#" class="action-link"></a>
                     </aside>
                     <div class="last-update"></div>
                 </li>
             </template>
             <template id="vehicle">
-                <li class="vehicle"><span class="model"></span><span class="number" title="Fahrzeugnummer"></span></li>
+                <li class="vehicle"><span class="number" title="Fahrzeugnummer"></span></li>
             </template>
 
             <ul id="log"></ul>
