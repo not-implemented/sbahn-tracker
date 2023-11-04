@@ -1,0 +1,102 @@
+<!-- template "train-marker" from index.html -->
+<svg viewBox="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <radialGradient id="gradient-green">
+            <stop stop-color="#33ff6d" offset=".05"/>
+            <stop stop-color="#04d461" offset=".9"/>
+        </radialGradient>
+        <radialGradient id="gradient-yellow">
+            <stop stop-color="#ffe060" offset=".2"/>
+            <stop stop-color="#fac412" offset=".9"/>
+        </radialGradient>
+        <radialGradient id="gradient-red">
+            <stop stop-color="#ee665f" offset=".2"/>
+            <stop stop-color="#df413a" offset=".9"/>
+        </radialGradient>
+    </defs>
+    <g class="container">
+        <g class="marker">
+            <circle cy="5" cx="5" r="3"/>
+            <!--
+            // Berechnung Kreisabschnitt:
+            let angle = 120 * Math.PI / 180, center = 5, fullRadius = 3, strokeWidth = 0.3, radius = fullRadius - strokeWidth / 2;
+            let deltaX = radius * Math.sin(angle / 2), deltaY = radius * Math.cos(angle / 2);
+            console.log('M ' + (center - deltaX) + ' ' + (center + deltaY) + ' A ' + radius + ' ' + radius + ' 0 0 0 ' + (center + deltaX) + ' ' + (center + deltaY));
+            -->
+            <path class="type" d="M 2.5318 6.425 A 2.85 2.85 0 0 0 7.4682 6.425"/>
+            <text class="type-text" x="3.7" y="7.6" textLength="2.6" lengthAdjust="spacingAndGlyphs"></text>
+            <circle class="state" cy="3" cx="5" r="0.5"/>
+            <path class="heading" d="m 8,3.5 A 3.3 3.3 0 0 1 8,6.5 l 2,-1.5 z" transform="rotate(0, 0, 0)"/>
+        </g>
+        <text class="name" x="2.7" y="6.2" textLength="4.6" lengthAdjust="spacingAndGlyphs"></text>
+        <g class="delay-container">
+            <rect class="delay-badge" x="5.6" y="1.1" width="4" height="2.4" rx="1"/>
+            <text class="delay" x="7.6" y="2.5" dominant-baseline="middle" text-anchor="middle"></text>
+        </g>
+    </g>
+
+    <!-- testing script -->
+    <script>
+        let train = {
+            line: {
+                name: "S3",
+                color: "rgb(141, 24, 144)",
+                textColor: "#ffffff",
+            },
+            state: 'DRIVING',
+            //state: 'STOPPED',
+            //state: 'BOARDING',
+            heading: 0, // -180 ... 180
+            isActive: true,
+            hasGpsCordinates: true,
+            currentStationDepartureDelay: 180000,
+            vehicles: [{ model: '420' }],
+            //vehicles: [{ model: '423' }],
+        };
+
+        let svgNode = document.documentElement;
+        svgNode.classList.add('train-marker'); // for stylesheet
+        svgNode.style.width = '50px';
+        svgNode.style.height = '50px';
+        svgNode.style.margin = 'auto';
+        svgNode.style.marginTop = '300px';
+        svgNode.style.backgroundColor = '#bddab1';
+
+        let linkNode = document.createElementNS('http://www.w3.org/1999/xhtml', 'link');
+        linkNode.setAttribute('rel', 'stylesheet');
+        linkNode.setAttribute('href', 's-bahn-tracker.css');
+        svgNode.appendChild(linkNode);
+
+
+        /**
+         * script from main.js onTrainUpdate():
+         */
+        svgNode.querySelector('.name').textContent = train.line.name;
+        svgNode.querySelector('.marker').style.fill = train.line.color;
+        svgNode.querySelector('.name').style.fill = train.line.textColor;
+
+        let models = [...new Set(train.vehicles.map((v) => v.model))];
+        models = models.length === 1 ? models : models.filter((model) => model !== null);
+        let model = models.length === 1 ? models[0] : '!!!';
+
+        let typeText = null;
+        if (!train.hasGpsCordinates || model === null) {
+            typeText = '???';
+        } else if (model !== '423') {
+            typeText = model;
+        }
+
+        svgNode.querySelector('.container').classList.toggle('inactive', !train.isActive);
+        svgNode.querySelector('.type').classList.toggle('show', typeText !== null);
+        svgNode.querySelector('.type-text').textContent = typeText;
+        svgNode.querySelector('.state').classList.toggle('driving', train.state === 'DRIVING');
+        svgNode.querySelector('.state').classList.toggle('stopped', train.state === 'STOPPED');
+        svgNode.querySelector('.state').classList.toggle('boarding', train.state === 'BOARDING');
+        svgNode.querySelector('.delay-container').classList.toggle('show', train.currentStationDepartureDelay >= 180000);
+        svgNode.querySelector('.delay').textContent = '+' + Math.round(train.currentStationDepartureDelay / 60000);
+
+        let headingNode = svgNode.querySelector('.heading'), viewBox = svgNode.viewBox.baseVal;
+        headingNode.transform.baseVal.getItem(0).setRotate(train.heading || 0, viewBox.width / 2, viewBox.height / 2);
+        headingNode.classList.toggle('is-unknown', train.heading === null);
+    </script>
+</svg>
