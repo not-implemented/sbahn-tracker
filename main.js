@@ -417,16 +417,18 @@ class SBahnGui {
 
         if (rake !== null) {
             let waggons = rake.split(';');
+            let vehicleCount = waggons.filter(waggon => waggon !== '0').length;
+            let waggonsPerVehicle = waggons.length % vehicleCount === 0 ? waggons.length / vehicleCount : null;
 
             while (waggons.length > 0) {
                 let refWaggon, isReverse = null;
 
-                // Manchmal werden für ein Fahrzeug (Kurzzug) alle 4 Waggons gepusht (die anderen 3 als "0"), manchmal nur einer.
+                // Manchmal werden für ein Fahrzeug (Kurzzug) alle 4 Waggons (BR 423) gepusht (die anderen 3 als "0"), manchmal nur einer.
                 // Dies wird hier unterschieden - die Fahrzeugrichtung "isReverse" kann bei einzelnem Waggon leider nicht bestimmt werden.
                 // Das gilt für "original_rake" - in "rake" wird dies normalisiert auf 4 Waggons pro Fahrzeug, allerdings ist dann die
                 // Fahrzeugrichtung nicht mehr bestimmbar. Deshalb verwenden wir "original_rake", wenn verfügbar.
-                if (waggons.length >= 4 && waggons.slice(0, 4).filter(waggon => waggon === '0').length >= 3) {
-                    let vehicleWaggons = waggons.splice(0, 4);
+                if (waggonsPerVehicle !== null && waggonsPerVehicle !== 1) {
+                    let vehicleWaggons = waggons.splice(0, waggonsPerVehicle);
                     isReverse = vehicleWaggons[0] === '0';
                     refWaggon = vehicleWaggons[isReverse ? vehicleWaggons.length - 1 : 0];
                 } else {
