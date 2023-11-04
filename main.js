@@ -775,12 +775,17 @@ class SBahnGui {
         svgNode.querySelector('.marker').style.fill = train.line.color;
         svgNode.querySelector('.name').style.fill = train.line.textColor;
 
+        let models = [...new Set(train.vehicles.map((v) => v.model))];
+        models = models.length === 1 ? models : models.filter((model) => model !== null);
+        let model = models.length === 1 ? models[0] : '!!!';
+
         let typeText = null;
-        if (!train.hasGpsCordinates) {
+        if (!train.hasGpsCordinates || model === null) {
             typeText = '???';
-        } else if (train.vehicles.some((v) => v.model === '420')) {
-            typeText = '420';
+        } else if (model !== '423') {
+            typeText = model;
         }
+
         svgNode.querySelector('.container').classList.toggle('inactive', !train.isActive);
         svgNode.querySelector('.type').classList.toggle('show', typeText !== null);
         svgNode.querySelector('.type-text').textContent = typeText;
