@@ -1,184 +1,60 @@
 <!DOCTYPE html>
-<html lang="de-DE">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>S-Bahn München Live</title>
-
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
-
-    <link rel="stylesheet" href="s-bahn-tracker.css">
-    <link rel="icon" href="img/s-bahn-logo.svg" type="image/svg+xml">
-    <link rel="icon" sizes="192x192" href="/img/favicon/android-chrome-192x192.png" type="image/png">
-    <link rel="apple-touch-icon" href="/img/favicon/apple-touch-icon.png">
-    <link rel="apple-touch-icon" href="/img/favicon/apple-touch-icon_precomposed.png">
-    <link rel="apple-touch-icon" href="/img/favicon/apple-touch-icon_57x57.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon/apple-touch-icon_76x76.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/img/favicon/apple-touch-icon_120x120.png">
-    <link rel="apple-touch-icon" sizes="128x128" href="/img/favicon/apple-touch-icon_128x128.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/img/favicon/apple-touch-icon_152x152.png">
-    <link rel="apple-touch-icon" sizes="256x256" href="/img/favicon/apple-touch-icon_256x256.png">
-    <script type="module" src="main.js"></script>
-</head>
-<body>
-    <header class="site-header">
-        <h1><a href="#"><img src="img/s-bahn-logo.svg" alt="S" class="logo" height="30px"> Bahn München <span>Live</span></a></h1>
-        <nav id="nav">
-            <a href="#list"><span class="text">Liste</span></a>
-            <a href="#map"><span class="text">Karte</span></a>
-            <a href="#newsticker"><span class="text">Newsticker</span><span class="badge"></span></a>
-            <a href="#debug"><span class="text">Debug</span></a>
-        </nav>
-        <nav id="filter">
-            <h3>Filter</h3>
-            <div id="lines"></div>
-            <template id="line">
-                <label class="line">
-                    <input type="checkbox">
-                    <span class="line-logo"></span>
-                </label>
-            </template>
-            <div id="direction" class="filter">
-                <label>
-                    <input value="west" type="checkbox">
-                    <span title="Fahrtrichtung nach Westen (auf Stammstrecke)">⬅️</span>
-                </label>
-                <label>
-                    <input value="east" type="checkbox">
-                    <span title="Fahrtrichtung nach Osten (auf Stammstrecke)">➡️</span>
-                </label>
-            </div>
-            <div id="isTagged" class="filter">
-                <label>
-                    <input value="yes" type="checkbox">
-                    <span title="Züge mit markierten Fahrzeugen">🔔</span>
-                </label>
-            </div>
-        </nav>
-    </header>
-
-    <main class="site-main" data-default-page="list">
-        <div id="page-list" class="page">
-            <ul id="trains"></ul>
-            <template id="train">
-                <li class="train">
-                    <header class="train-header">
-                        <div class="train-line"><span class="line-logo"></span></div>
-                        <h2 class="destination"></h2>
-                    </header>
-                    <main class="train-main">
-                        <ul class="stations">
-                            <li class="station-prev"><span class="strip"><span class="time"></span> <span class="delay"></span> <span class="name"></span></span></li>
-                            <li class="station-current"><span class="strip"><span class="time"></span> <span class="delay"></span> <span class="name"></span></span></li>
-                            <li class="station-next"><span class="strip"><span class="time"></span> <span class="delay"></span> <span class="name"></span></span></li>
-                        </ul>
-                        <div class="progress"><div class="bar"></div></div>
-                    </main>
-                    <aside class="train-aside">
-                        <span class="train-number"></span>
-                        <ul class="vehicles"></ul>
-                        <a href="#" class="action-link"></a>
-                    </aside>
-                    <div class="last-update"></div>
-                </li>
-            </template>
-            <template id="vehicle">
-                <li class="vehicle"></li>
-            </template>
-
-            <ul id="log"></ul>
-            <template id="message">
-                <li class="message">
-                    <span class="time"></span>
-                    <span class="text"></span>
-                </li>
-            </template>
-        </div>
-
-        <div id="page-map" class="page">
-            <div id="map"></div>
-            <template id="train-marker">
-                <svg viewBox="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                    <g class="container">
-                        <g class="marker">
-                            <circle cy="5" cx="5" r="3"/>
-                            <path class="heading" d="m 8,3.5 c 0.5692502,0.3737847 0.6334476,2.5249143 0,3 l 2,-1.5 z" transform="rotate(0, 0, 0)"/>
-                            <circle class="no-gps-cordinates" cy="2.5" cx="5" r="1"/>
-                        </g>
-                        <text class="name" x="2.8" y="6.2" textLength="4.5" lengthAdjust="spacingAndGlyphs"></text>
-                    </g>
-                </svg>
-            </template>
-
-            <div id="train-details">
-                <ul id="selected-trains"></ul>
-            </div>
-        </div>
-
-        <div id="page-newsticker" class="page">
-            <div id="newsticker"></div>
-            <template id="news-message">
-                <div class="news-message">
-                    <div class="news-header">
-                        <span class="time"></span>
-                        <span class="lines"></span>
-                    </div>
-                    <h3 class="title"></h3>
-                    <div class="content"></div>
-                </div>
-            </template>
-            <template id="line-logo">
-                <span class="line-logo"></span>
-            </template>
-        </div>
-
-        <div id="page-debug" class="page">
-            <div id="train-events">
-                <table>
-                    <thead>
-                        <tr><th colspan="10" style="text-align: right"><button id="clear-train-events">Leeren</button></th></tr>
-                        <tr>
-                            <th class="is-number">event-time</th>
-                            <th class="is-number">aimed-time-offset</th>
-                            <th>state</th>
-                            <th>event</th>
-                            <th>ride-state</th>
-                            <th class="is-number">train-number</th>
-                            <th class="is-number">original-train-number</th>
-                            <th>stop-point-ds100</th>
-                            <th class="is-number" title="position-correction">pos-corr</th>
-                            <th class="is-number">transmitting-vehicle</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>
-            <template id="train-event">
-                <tr>
-                    <td class="event-timestamp is-number"></td>
-                    <td class="aimed-time-offset is-number"></td>
-                    <td class="state"></td>
-                    <td class="event"></td>
-                    <td class="ride-state"></td>
-                    <td class="train-number is-number"></td>
-                    <td class="original-train-number is-number"></td>
-                    <td class="stop-point-ds100"></td>
-                    <td class="position-correction is-number"></td>
-                    <td class="transmitting-vehicle is-number"></td>
-                </tr>
-            </template>
-        </div>
-
-        <footer class="site-footer">
-            Live-Data from <a href="https://geops.ch/">geOps</a> — Made with 🥨 in Munich
-
-            <div class="stats">
-                In: <span id="messages-received"></span> (<span id="bytes-received"></span>),
-                Out: <span id="messages-sent"></span> (<span id="bytes-sent"></span>)
-            </div>
-        </footer>
-    </main>
-</body>
+<html lang="de">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            rel="icon"
+            href="/assets/images/s-bahn-logo.svg"
+            type="image/svg+xml"
+        />
+        <link
+            rel="icon"
+            sizes="192x192"
+            href="/assets/images/favicon/android-chrome-192x192.png"
+            type="image/png"
+        />
+        <link
+            rel="apple-touch-icon"
+            href="/assets/images/favicon/apple-touch-icon.png"
+        />
+        <link
+            rel="apple-touch-icon"
+            href="/assets/images/favicon/apple-touch-icon_precomposed.png"
+        />
+        <link
+            rel="apple-touch-icon"
+            href="/assets/images/favicon/apple-touch-icon_57x57.png"
+        />
+        <link
+            rel="apple-touch-icon"
+            sizes="76x76"
+            href="/assets/images/favicon/apple-touch-icon_76x76.png"
+        />
+        <link
+            rel="apple-touch-icon"
+            sizes="120x120"
+            href="/assets/images/favicon/apple-touch-icon_120x120.png"
+        />
+        <link
+            rel="apple-touch-icon"
+            sizes="128x128"
+            href="/assets/images/favicon/apple-touch-icon_128x128.png"
+        />
+        <link
+            rel="apple-touch-icon"
+            sizes="152x152"
+            href="/assets/images/favicon/apple-touch-icon_152x152.png"
+        />
+        <link
+            rel="apple-touch-icon"
+            sizes="256x256"
+            href="/assets/images/favicon/apple-touch-icon_256x256.png"
+        />
+        <title>S-Bahn München Live</title>
+    </head>
+    <body>
+        <div id="app"></div>
+        <script type="module" src="/src/main.js"></script>
+    </body>
 </html>
