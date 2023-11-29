@@ -1,5 +1,3 @@
-const WebSocket = window && window.WebSocket || require('websocket').w3cwebsocket;
-
 export default class SBahnClient {
     constructor(apiKey, log) {
         this._apiKey = apiKey;
@@ -30,7 +28,9 @@ export default class SBahnClient {
     }
 
     on(source, callback) {
-        this._sendSubscribe(source);
+        this._send('GET ' + source);
+        this._send('SUB ' + source);
+
         this._callbacks[source] = callback;
     }
 
@@ -45,15 +45,6 @@ export default class SBahnClient {
 
         this._isActive = true;
         this._connect();
-    }
-
-    _sendSubscribe(source) {
-        if (source === 'trajectory') {
-            this._send('BBOX -9999999 -9999999 9999999 9999999 14 tenant=sbm');
-        } else {
-            this._send('GET ' + source);
-            this._send('SUB ' + source);
-        }
     }
 
     _send(message) {
@@ -80,8 +71,11 @@ export default class SBahnClient {
         this._socket.onopen = () => {
             this._onReconnectCallback();
 
-            Object.keys(this._callbacks).forEach(source => {
-                this._sendSubscribe(source);
+            this._send('PROJECTION epsg:4326');
+
+            Object.keys(this._callbacks).forEach((source) => {
+                this._send('GET ' + source);
+                this._send('SUB ' + source);
             });
 
             this._pingInterval = setTimeout(() => this._send('PING'), 10000);
@@ -107,21 +101,25 @@ export default class SBahnClient {
             try {
                 message = JSON.parse(event.data);
             } catch (err) {
-                this._log.warn('Ignored invalid JSON in WebSocket message: ' + err.message, event.data);
+                this._log.warn(
+                    'Ignored invalid JSON in WebSocket message: ' + err.message,
+                    event.data,
+                );
                 return;
             }
 
             // minimal client time difference:
             let timeDiff = Date.now() - message.timestamp;
-            this.clientTimeDiff = this.clientTimeDiff !== null ? Math.min(timeDiff, this.clientTimeDiff) : timeDiff;
+            this.clientTimeDiff =
+                this.clientTimeDiff !== null ? Math.min(timeDiff, this.clientTimeDiff) : timeDiff;
 
-            if (message.client_reference !== null && message.client_reference !== '') {
+            if (message.client_reference !== null) {
                 this._log.info('client_reference is not null in WebSocket message', message);
             }
 
             if (message.source === 'websocket') {
                 // ignoring messages: content: {status: "open"} and "content": "PONG"
-            } else if (this._callbacks.hasOwnProperty(message.source)) {
+            } else if (this._callbacks[message.source]) {
                 this._callbacks[message.source](message.content);
             } else {
                 this._log.warn(`Unknown source "${message.source}" in WebSocket message`, message);

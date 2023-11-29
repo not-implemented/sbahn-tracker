@@ -1,0 +1,45 @@
+{
+    "name": "sbahn-tracker",
+    "version": "2.0.0-alpha.1",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview --port 5050",
+        "lint": "eslint --ext .js,.vue,.ts,.json --ignore-path .gitignore src",
+        "prettier": "prettier src --write"
+    },
+    "type": "module",
+    "dependencies": {
+        "pinia": "^2.1.7",
+        "vue": "^3.3.9",
+        "vue-router": "^4.2.5"
+    },
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^4.5.0",
+        "eslint": "^8.54.0",
+        "eslint-config-prettier": "^9.0.0",
+        "eslint-plugin-prettier": "^5.0.1",
+        "eslint-plugin-vue": "^9.18.1",
+        "leaflet": "^1.9.4",
+        "prettier": "^3.1.0",
+        "vite": "^5.0.3"
+    },
+    "prettier": {
+        "tabWidth": 4,
+        "singleQuote": true,
+        "printWidth": 100
+    },
+    "eslintConfig": {
+        "extends": [
+            "eslint:recommended",
+            "plugin:vue/vue3-recommended",
+            "plugin:prettier/recommended",
+            "prettier"
+        ],
+        "globals": {
+            "defineEmits": true,
+            "defineExpose": true,
+            "defineProps": true
+        }
+    }
+}
