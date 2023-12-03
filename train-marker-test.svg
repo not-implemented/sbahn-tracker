@@ -61,6 +61,8 @@
             //vehicles: [{ model: '423' }],
         };
 
+        let minutes = 3; // for outdated flag
+
         let svgNode = document.documentElement;
         svgNode.classList.add('train-marker'); // for stylesheet
         svgNode.style.width = '50px';
@@ -105,5 +107,11 @@
         let headingNode = svgNode.querySelector('.heading'), viewBox = svgNode.viewBox.baseVal;
         headingNode.transform.baseVal.getItem(0).setRotate(train.heading || 0, viewBox.width / 2, viewBox.height / 2);
         headingNode.classList.toggle('is-unknown', train.heading === null);
+
+
+        /**
+         * script from main.js refreshTrain():
+         */
+        svgNode.querySelector('.outdated-container').classList.toggle('show', minutes >= 3);
     </script>
 </svg>
