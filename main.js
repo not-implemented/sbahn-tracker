@@ -876,6 +876,9 @@ class SBahnGui {
 
         Utils.setText(train._gui.node.querySelector('.last-update'), lastUpdateText);
         Utils.setText(train._gui.selectedNode.querySelector('.last-update'), lastUpdateText);
+
+        let svgNode = train._gui.mapMarkerSvgNode;
+        svgNode.querySelector('.outdated-container').classList.toggle('show', minutes >= 3);
     }
 
     onTrainSelectionChange() {

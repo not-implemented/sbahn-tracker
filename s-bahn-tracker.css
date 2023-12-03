@@ -628,6 +628,10 @@ a:hover, a:active {
     line-height: 1;
     color: #df3333;
 }
+.last-update:not(:empty) {
+    background: url(/img/no-signal.svg) right / contain no-repeat;
+    padding-right: 10px;
+}
 /* /error message */
 /* details of train */
 #page-map.is-active {
@@ -718,21 +722,30 @@ a:hover, a:active {
 .train-marker .name {
     font: bold 3px sans-serif;
 }
+.train-marker .badge {
+    fill: #ffffff;
+    stroke: none;
+    stroke-width: 0.2;
+}
 .train-marker .delay-container {
     display: none;
 }
 .train-marker .delay-container.show {
     display: unset;
 }
-.train-marker .delay-badge {
-    fill: #ffffff;
-    stroke: #df3333;
-    stroke-width: 0.2;
-}
 .train-marker .delay {
     font: bold 1.6px sans-serif;
     fill: #df3333;
     stroke: none;
+}
+.train-marker .outdated-container {
+    display: none;
+}
+.train-marker .outdated-container.show {
+    display: unset;
+}
+.train-marker .outdated {
+    fill: #7f7f7f;
 }
 /* /details of train */
 /* news messages */
