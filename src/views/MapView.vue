@@ -163,5 +163,8 @@ const selectedTrains = computed(() => {
     flex: 1 0 75%;
     box-shadow: 0 0 0.6rem 0.3rem rgba(0, 0, 0, 0.15);
 }
+#map.leaflet-container {
+    font-size: 12px;
+}
 /* /details of train */
 </style>
