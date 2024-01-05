@@ -207,7 +207,7 @@ export const useSBahn = () => {
               )
             : -1;
 
-        if (currentIdx > 0 && stations[currentIdx].state === null) {
+        if (currentIdx > 0 && stations[currentIdx].state !== 'BOARDING') {
             currentIdx--; // wenn unterwegs, letzte "LEAVING"-Station als current setzen
         }
 
