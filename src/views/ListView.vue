@@ -18,6 +18,15 @@ const trains = computed(() => {
         )
         .filter(
             (train) =>
+                !options.outdated ||
+                train.vehicles.some((vehicle) => {
+                    if (vehicle.id === null) return false;
+                    const vehicleInfo = toRaw(store.vehicleInfos[vehicle.id]) || { isModern: null };
+                    return vehicleInfo.isModern === null;
+                }),
+        )
+        .filter(
+            (train) =>
                 !options.tagged ||
                 train.vehicles.some((vehicle) => {
                     if (vehicle.id === null) return false;

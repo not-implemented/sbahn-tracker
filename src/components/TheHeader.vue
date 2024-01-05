@@ -78,6 +78,13 @@ const sortedLines = computed(() =>
                 </label>
             </div>
             {{ ' ' }}
+            <div id="isOutdated" class="filter">
+                <label>
+                    <input v-model="options.outdated" value="yes" type="checkbox" />
+                    <span title="Zu aktualisierende Züge">🔍</span>
+                </label>
+            </div>
+            {{ ' ' }}
             <div id="isTagged" class="filter">
                 <label>
                     <input v-model="options.tagged" value="yes" type="checkbox" />

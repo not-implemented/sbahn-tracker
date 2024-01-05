@@ -5,6 +5,7 @@ export const useOptionsStore = defineStore('options', {
         lines: [],
         trains: [],
         direction: [],
+        outdated: false,
         tagged: false,
     }),
 });
