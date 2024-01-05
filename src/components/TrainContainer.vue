@@ -118,8 +118,6 @@ const vehicleClass = (vehicle) => {
     return [
         'vehicle',
         vehicle.isReverse !== null ? (vehicle.isReverse ? 'is-reverse' : 'is-forward') : null,
-        vehicle.model === '420' ? 'model-420' : null,
-        vehicle.model === '423' ? 'model-423' : null,
         vehicleInfo.isModern === true ? 'is-modern' : null,
         vehicleInfo.isModern === false ? 'is-classic' : null,
         vehicleInfo.isTagged ? 'is-tagged' : null,
@@ -201,16 +199,21 @@ const lastUpdateText = computed(() => {
 
         <aside class="train-aside">
             <span class="train-number" title="Zugnummer">{{ trainNumber }}</span>
-            <ul class="vehicles">
-                <li
-                    v-for="(vehicle, index) in train.vehicles"
-                    :key="index"
-                    :class="vehicleClass(vehicle)"
-                >
-                    <span class="model" :title="'Baureihe ' + vehicle.model"></span>
-                    <span class="number" title="Fahrzeugnummer">{{ vehicle.number }}</span>
-                </li>
-            </ul>
+
+            <div class="vehicles-wrapper">
+                <ul class="vehicles">
+                    <li
+                        v-for="(vehicle, index) in train.vehicles"
+                        :key="index"
+                        :class="vehicleClass(vehicle)"
+                    >
+                        <span class="number" title="Fahrzeugnummer">{{ vehicle.number }}</span>
+                    </li>
+                </ul>
+                <span class="train-model" title="Baureihe">{{
+                    'BR ' + [...new Set(train.vehicles.map((v) => v.model ?? '???'))].join(', ')
+                }}</span>
+            </div>
 
             <a
                 href=""
@@ -368,12 +371,11 @@ const lastUpdateText = computed(() => {
     text-align: center;
     color: #a0a0a0;
 }
-.vehicles {
+.vehicles-wrapper {
     flex: 1 1 auto;
     margin: -0.1rem 0.3rem -0.2rem -0.3rem;
     padding-left: 0.3rem;
     padding-bottom: 0.3rem;
-    list-style: none;
     font-size: 0;
     white-space: nowrap;
     overflow: hidden;
@@ -382,7 +384,7 @@ const lastUpdateText = computed(() => {
         linear-gradient(90deg, #cfcfcf 0%, #cfcfcf 100%) repeat-x left 0 bottom 0.2rem / 100% 0.1rem;
     animation: train-driving 1s infinite linear paused;
 }
-.train-driving .vehicles {
+.train-driving .vehicles-wrapper {
     animation-play-state: running;
 }
 @keyframes train-driving {
@@ -392,6 +394,12 @@ const lastUpdateText = computed(() => {
     100% {
         background-position-x: 1rem;
     }
+}
+.vehicles {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 .vehicle {
     position: relative;
@@ -452,17 +460,12 @@ const lastUpdateText = computed(() => {
 .vehicle.has-no-wifi {
     background-image: url(../assets/images/wifi-no.svg);
 }
-.vehicle .model {
-    display: block;
-    position: absolute;
-    right: -0.2rem;
-    top: 0;
-    width: 0.6rem;
-    height: 0.6rem;
-    border-radius: 50%;
-}
-.vehicle.model-420 .model {
-    background-color: #8094ff;
+.train-model {
+    display: inline-block;
+    margin-left: 0.3rem;
+    font-size: 0.9rem;
+    line-height: 1.5rem;
+    color: #a0a0a0;
 }
 .action-link {
     font-size: 1.5rem;
