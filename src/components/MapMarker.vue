@@ -113,6 +113,16 @@ const isSelected = computed(() => {
                         transform="rotate(0, 0, 0)"
                     />
                     <circle
+                        class="model"
+                        :class="{
+                            'model-420': train.vehicles.some((v) => v.model === '420'),
+                            'model-423': train.vehicles.some((v) => v.model === '423'),
+                        }"
+                        cy="7"
+                        cx="5"
+                        r="0.7"
+                    />
+                    <circle
                         v-if="!train.hasGpsCordinates"
                         class="no-gps-cordinates"
                         cy="2.5"
@@ -148,6 +158,15 @@ const isSelected = computed(() => {
 .train-marker .marker {
     stroke: #ffffff;
     stroke-width: 0.3;
+}
+#map .train-marker .model {
+    stroke-width: 0.1;
+}
+#map .train-marker .model.model-420 {
+    fill: #e1bc4b;
+}
+#map .train-marker .model.model-423 {
+    fill: #f073d1;
 }
 .train-marker .no-gps-cordinates {
     fill: #ff4f4f;

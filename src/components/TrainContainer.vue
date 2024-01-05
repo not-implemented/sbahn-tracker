@@ -118,6 +118,8 @@ const vehicleClass = (vehicle) => {
     return [
         'vehicle',
         vehicle.isReverse !== null ? (vehicle.isReverse ? 'is-reverse' : 'is-forward') : null,
+        vehicle.model === '420' ? 'model-420' : null,
+        vehicle.model === '423' ? 'model-423' : null,
         vehicleInfo.isModern === true ? 'is-modern' : null,
         vehicleInfo.isModern === false ? 'is-classic' : null,
         vehicleInfo.isTagged ? 'is-tagged' : null,
@@ -205,7 +207,8 @@ const lastUpdateText = computed(() => {
                     :key="index"
                     :class="vehicleClass(vehicle)"
                 >
-                    {{ vehicle.number }}
+                    <span class="model"></span>
+                    <span class="number">{{ vehicle.number }}</span>
                 </li>
             </ul>
 
@@ -448,6 +451,21 @@ const lastUpdateText = computed(() => {
 }
 .vehicle.has-no-wifi {
     background-image: url(../assets/images/wifi-no.svg);
+}
+.vehicle .model {
+    display: block;
+    position: absolute;
+    right: -0.2rem;
+    top: 0;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+}
+.vehicle.model-420 .model {
+    background-color: #e1bc4b;
+}
+.vehicle.model-423 .model {
+    background-color: #f073d1;
 }
 .action-link {
     font-size: 1.5rem;
