@@ -178,6 +178,21 @@ const typeText = computed(() => {
                 >
                     {{ train.line.name }}
                 </text>
+                <g
+                    class="delay-container"
+                    :class="{ show: train.currentStationDepartureDelay >= 180000 }"
+                >
+                    <ellipse class="delay-badge" cx="7.6" cy="2.3" rx="1.8" ry="1.3" />
+                    <text
+                        class="delay"
+                        x="7.6"
+                        y="2.5"
+                        dominant-baseline="middle"
+                        text-anchor="middle"
+                    >
+                        {{ '+' + Math.round(train.currentStationDepartureDelay / 60000) }}
+                    </text>
+                </g>
             </g>
         </svg>
     </div>
@@ -232,5 +247,21 @@ const typeText = computed(() => {
 }
 .train-marker .name {
     font: bold 3px sans-serif;
+}
+.train-marker .delay-container {
+    display: none;
+}
+.train-marker .delay-container.show {
+    display: unset;
+}
+.train-marker .delay-badge {
+    fill: #ffffff;
+    stroke: #df3333;
+    stroke-width: 0.2;
+}
+.train-marker .delay {
+    font: bold 1.6px sans-serif;
+    fill: #df3333;
+    stroke: none;
 }
 </style>
