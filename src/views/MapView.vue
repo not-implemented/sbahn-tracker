@@ -46,9 +46,13 @@ onMounted(() => {
     }).addTo(map.value);
 
     if (navigator.geolocation) {
-        positionWatchId = navigator.geolocation.watchPosition((position) => {
-            positionMarker.setLatLng([position.coords.latitude, position.coords.longitude]);
-        });
+        positionWatchId = navigator.geolocation.watchPosition(
+            (position) => {
+                positionMarker.setLatLng([position.coords.latitude, position.coords.longitude]);
+            },
+            null,
+            { enableHighAccuracy: true },
+        );
     }
 });
 
