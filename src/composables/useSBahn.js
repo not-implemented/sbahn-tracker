@@ -4,6 +4,7 @@ import SBahnClient from '../api/sbahn';
 import areas from '../constants/areas';
 import Stations from '../constants/stations';
 import VehicleInfo from '../constants/vehicle-info.json';
+import * as L from 'leaflet';
 
 const API_KEY = import.meta.env.VITE_SBAHN_API_KEY;
 
@@ -58,16 +59,13 @@ export const useSBahn = () => {
             store.stations[station.id] = station;
         }
 
-        station.coordinates = [...event.geometry.coordinates].reverse();
+        station.coordinates = convertCoordinates(event.geometry.coordinates);
     }
 
     function onTrajectoryEvent(event) {
         if (!event) return; // "content": null seems to happen on bigger server problems
 
         const rawTrain = event.properties;
-
-        if (rawTrain.train_id.substr(0, 4) === 'sbh_') return; // filter out "S-Bahn Hamburg"
-
         let train = store.trains[rawTrain.train_id];
 
         let isNew = false;
@@ -109,8 +107,7 @@ export const useSBahn = () => {
             train.coordinates = [rawTrain.raw_coordinates[1], rawTrain.raw_coordinates[0]];
             train.hasGpsCordinates = true;
         } else if (event.geometry.coordinates) {
-            const coords = event.geometry.coordinates[0];
-            train.coordinates = [coords[1], coords[0]];
+            train.coordinates = convertCoordinates(event.geometry.coordinates[0]);
             train.hasGpsCordinates = false;
         } else {
             train.coordinates = null;
@@ -121,7 +118,7 @@ export const useSBahn = () => {
         train.heading = headingRadian !== null ? (-headingRadian / Math.PI) * 180 : null;
         train.estimatedPath =
             (event.geometry.coordinates &&
-                event.geometry.coordinates.map((coords) => [coords[1], coords[0]])) ||
+                event.geometry.coordinates.map((coords) => convertCoordinates(coords))) ||
             [];
         train.lastUpdate = rawTrain.event_timestamp;
 
@@ -188,6 +185,11 @@ export const useSBahn = () => {
 
         this.onTrainUpdate(train);
         */
+    }
+
+    function convertCoordinates(coords) {
+        let latLng = L.CRS.EPSG3857.unproject(L.point(coords[0], coords[1]));
+        return [latLng.lat, latLng.lng];
     }
 
     function onStopSequenceEvent(event) {
