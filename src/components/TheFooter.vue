@@ -18,7 +18,7 @@ function formatBytes(bytes, decimals = 2) {
 
         <div class="stats">
             In: {{ store.messagesReceived }} ({{ formatBytes(store.bytesReceived) }}), Out:
-            {{ store.messageSent }} ({{ formatBytes(store.bytesSent) }})
+            {{ store.messagesSent }} ({{ formatBytes(store.bytesSent) }})
         </div>
     </footer>
 </template>
