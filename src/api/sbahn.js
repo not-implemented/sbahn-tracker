@@ -82,11 +82,12 @@ export default class SBahnClient {
                 this._sendSubscribe(source);
             });
 
-            this._pingInterval = setTimeout(() => this._send('PING'), 10000);
+            this._pingInterval = setInterval(() => this._send('PING'), 10000);
         };
 
         this._socket.onclose = () => {
-            if (this._pingInterval) clearTimeout(this._pingInterval);
+            if (this._pingInterval) clearInterval(this._pingInterval);
+            this._pingInterval = null;
 
             this._socket = null;
 
