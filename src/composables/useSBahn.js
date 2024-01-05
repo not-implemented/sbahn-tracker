@@ -233,6 +233,10 @@ export const useSBahn = () => {
                 ? stations[currentIdx + 1].departureDelay
                 : null;
 
+        if (options.trains.includes(train.id)) {
+            console.log(event);
+        }
+
         // if (train._changed.size > 0) this.onTrainUpdate(train);
     }
 
