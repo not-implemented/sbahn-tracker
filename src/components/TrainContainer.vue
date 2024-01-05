@@ -464,8 +464,6 @@ const lastUpdateText = computed(() => {
 .vehicle.model-420 .model {
     background-color: #8094ff;
 }
-.vehicle.model-423 .model {
-}
 .action-link {
     font-size: 1.5rem;
     line-height: 1.3rem;

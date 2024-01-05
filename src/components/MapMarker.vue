@@ -82,6 +82,16 @@ const isSelected = computed(() => {
     return options.trains.includes(props.train.id);
 });
 
+const typeText = computed(() => {
+    let typeText = null;
+    if (!props.train.hasGpsCordinates) {
+        typeText = '???';
+    } else if (props.train.vehicles.some((v) => v.model === '420')) {
+        typeText = '420';
+    }
+    return typeText;
+});
+
 // TODO: train.historyPath
 // TODO: train.estimatedPath
 </script>
@@ -127,13 +137,18 @@ const isSelected = computed(() => {
                     -->
                     <path
                         class="type"
-                        :class="{
-                            'no-gps-cordinates': !train.hasGpsCordinates,
-                            'model-420': train.vehicles.some((v) => v.model === '420'),
-                            'model-423': train.vehicles.some((v) => v.model === '423'),
-                        }"
+                        :class="{ show: typeText !== null }"
                         d="M 2.5318 6.425 A 2.85 2.85 0 0 0 7.4682 6.425"
                     />
+                    <text
+                        class="type-text"
+                        x="3.7"
+                        y="7.6"
+                        textLength="2.6"
+                        lengthAdjust="spacingAndGlyphs"
+                    >
+                        {{ typeText }}
+                    </text>
                     <circle
                         class="state"
                         :class="{
@@ -156,9 +171,9 @@ const isSelected = computed(() => {
                 <text
                     class="name"
                     :style="`fill: ${train.line.textColor}`"
-                    x="2.8"
+                    x="2.7"
                     y="6.2"
-                    textLength="4.5"
+                    textLength="4.6"
                     lengthAdjust="spacingAndGlyphs"
                 >
                     {{ train.line.name }}
@@ -185,13 +200,13 @@ const isSelected = computed(() => {
 #map .train-marker .type {
     stroke: none;
 }
-#map .train-marker .type.model-420 {
-    fill: #8094ff;
+#map .train-marker .type.show {
+    fill: #fffc;
 }
-#map .train-marker .type.model-423 {
-}
-#map .train-marker .type.no-gps-cordinates {
-    fill: #ffc0c0;
+#map .train-marker .type-text {
+    font: bold 1.3px sans-serif;
+    fill: #333;
+    stroke: none;
 }
 #map .train-marker .state {
     stroke-width: 0.1;
