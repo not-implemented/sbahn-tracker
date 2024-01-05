@@ -83,12 +83,17 @@ const isSelected = computed(() => {
 });
 
 const typeText = computed(() => {
+    let models = [...new Set(props.train.vehicles.map((v) => v.model))];
+    models = models.length === 1 ? models : models.filter((model) => model !== null);
+    let model = models.length === 1 ? models[0] : '!!!';
+
     let typeText = null;
-    if (!props.train.hasGpsCordinates) {
+    if (!props.train.hasGpsCordinates || model === null) {
         typeText = '???';
-    } else if (props.train.vehicles.some((v) => v.model === '420')) {
-        typeText = '420';
+    } else if (model !== '423') {
+        typeText = model;
     }
+
     return typeText;
 });
 
