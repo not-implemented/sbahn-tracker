@@ -462,10 +462,9 @@ const lastUpdateText = computed(() => {
     border-radius: 50%;
 }
 .vehicle.model-420 .model {
-    background-color: #e1bc4b;
+    background-color: #8094ff;
 }
 .vehicle.model-423 .model {
-    background-color: #f073d1;
 }
 .action-link {
     font-size: 1.5rem;
