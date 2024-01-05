@@ -84,8 +84,6 @@ const isSelected = computed(() => {
 
 // TODO: train.historyPath
 // TODO: train.estimatedPath
-
-// TODO: https://github.com/Leaflet/Leaflet/issues/7017
 </script>
 
 <template>

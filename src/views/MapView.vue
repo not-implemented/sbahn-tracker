@@ -17,6 +17,8 @@ let positionWatchId;
 onMounted(() => {
     map.value = L.map(div.value).setView([48.137187, 11.575501], 11);
 
+    map.value.attributionControl.setPrefix('<a href="https://leafletjs.com/">Leaflet</a>');
+
     L.tileLayer('https://a.tile.openstreetmap.de/{z}/{x}/{y}.png', {
         attribution:
             '© <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
