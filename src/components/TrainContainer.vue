@@ -496,5 +496,9 @@ const lastUpdateText = computed(() => {
     line-height: 1;
     color: #df3333;
 }
+.last-update:not(:empty) {
+    background: url(../assets/images/no-signal.svg) right / contain no-repeat;
+    padding-right: 10px;
+}
 /* /error message */
 </style>

@@ -187,16 +187,25 @@ const typeText = computed(() => {
                     class="delay-container"
                     :class="{ show: train.currentStationDepartureDelay >= 180000 }"
                 >
-                    <rect class="delay-badge" x="5.6" y="1.1" width="4" height="2.4" rx="1" />
+                    <rect class="badge" x="5.9" y="1.1" width="4" height="2.4" rx="0.75" />
                     <text
                         class="delay"
-                        x="7.6"
+                        x="7.9"
                         y="2.5"
                         dominant-baseline="middle"
                         text-anchor="middle"
                     >
                         {{ '+' + Math.round(train.currentStationDepartureDelay / 60000) }}
                     </text>
+                </g>
+                <g class="outdated-container" :class="{ show: train.lastUpdateMinutes >= 3 }">
+                    <rect class="badge" x="1.2" y="1.1" width="2.8" height="2.4" rx="0.75" />
+                    <g class="outdated" transform="translate(1.5, 1.2) scale(0.045)">
+                        <path
+                            d="M42 2l-17.18 17.18 17.18 17.18v-34.36zm-32.45 7l-2.55 2.54 12.73 12.73-17.73 17.73h35.45l4 4 2.55-2.55-34.45-34.45z"
+                        />
+                        <path d="M0 0h48v48h-48z" fill="none" />
+                    </g>
                 </g>
             </g>
         </svg>
@@ -253,20 +262,29 @@ const typeText = computed(() => {
 .train-marker .name {
     font: bold 3px sans-serif;
 }
+.train-marker .badge {
+    fill: #ffffff;
+    stroke: none;
+    stroke-width: 0.2;
+}
 .train-marker .delay-container {
     display: none;
 }
 .train-marker .delay-container.show {
     display: unset;
 }
-.train-marker .delay-badge {
-    fill: #ffffff;
-    stroke: #df3333;
-    stroke-width: 0.2;
-}
 .train-marker .delay {
     font: bold 1.6px sans-serif;
     fill: #df3333;
     stroke: none;
+}
+.train-marker .outdated-container {
+    display: none;
+}
+.train-marker .outdated-container.show {
+    display: unset;
+}
+.train-marker .outdated {
+    fill: #7f7f7f;
 }
 </style>
