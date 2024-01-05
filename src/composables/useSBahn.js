@@ -218,7 +218,7 @@ export const useSBahn = () => {
         train.destinationId = destinationIdx !== -1 ? stations[destinationIdx].stationId : null;
         train.currentStationId = currentIdx !== -1 ? stations[currentIdx].stationId : null;
         train.currentStationDepartureTime =
-            currentIdx !== -1 ? stations[currentIdx].departureTime : null;
+            currentIdx !== -1 ? stations[currentIdx].aimedDepartureTime : null;
         train.currentStationDepartureDelay =
             currentIdx !== -1 ? stations[currentIdx].departureDelay : null;
         train.prevStationId =
@@ -229,11 +229,11 @@ export const useSBahn = () => {
                 : null;
         train.nextStationDepartureTime =
             currentIdx !== -1 && currentIdx + 1 < stations.length
-                ? stations[currentIdx + 1].departureTime
+                ? stations[currentIdx + 1].aimedArrivalTime
                 : null;
         train.nextStationDepartureDelay =
             currentIdx !== -1 && currentIdx + 1 < stations.length
-                ? stations[currentIdx + 1].departureDelay
+                ? stations[currentIdx + 1].arrivalDelay
                 : null;
 
         if (options.trains.includes(train.id)) {
