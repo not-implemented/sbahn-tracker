@@ -200,15 +200,15 @@ const lastUpdateText = computed(() => {
         </main>
 
         <aside class="train-aside">
-            <span class="train-number">{{ trainNumber }}</span>
+            <span class="train-number" title="Zugnummer">{{ trainNumber }}</span>
             <ul class="vehicles">
                 <li
                     v-for="(vehicle, index) in train.vehicles"
                     :key="index"
                     :class="vehicleClass(vehicle)"
                 >
-                    <span class="model"></span>
-                    <span class="number">{{ vehicle.number }}</span>
+                    <span class="model" :title="'Baureihe ' + vehicle.model"></span>
+                    <span class="number" title="Fahrzeugnummer">{{ vehicle.number }}</span>
                 </li>
             </ul>
 
