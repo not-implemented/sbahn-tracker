@@ -211,8 +211,11 @@ export const useSBahn = () => {
             currentIdx--; // wenn unterwegs, letzte "LEAVING"-Station als current setzen
         }
 
-        train.destinationId =
-            stations && stations.length > 0 ? stations[stations.length - 1].stationId : null;
+        let destinationIdx = stations
+            ? stations.findLastIndex((station) => station.state !== 'JOURNEY_CANCELLED')
+            : -1;
+
+        train.destinationId = destinationIdx !== -1 ? stations[destinationIdx].stationId : null;
         train.currentStationId = currentIdx !== -1 ? stations[currentIdx].stationId : null;
         train.currentStationDepartureTime =
             currentIdx !== -1 ? stations[currentIdx].departureTime : null;
