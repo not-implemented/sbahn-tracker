@@ -205,7 +205,8 @@ export const useSBahn = () => {
         let stations = route.stations; // Zuglauf (Liste aller anzufahrenden Stationen)
         let currentIdx = stations
             ? stations.findIndex(
-                  (station) => station.state !== 'LEAVING' && station.state !== 'STOP_CANCELLED',
+                  (station) =>
+                      !['LEAVING', 'STOP_CANCELLED', 'JOURNEY_CANCELLED'].includes(station.state),
               )
             : -1;
 
@@ -214,7 +215,9 @@ export const useSBahn = () => {
         }
 
         let destinationIdx = stations
-            ? stations.findLastIndex((station) => station.state !== 'STOP_CANCELLED')
+            ? stations.findLastIndex(
+                  (station) => !['STOP_CANCELLED', 'JOURNEY_CANCELLED'].includes(station.state),
+              )
             : -1;
 
         train.destinationId = destinationIdx !== -1 ? stations[destinationIdx].stationId : null;
