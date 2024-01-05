@@ -91,6 +91,17 @@ function formatTime(timestamp) {
     });
 }
 
+function formatDuration(duration) {
+    let isNegative = duration < 0;
+    duration = Math.round(Math.abs(duration / 1000));
+
+    let minutes = Math.floor(duration / 60);
+    let seconds = duration - minutes * 60;
+    let durationStr = minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
+
+    return (isNegative ? '-' : '') + durationStr;
+}
+
 const trainClass = computed(() => {
     return [
         'train',
@@ -155,7 +166,7 @@ const lastUpdateText = computed(() => {
                         </span>
                         {{ ' ' }}
                         <span v-if="train.currentStationDepartureDelay" class="delay">
-                            {{ '(+' + train.currentStationDepartureDelay + ')' }}
+                            {{ '(+' + formatDuration(train.currentStationDepartureDelay) + ')' }}
                         </span>
                         {{ ' ' }}
                         <span class="name">
@@ -171,7 +182,7 @@ const lastUpdateText = computed(() => {
                         </span>
                         {{ ' ' }}
                         <span v-if="train.nextStationDepartureDelay" class="delay">
-                            {{ '(+' + train.nextStationDepartureDelay + ')' }}
+                            {{ '(+' + formatDuration(train.nextStationDepartureDelay) + ')' }}
                         </span>
                         {{ ' ' }}
                         <span class="name">
