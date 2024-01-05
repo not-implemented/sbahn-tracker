@@ -28,11 +28,7 @@ export default class SBahnClient {
     }
 
     on(source, callback) {
-        if (source !== 'trajectory') {
-            this._send('GET ' + source);
-            this._send('SUB ' + source);
-        }
-
+        this._sendSubscribe(source);
         this._callbacks[source] = callback;
     }
 
@@ -47,6 +43,15 @@ export default class SBahnClient {
 
         this._isActive = true;
         this._connect();
+    }
+
+    _sendSubscribe(source) {
+        if (source === 'trajectory') {
+            this._send('BBOX -9999999 -9999999 9999999 9999999 14 tenant=sbm');
+        } else {
+            this._send('GET ' + source);
+            this._send('SUB ' + source);
+        }
     }
 
     _send(message) {
@@ -74,12 +79,7 @@ export default class SBahnClient {
             this._onReconnectCallback();
 
             Object.keys(this._callbacks).forEach((source) => {
-                if (source === 'trajectory') {
-                    this._send('BBOX -9999999 -9999999 9999999 9999999 14 tenant=sbm');
-                } else {
-                    this._send('GET ' + source);
-                    this._send('SUB ' + source);
-                }
+                this._sendSubscribe(source);
             });
 
             this._pingInterval = setTimeout(() => this._send('PING'), 10000);
