@@ -197,30 +197,30 @@ const typeText = computed(() => {
     stroke: #ffffff;
     stroke-width: 0.3;
 }
-#map .train-marker .type {
+.train-marker .type {
     stroke: none;
 }
-#map .train-marker .type.show {
+.train-marker .type.show {
     fill: #fffc;
 }
-#map .train-marker .type-text {
+.train-marker .type-text {
     font: bold 1.3px sans-serif;
     fill: #333;
     stroke: none;
 }
-#map .train-marker .state {
+.train-marker .state {
     stroke-width: 0.1;
     stroke-opacity: 0.85;
 }
-#map .train-marker .state.driving {
+.train-marker .state.driving {
     fill: url(#gradient-green);
     stroke: #02da53;
 }
-#map .train-marker .state.boarding {
+.train-marker .state.boarding {
     fill: url(#gradient-yellow);
     stroke: #eab600;
 }
-#map .train-marker .state.stopped {
+.train-marker .state.stopped {
     fill: url(#gradient-red);
     stroke: #da251d;
 }
