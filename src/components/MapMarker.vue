@@ -182,7 +182,7 @@ const typeText = computed(() => {
                     class="delay-container"
                     :class="{ show: train.currentStationDepartureDelay >= 180000 }"
                 >
-                    <ellipse class="delay-badge" cx="7.6" cy="2.3" rx="1.8" ry="1.3" />
+                    <rect class="delay-badge" x="5.6" y="1.1" width="4" height="2.4" rx="1" />
                     <text
                         class="delay"
                         x="7.6"
