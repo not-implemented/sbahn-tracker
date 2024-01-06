@@ -31,11 +31,11 @@ const sortedLines = computed(() =>
             <RouterLink class="nav-list" active-class="is-active" :to="{ name: 'list' }">
                 <span class="text">Liste</span>
             </RouterLink>
-
+            {{ ' ' }}
             <RouterLink class="nav-map" active-class="is-active" :to="{ name: 'map' }">
                 <span class="text">Karte</span>
             </RouterLink>
-
+            {{ ' ' }}
             <RouterLink
                 :class="['nav-newsticker', newsCount > 0 ? 'has-badge' : null]"
                 active-class="is-active"
@@ -44,7 +44,7 @@ const sortedLines = computed(() =>
                 <span class="text">Newsticker</span>
                 <span class="badge">{{ newsCount }}</span>
             </RouterLink>
-
+            {{ ' ' }}
             <RouterLink class="nav-debug" active-class="is-active" :to="{ name: 'debug' }">
                 <span class="text">Debug</span>
             </RouterLink>
@@ -52,26 +52,28 @@ const sortedLines = computed(() =>
 
         <nav id="filter">
             <h3>Filter</h3>
-
+            {{ ' ' }}
             <div id="lines" :class="[options.lines.length === 0 ? 'select-all' : null]">
                 <label v-for="line in sortedLines" :key="line.id" class="line">
                     <input v-model="options.lines" type="checkbox" :value="line.id" />
                     <LineLogo :line="line" />
+                    {{ ' ' }}
                 </label>
             </div>
-
+            {{ ' ' }}
             <div id="direction" class="filter">
                 <label>
                     <input v-model="options.direction" value="west" type="checkbox" />
                     <span title="Fahrtrichtung nach Westen (auf Stammstrecke)">⬅️</span>
+                    {{ ' ' }}
                 </label>
-
                 <label>
                     <input v-model="options.direction" value="east" type="checkbox" />
                     <span title="Fahrtrichtung nach Osten (auf Stammstrecke)">➡️</span>
+                    {{ ' ' }}
                 </label>
             </div>
-
+            {{ ' ' }}
             <div id="isTagged" class="filter">
                 <label>
                     <input v-model="options.tagged" value="yes" type="checkbox" />
@@ -259,10 +261,4 @@ const sortedLines = computed(() =>
 }
 /* /train line filter */
 /* /SITE HEADER */
-
-#nav > a,
-.line,
-.filter span {
-    margin-right: 0.3em;
-}
 </style>
