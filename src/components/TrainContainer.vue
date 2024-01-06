@@ -149,7 +149,7 @@ const vehicleClass = (vehicle) => {
                             {{ formatTime(train.currentStationDepartureTime) }}
                         </span>
                         <span v-if="train.currentStationDepartureDelay" class="delay">
-                            ({{ train.currentStationDepartureDelay }})
+                            (+{{ train.currentStationDepartureDelay }})
                         </span>
                         <span class="name">
                             {{ getStationName(train.currentStationId) }}
@@ -163,7 +163,7 @@ const vehicleClass = (vehicle) => {
                             {{ formatTime(train.nextStationDepartureTime) }}
                         </span>
                         <span v-if="train.nextStationDepartureDelay" class="delay">
-                            ({{ train.nextStationDepartureDelay }})
+                            (+{{ train.nextStationDepartureDelay }})
                         </span>
                         <span class="name">
                             {{ getStationName(train.nextStationId) }}
