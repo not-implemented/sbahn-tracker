@@ -61,7 +61,11 @@ const sortedLines = computed(() =>
                 </label>
             </div>
             {{ ' ' }}
-            <div id="direction" class="filter">
+            <div
+                id="direction"
+                class="filter"
+                :class="[options.direction.length === 0 ? 'select-all' : null]"
+            >
                 <label>
                     <input v-model="options.direction" value="west" type="checkbox" />
                     <span title="Fahrtrichtung nach Westen (auf Stammstrecke)">⬅️</span>
