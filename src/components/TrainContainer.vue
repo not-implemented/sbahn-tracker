@@ -106,7 +106,7 @@ const vehicleClass = (vehicle) => {
     const vehicleInfo = toRaw(store.vehicleInfos[vehicle.id]) || {};
     return [
         'vehicle',
-        vehicle.isReverse ? 'is-reverse' : 'is-forward',
+        vehicle.isReverse !== null ? (vehicle.isReverse ? 'is-reverse' : 'is-forward') : null,
         vehicleInfo.isModern === true ? 'is-modern' : null,
         vehicleInfo.isModern === false ? 'is-classic' : null,
         vehicleInfo.isTagged ? 'is-tagged' : null,
