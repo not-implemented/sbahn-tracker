@@ -115,8 +115,13 @@ const vehicleClass = (vehicle) => {
     ];
 };
 
+const lastUpdateText = computed(() => {
+    return props.train.lastUpdateMinutes >= 1
+        ? 'Keine Info seit ' + props.train.lastUpdateMinutes + 'min'
+        : '';
+});
+
 // TODO: changed => changed class
-// TODO: last-update
 </script>
 
 <template>
@@ -201,7 +206,7 @@ const vehicleClass = (vehicle) => {
             />
         </aside>
 
-        <div class="last-update"></div>
+        <div class="last-update">{{ lastUpdateText }}</div>
     </li>
 </template>
 

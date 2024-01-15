@@ -172,6 +172,15 @@ export const useSBahn = () => {
             logTrainEvent(rawTrain);
         }
 
+        if (!train.refreshInterval) {
+            train.refreshInterval = setInterval(
+                () => store.refreshLastUpdateMinutes(train.id, client),
+                1000,
+            );
+        }
+
+        store.refreshLastUpdateMinutes(train.id, client);
+
         /*
         if (['isNew', 'line', 'number'].some(attr => train._changed.has(attr))) {
             this.onTrainsUpdate();
@@ -241,6 +250,7 @@ export const useSBahn = () => {
             // Züge, die nur aus dem Fahrplan berechnet sind, direkt löschen (wird sonst
             // auch nicht durch Kupplungslogik aufgeräumt):
             delete store.trains[train.id];
+            clearInterval(train.refreshInterval);
             // this.cleanupTrainGui(train);
         }
     }
@@ -445,6 +455,7 @@ export const useSBahn = () => {
                     // this.onTrainUpdate(oldTrain);
                 } else {
                     delete store.trains[oldTrain.id];
+                    clearInterval(oldTrain.refreshInterval);
                     // this.cleanupTrainGui(oldTrain);
                 }
 
