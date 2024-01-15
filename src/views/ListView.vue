@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, toRaw } from 'vue';
 import { useStore } from '../stores/main';
 import { useOptionsStore } from '../stores/options';
 import TrainContainer from '../components/TrainContainer.vue';
@@ -15,6 +15,15 @@ const trains = computed(() => {
                 options.direction.length === 0 ||
                 (!!train.number &&
                     options.direction.includes(train.number % 2 === 1 ? 'east' : 'west')),
+        )
+        .filter(
+            (train) =>
+                !options.tagged ||
+                train.vehicles.some((vehicle) => {
+                    if (vehicle.id === null) return false;
+                    const vehicleInfo = toRaw(store.vehicleInfos[vehicle.id]) || { isTagged: true };
+                    return vehicleInfo.isTagged;
+                }),
         )
         .sort((train1, train2) => {
             let result = (train1.line.id === 0) - (train2.line.id === 0);
