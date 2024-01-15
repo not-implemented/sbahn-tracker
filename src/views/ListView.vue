@@ -10,6 +10,12 @@ const options = useOptionsStore();
 const trains = computed(() => {
     return Object.values(store.trains)
         .filter((train) => options.lines.length === 0 || options.lines.includes(train.line.id))
+        .filter(
+            (train) =>
+                options.direction.length === 0 ||
+                (!!train.number &&
+                    options.direction.includes(train.number % 2 === 1 ? 'east' : 'west')),
+        )
         .sort((train1, train2) => {
             let result = (train1.line.id === 0) - (train2.line.id === 0);
             if (result == 0) result = train1.line.id - train2.line.id;
