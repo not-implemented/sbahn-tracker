@@ -240,7 +240,7 @@ export const useSBahn = () => {
         } else {
             // Züge, die nur aus dem Fahrplan berechnet sind, direkt löschen (wird sonst
             // auch nicht durch Kupplungslogik aufgeräumt):
-            this.trains.delete(train.id);
+            delete store.trains[train.id];
             // this.cleanupTrainGui(train);
         }
     }
