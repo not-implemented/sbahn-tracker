@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted, onUnmounted, watch, toRaw } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watch, watchEffect, toRaw } from 'vue';
 import * as L from 'leaflet';
 import { useOptionsStore } from '../stores/options';
 
@@ -19,6 +19,7 @@ const props = defineProps({
 
 const options = useOptionsStore();
 const svg = ref();
+const heading = ref();
 let mapMarker;
 
 onMounted(() => {
@@ -45,6 +46,15 @@ watch(
     },
 );
 
+watchEffect(() => {
+    if (!svg.value || !heading.value) return;
+
+    let viewBox = svg.value.viewBox.baseVal;
+    heading.value.transform.baseVal
+        .getItem(0)
+        .setRotate(props.train.heading || 0, viewBox.width / 2, viewBox.height / 2);
+});
+
 onUnmounted(() => {
     mapMarker.remove();
 });
@@ -53,7 +63,6 @@ const isSelected = computed(() => {
     return options.trains.includes(props.train.id);
 });
 
-// TODO: train.heading
 // TODO: train.historyPath
 // TODO: train.estimatedPath
 
@@ -72,13 +81,13 @@ const isSelected = computed(() => {
             <g :class="['container', !train.isActive ? 'inactive' : null]">
                 <g class="marker" :style="`fill: ${train.line.color}`">
                     <circle cy="5" cx="5" r="3" />
-                    <!--
                     <path
+                        ref="heading"
                         class="heading"
+                        :class="{ 'is-unknown': train.heading === null }"
                         d="m 8,3.5 c 0.5692502,0.3737847 0.6334476,2.5249143 0,3 l 2,-1.5 z"
                         transform="rotate(0, 0, 0)"
                     />
-                    -->
                     <circle
                         v-if="!train.hasGpsCordinates"
                         class="no-gps-cordinates"
