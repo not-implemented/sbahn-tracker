@@ -22,6 +22,10 @@ const svg = ref();
 const heading = ref();
 let mapMarker;
 
+// ignore clicks when dragged the map directly at a mapMarkerSvgNode:
+let handleClick = false;
+let mapMoveHandler = () => (handleClick = false);
+
 onMounted(() => {
     mapMarker = L.marker([0, 0], {
         icon: L.divIcon({
@@ -37,6 +41,8 @@ onMounted(() => {
 
     mapMarker.setLatLng(toRaw(props.train.coordinates) || defaultCoordinates);
     mapMarker.addTo(toRaw(props.map));
+
+    toRaw(props.map).on('movestart', mapMoveHandler);
 });
 
 watch(
@@ -56,8 +62,21 @@ watchEffect(() => {
 });
 
 onUnmounted(() => {
+    toRaw(props.map).off('movestart', mapMoveHandler);
+
     mapMarker.remove();
 });
+
+function onMapMarkerClick(event) {
+    if (!handleClick) return;
+    if (!event.ctrlKey && !event.metaKey) options.trains.length = 0;
+
+    let idx = options.trains.indexOf(props.train.id);
+    if (idx === -1) options.trains.push(props.train.id);
+    else options.trains.splice(idx, 1);
+
+    //this.updateUrl();
+}
 
 const isSelected = computed(() => {
     return options.trains.includes(props.train.id);
@@ -78,7 +97,14 @@ const isSelected = computed(() => {
             version="1.1"
             xmlns="http://www.w3.org/2000/svg"
         >
-            <g :class="['container', !train.isActive ? 'inactive' : null]">
+            <!-- mouseover/mouseout: As "pointer-events: visiblePainted" only works in SVG, we can't use Leaflet's "riseOnHover" feature here -->
+            <g
+                :class="['container', !train.isActive ? 'inactive' : null]"
+                @click="onMapMarkerClick"
+                @mousedown="handleClick = true"
+                @mouseover="mapMarker.setZIndexOffset(250)"
+                @mouseout="mapMarker.setZIndexOffset(0)"
+            >
                 <g class="marker" :style="`fill: ${train.line.color}`">
                     <circle cy="5" cx="5" r="3" />
                     <path
