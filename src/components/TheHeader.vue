@@ -7,7 +7,7 @@ import LineLogo from './LineLogo.vue';
 const store = useStore();
 const options = useOptionsStore();
 
-const newsCount = computed(() => store.news?.messages?.length);
+const newsCount = computed(() => store.news?.length);
 
 const sortedLines = computed(() =>
     Object.values(store.lines).sort((line1, line2) => {

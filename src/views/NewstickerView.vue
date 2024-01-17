@@ -6,19 +6,25 @@ const store = useStore();
 
 const formatTime = (updated) => {
     const time = new Date(updated);
-    return time.toLocaleTimeString(undefined, {
-        day: '2-digit',
-        month: '2-digit',
-        hour: 'numeric',
-        minute: 'numeric',
-    });
+    const now = new Date();
+
+    const isSameDay =
+        time.getDate() === now.getDate() &&
+        time.getMonth() === now.getMonth() &&
+        time.getFullYear() === now.getFullYear();
+
+    const timeFormat = isSameDay
+        ? { hour: 'numeric', minute: 'numeric' }
+        : { day: '2-digit', month: '2-digit', hour: 'numeric', minute: 'numeric' };
+
+    return time.toLocaleTimeString(undefined, timeFormat);
 };
 </script>
 
 <template>
     <div id="page-newsticker" class="page">
         <div id="newsticker">
-            <div v-for="(newsMessage, i) in store.news.messages" :key="i" class="news-message">
+            <div v-for="(newsMessage, i) in store.news" :key="i" class="news-message">
                 <div class="news-header">
                     <span class="time">{{ formatTime(newsMessage.updated) }}</span>
                     <span class="lines">

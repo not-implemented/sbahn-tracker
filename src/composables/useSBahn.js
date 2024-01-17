@@ -42,7 +42,7 @@ export const useSBahn = () => {
     client.on('station', (event) => onStationEvent(event));
     client.on('trajectory', (event) => onTrajectoryEvent(event));
     client.on('deleted_vehicles', (event) => onDeletedVehiclesEvent(event));
-    client.on('sbm_newsticker', (news) => (store.news = news));
+    client.on('sbm_newsticker', (event) => onNewstickerEvent(event));
     client.onReconnect(() => () => onReconnectEvent());
     client.onStatsUpdate((stats) => store.$patch(stats));
     client.connect();
@@ -267,6 +267,10 @@ export const useSBahn = () => {
             clearInterval(train.refreshInterval);
             // this.cleanupTrainGui(train);
         }
+    }
+
+    function onNewstickerEvent(event) {
+        store.news = event.messages.reverse();
     }
 
     function onReconnectEvent() {
