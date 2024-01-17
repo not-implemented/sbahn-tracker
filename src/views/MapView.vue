@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, toRaw } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, toRaw } from 'vue';
 import { useStore } from '../stores/main';
 import { useOptionsStore } from '../stores/options';
 import * as L from 'leaflet';
@@ -105,7 +105,12 @@ const selectedTrains = computed(() => {
     return Object.values(store.trains).filter((train) => options.trains.includes(train.id));
 });
 
-// TODO: if train-details become empty, the map needs to be refit
+// size of map will change on train selection change - we have to notify Leaflet:
+watch(
+    () => selectedTrains.value.length > 0, // same condition as in train-details div below
+    () => map.value.invalidateSize(),
+    { flush: 'post' },
+);
 </script>
 
 <template>
