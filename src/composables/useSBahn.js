@@ -1,3 +1,4 @@
+import { toRaw } from 'vue';
 import { useStore } from '../stores/main';
 import { useOptionsStore } from '../stores/options';
 import SBahnClient from '../api/sbahn';
@@ -448,7 +449,9 @@ export const useSBahn = () => {
             // train._changed.add('vehicles');
         }
 
-        let addedVehicles = vehicles.filter((vehicle) => vehicle.currentTrain !== train);
+        let addedVehicles = vehicles.filter(
+            (vehicle) => toRaw(vehicle.currentTrain) !== toRaw(train),
+        );
         if (addedVehicles.length > 0) {
             const oldTrains = new Set();
             addedVehicles.forEach(
@@ -487,7 +490,9 @@ export const useSBahn = () => {
                 movedVehicles.forEach((vehicle) => (vehicle.currentTrain = train));
             });
 
-            let newVehicles = addedVehicles.filter((vehicle) => vehicle.currentTrain !== train);
+            let newVehicles = addedVehicles.filter(
+                (vehicle) => toRaw(vehicle.currentTrain) !== toRaw(train),
+            );
 
             actions.push({
                 type: 'join',
