@@ -50,7 +50,7 @@ const clear = () => {
                         </td>
                         <td class="stop-point-ds100">{{ trainEvent.stop_point_ds100 }}</td>
                         <td class="position-correction is-number">
-                            {{ trainEvent.postion_correction }}
+                            {{ trainEvent.position_correction }}
                         </td>
                         <td class="transmitting-vehicle is-number">
                             {{ trainEvent.transmitting_vehicle }}
