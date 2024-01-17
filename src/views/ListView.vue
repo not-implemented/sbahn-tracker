@@ -54,6 +54,7 @@ const trains = computed(() => {
         <ul id="log">
             <li v-for="(message, index) in store.messages" :key="index" class="message">
                 <span class="time">{{ message.time }}</span>
+                {{ ' ' }}
                 <span class="text">{{ message.text }}</span>
             </li>
         </ul>
