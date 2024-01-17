@@ -446,9 +446,9 @@ export const useSBahn = () => {
 
         let addedVehicles = vehicles.filter((vehicle) => vehicle.currentTrain !== train);
         if (addedVehicles.length > 0) {
-            const oldTrains = [];
+            const oldTrains = new Set();
             addedVehicles.forEach(
-                (vehicle) => vehicle.currentTrain && oldTrains.push(vehicle.currentTrain),
+                (vehicle) => vehicle.currentTrain && oldTrains.add(vehicle.currentTrain),
             );
 
             oldTrains.forEach((oldTrain) => {
