@@ -1,5 +1,5 @@
 <script setup>
-import { computed, toRaw } from 'vue';
+import { computed, ref, watch, toRaw } from 'vue';
 import { useStore } from '../stores/main';
 import { useOptionsStore } from '../stores/options';
 import { useRouter, useRoute } from 'vue-router';
@@ -110,6 +110,7 @@ const trainClass = computed(() => {
         props.train.state === 'BOARDING' ? 'train-boarding' : null,
         !props.train.isActive ? 'train-inactive' : null,
         props.train.line.id === 0 ? 'train-sided' : null,
+        showChanged.value ? 'changed' : null,
     ];
 });
 
@@ -132,7 +133,20 @@ const lastUpdateText = computed(() => {
         : '';
 });
 
-// TODO: changed => changed class
+const showChanged = ref(false);
+watch(
+    [
+        () => props.train.line?.id,
+        () => props.train.number,
+        () => props.train.destinationId,
+        () => props.train.state,
+        () => props.train.currentStationId,
+    ],
+    () => {
+        showChanged.value = true;
+        setTimeout(() => (showChanged.value = false), 1500);
+    },
+);
 </script>
 
 <template>
