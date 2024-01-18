@@ -160,7 +160,7 @@ class SBahnGui {
     }
 
     loadVehicleInfos() {
-        fetch('vehicle-info.php').then(response => response.json()).then(data => {
+        fetch('https://sbahn.not-implemented.de/vehicle-info.php').then(response => response.json()).then(data => {
             this.vehicleInfos.clear();
             for (let vehicleInfo of data) {
                 // Bahn-Prüfziffer mit https://de.wikipedia.org/wiki/Luhn-Algorithmus berechnen:

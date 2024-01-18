@@ -14,4 +14,5 @@ foreach ($vehicleInfos as $vehicleInfo) {
 }
 
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
 echo json_encode($vehicleInfos);
