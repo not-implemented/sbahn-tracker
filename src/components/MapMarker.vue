@@ -21,10 +21,16 @@ const options = useOptionsStore();
 const svg = ref();
 const heading = ref();
 let mapMarker;
+let historyPath;
+let estimatedPath;
 
 // ignore clicks when dragged the map directly at a mapMarkerSvgNode:
 let handleClick = false;
 let mapMoveHandler = () => (handleClick = false);
+
+const isSelected = computed(() => {
+    return options.trains.includes(props.train.id);
+});
 
 onMounted(() => {
     mapMarker = L.marker([0, 0], {
@@ -43,6 +49,25 @@ onMounted(() => {
     mapMarker.addTo(toRaw(props.map));
 
     toRaw(props.map).on('movestart', mapMoveHandler);
+
+    historyPath = L.polyline([], {
+        color: '#406fff',
+        weight: 3,
+        keyboard: false,
+        interactive: false,
+    });
+    historyPath.setLatLngs(props.train.historyPath);
+    if (isSelected.value) historyPath.addTo(props.map);
+
+    estimatedPath = L.polyline([], {
+        color: '#406fff',
+        weight: 5,
+        dashArray: '2 10',
+        keyboard: false,
+        interactive: false,
+    });
+    estimatedPath.setLatLngs(props.train.estimatedPath);
+    if (isSelected.value) estimatedPath.addTo(props.map);
 });
 
 watch(
@@ -61,10 +86,37 @@ watchEffect(() => {
         .setRotate(props.train.heading || 0, viewBox.width / 2, viewBox.height / 2);
 });
 
+watch(
+    () => props.train.historyPath[props.train.historyPath.length - 1],
+    () => {
+        historyPath.setLatLngs(props.train.historyPath);
+    },
+);
+
+watch(
+    () => props.train.estimatedPath,
+    () => {
+        estimatedPath.setLatLngs(props.train.estimatedPath);
+    },
+);
+
+watch(
+    () => isSelected.value,
+    () => {
+        if (isSelected.value) historyPath.addTo(props.map);
+        else historyPath.remove();
+
+        if (isSelected.value) estimatedPath.addTo(props.map);
+        else estimatedPath.remove();
+    },
+);
+
 onUnmounted(() => {
     toRaw(props.map).off('movestart', mapMoveHandler);
 
     mapMarker.remove();
+    historyPath.remove();
+    estimatedPath.remove();
 });
 
 function onMapMarkerClick(event) {
@@ -77,10 +129,6 @@ function onMapMarkerClick(event) {
 
     //this.updateUrl();
 }
-
-const isSelected = computed(() => {
-    return options.trains.includes(props.train.id);
-});
 
 const typeText = computed(() => {
     let models = [...new Set(props.train.vehicles.map((v) => v.model))];
@@ -96,9 +144,6 @@ const typeText = computed(() => {
 
     return typeText;
 });
-
-// TODO: train.historyPath
-// TODO: train.estimatedPath
 </script>
 
 <template>
