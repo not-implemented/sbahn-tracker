@@ -4,7 +4,6 @@ import { useOptionsStore } from '../stores/options';
 import SBahnClient from '../api/sbahn';
 import areas from '../constants/areas';
 import Stations from '../constants/stations';
-import VehicleInfo from '../constants/vehicle-info.json';
 import * as L from 'leaflet';
 
 const API_KEY = import.meta.env.VITE_SBAHN_API_KEY;
@@ -16,20 +15,6 @@ export const useSBahn = () => {
 
     const store = useStore();
     const options = useOptionsStore();
-
-    // vehicleInfos
-    for (const vehicleInfo of VehicleInfo) {
-        // Bahn-Prüfziffer mit https://de.wikipedia.org/wiki/Luhn-Algorithmus berechnen:
-        const id = '94800' + vehicleInfo.model + vehicleInfo.number;
-        let checksum = [...id].reverse().reduce((sum, digit, i) => {
-            digit = parseInt(digit, 10);
-            if (i % 2 === 0) digit *= 2;
-            if (digit > 9) digit -= 9;
-            return sum + digit;
-        }, 0);
-        checksum = (1000 - checksum) % 10;
-        store.vehicleInfos[parseInt(id + checksum, 10)] = vehicleInfo;
-    }
 
     // stations
     store.stations = Object.values(Stations).reduce((obj, v) => {
@@ -48,6 +33,31 @@ export const useSBahn = () => {
     client.onStatsUpdate((stats) => store.$patch(stats));
     client.connect();
     let reconnectSyncTimeout = null;
+
+    loadVehicleInfos();
+
+    function loadVehicleInfos() {
+        fetch('https://sbahn.not-implemented.de/vehicle-info.php')
+            .then((response) => response.json())
+            .then((data) => {
+                store.vehicleInfos.length = 0;
+
+                for (const vehicleInfo of data) {
+                    // Bahn-Prüfziffer mit https://de.wikipedia.org/wiki/Luhn-Algorithmus berechnen:
+                    const id = '94800' + vehicleInfo.model + vehicleInfo.number;
+                    let checksum = [...id].reverse().reduce((sum, digit, i) => {
+                        digit = parseInt(digit, 10);
+                        if (i % 2 === 0) digit *= 2;
+                        if (digit > 9) digit -= 9;
+                        return sum + digit;
+                    }, 0);
+                    checksum = (1000 - checksum) % 10;
+                    store.vehicleInfos[parseInt(id + checksum, 10)] = vehicleInfo;
+                }
+
+                //this.trains.forEach(train => this.onTrainUpdate(train));
+            });
+    }
 
     function onStationEvent(event) {
         let station = store.stations[event.properties.uic];
