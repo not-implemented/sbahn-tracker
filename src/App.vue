@@ -10,7 +10,11 @@ useSBahn();
     <TheHeader />
 
     <main class="site-main">
-        <RouterView />
+        <RouterView v-slot="{ Component }">
+            <KeepAlive>
+                <component :is="Component" />
+            </KeepAlive>
+        </RouterView>
         <TheFooter />
     </main>
 </template>
