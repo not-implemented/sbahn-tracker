@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch, toRaw } from 'vue';
+import { ref, computed, onMounted, onUnmounted, onActivated, watch, toRaw } from 'vue';
 import { useStore } from '../stores/main';
 import { useOptionsStore } from '../stores/options';
 import * as L from 'leaflet';
@@ -111,6 +111,8 @@ watch(
     () => map.value.invalidateSize(),
     { flush: 'post' },
 );
+
+onActivated(() => map.value.invalidateSize());
 </script>
 
 <template>
