@@ -452,6 +452,10 @@ export const useSBahn = () => {
             if (splittedTrain.vehicles.some((vehicle) => vehicle.id !== null)) {
                 // this.createTrainGui(splittedTrain);
                 store.trains[splittedTrain.id] = splittedTrain;
+                splittedTrain.refreshInterval = setInterval(
+                    () => store.refreshLastUpdateMinutes(splittedTrain.id, client),
+                    1000,
+                );
                 // this.onTrainUpdate(splittedTrain);
                 // this.onTrainsUpdate();
             }
