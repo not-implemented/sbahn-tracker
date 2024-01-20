@@ -29,7 +29,7 @@ export const useSBahn = () => {
     client.on('trajectory', (event) => onTrajectoryEvent(event));
     client.on('deleted_vehicles', (event) => onDeletedVehiclesEvent(event));
     client.on('sbm_newsticker', (event) => onNewstickerEvent(event));
-    client.onReconnect(() => () => onReconnectEvent());
+    client.onReconnect(() => onReconnectEvent());
     client.onStatsUpdate((stats) => store.$patch(stats));
     client.connect();
     let reconnectSyncTimeout = null;
@@ -288,14 +288,14 @@ export const useSBahn = () => {
         // Nach einem Reconnect ist der Stand der Züge evtl. inkonsistent - deshalb ein implizites
         // deletedVehiclesEvent generieren für Züge, die nicht innerhalb von 5 Sekunden wieder gepusht
         // werden:
-        for (const train of store.trains) {
+        for (const train of Object.values(store.trains)) {
             train.isSynced = false;
         }
 
         if (reconnectSyncTimeout) clearTimeout(reconnectSyncTimeout);
         reconnectSyncTimeout = setTimeout(() => {
             reconnectSyncTimeout = null;
-            for (const train of store.trains) {
+            for (const train of Object.values(store.trains)) {
                 if (!train.isSynced) onDeletedVehiclesEvent(train.id);
             }
         }, 5000);
