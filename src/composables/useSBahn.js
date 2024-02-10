@@ -1,6 +1,6 @@
 import { toRaw } from 'vue';
-import { useStore } from '../stores/main';
-import { useOptionsStore } from '../stores/options';
+import createMainStore from '../stores/main';
+import createOptionsStore from '../stores/options';
 import SBahnClient from '../api/sbahn';
 import areas from '../constants/areas';
 import Stations from '../constants/stations';
@@ -8,19 +8,19 @@ import * as L from 'leaflet';
 
 const API_KEY = import.meta.env.VITE_SBAHN_API_KEY;
 
-export const useSBahn = () => {
+export function useSBahn() {
     let nextImplicitTrainId = 1001; // for split trains - should not overlap with official train_ids (which are very big)
 
     // Initial state
-
-    const store = useStore();
-    const options = useOptionsStore();
+    const store = createMainStore();
+    const options = createOptionsStore();
 
     // stations
     store.stations = Object.values(Stations).reduce((obj, v) => {
         obj[v.id] = v;
         return obj;
     }, {});
+
 
     // Events
 
@@ -30,7 +30,11 @@ export const useSBahn = () => {
     client.on('deleted_vehicles', (event) => onDeletedVehiclesEvent(event));
     client.on('sbm_newsticker', (event) => onNewstickerEvent(event));
     client.onReconnect(() => onReconnectEvent());
-    client.onStatsUpdate((stats) => store.$patch(stats));
+    client.onStatsUpdate((stats) => {
+        //for (const key in stats) {
+        //    store[key] = stats.key;
+        //}
+    });
     client.connect();
     let reconnectSyncTimeout = null;
 
@@ -603,7 +607,12 @@ export const useSBahn = () => {
 
         return line;
     }
-};
+
+    window.sbahn = {
+        store,
+        options,
+    };
+}
 
 function pointInPolygon(point, polygon) {
     const x = point[0];
