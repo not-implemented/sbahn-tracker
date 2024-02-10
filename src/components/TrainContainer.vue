@@ -76,14 +76,7 @@ const toggleSelectLink = computed(() => {
     } else {
         newTrains.splice(idx, 1);
     }
-    if (!newTrains.length) {
-        return { name: 'map', query: { trains: undefined } };
-    } else {
-        return {
-            name: 'map',
-            query: { trains: newTrains.join(',') },
-        };
-    }
+    return { name: 'map', query: { trains: newTrains.length ? newTrains.join(',') : undefined } };
 });
 
 const isSelected = computed(() => {
