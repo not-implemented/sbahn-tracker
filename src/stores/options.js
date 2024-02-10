@@ -92,14 +92,15 @@ export default function createOptionsStore() {
     const outdated = createRouteBoolean(router, 'isOutdated');
     const tagged = createRouteBoolean(router, 'isTagged');
 
-    watch(
-        () => trains.value.length,
-        (newLength, oldLength) => {
-            if (newLength > oldLength) {
-                router.push({ ...router.currentRoute.value, name: 'map' });
+    router.beforeResolve((to, from) => {
+        if (to.name !== 'map') {
+            const toTrains = to.query.trains?.length ?? 0;
+            const fromTrains = from.query.trains?.length ?? 0;
+            if (toTrains > fromTrains) {
+                return { ...to, name: 'map' };
             }
-        },
-    );
+        }
+    });
 
     const store = reactive({
         lines,
