@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useStore } from '../stores/main';
 import { useOptionsStore } from '../stores/options';
 import LineLogo from './LineLogo.vue';
+import SBahnLink from './SBahnLink.vue';
 
 const store = useStore();
 const options = useOptionsStore();
@@ -28,26 +29,26 @@ const sortedLines = computed(() =>
         </h1>
 
         <nav id="nav">
-            <RouterLink class="nav-list" active-class="is-active" :to="{ name: 'list' }">
+            <s-bahn-link class="nav-list" active-class="is-active" :to="{ name: 'list' }">
                 <span class="text">Liste</span>
-            </RouterLink>
+            </s-bahn-link>
             {{ ' ' }}
-            <RouterLink class="nav-map" active-class="is-active" :to="{ name: 'map' }">
+            <s-bahn-link class="nav-map" active-class="is-active" :to="{ name: 'map' }">
                 <span class="text">Karte</span>
-            </RouterLink>
+            </s-bahn-link>
             {{ ' ' }}
-            <RouterLink
+            <s-bahn-link
                 :class="['nav-newsticker', newsCount > 0 ? 'has-badge' : null]"
                 active-class="is-active"
                 :to="{ name: 'newsticker' }"
             >
                 <span class="text">Newsticker</span>
                 <span class="badge">{{ newsCount }}</span>
-            </RouterLink>
+            </s-bahn-link>
             {{ ' ' }}
-            <RouterLink class="nav-debug" active-class="is-active" :to="{ name: 'debug' }">
+            <s-bahn-link class="nav-debug" active-class="is-active" :to="{ name: 'debug' }">
                 <span class="text">Debug</span>
-            </RouterLink>
+            </s-bahn-link>
         </nav>
 
         <nav id="filter">

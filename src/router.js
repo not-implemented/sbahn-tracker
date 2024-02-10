@@ -9,7 +9,7 @@ export default createRouter({
     routes: [
         {
             name: 'list',
-            path: '/',
+            path: '/list',
             component: ListView,
         },
         {

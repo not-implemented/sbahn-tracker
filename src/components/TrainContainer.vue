@@ -1,9 +1,9 @@
 <script setup>
-import { computed, ref, watch, toRaw } from 'vue';
+import { computed, toRef, ref, watch, toRaw } from 'vue';
 import { useStore } from '../stores/main';
 import { useOptionsStore } from '../stores/options';
-import { useRouter, useRoute } from 'vue-router';
 import LineLogo from './LineLogo.vue';
+import SBahnLink from './SBahnLink.vue';
 
 const props = defineProps({
     train: {
@@ -14,8 +14,7 @@ const props = defineProps({
 
 const store = useStore();
 const options = useOptionsStore();
-const router = useRouter();
-const route = useRoute();
+const train = toRef(props, 'train');
 
 function getStationName(stationId, emptyName) {
     if (stationId === null) return emptyName || '';
@@ -24,14 +23,14 @@ function getStationName(stationId, emptyName) {
 }
 
 const trainNumber = computed(() => {
-    return props.train.number && !props.train.numberIsNormal
-        ? '(' + props.train.number + ')'
-        : props.train.number || '';
+    return train.value.number && !train.value.numberIsNormal
+        ? '(' + train.value.number + ')'
+        : train.value.number || '';
 });
 
 const headerStyle = computed(() => {
     // alpha 12.5%
-    return `background-color: ${props.train.line.color}20;`;
+    return `background-color: ${train.value.line.color}20;`;
 });
 
 const progress = computed(() => {
@@ -50,17 +49,17 @@ const progress = computed(() => {
         return distanceKm;
     }
 
-    if (props.train.state === 'BOARDING') return 0;
-    if (props.train.coordinates === null) return 0;
+    if (train.value.state === 'BOARDING') return 0;
+    if (train.value.coordinates === null) return 0;
 
-    let currentStation = store.stations[props.train.currentStationId];
-    let nextStation = store.stations[props.train.nextStationId];
+    let currentStation = store.stations[train.value.currentStationId];
+    let nextStation = store.stations[train.value.nextStationId];
 
     if (!currentStation || !currentStation.coordinates) return 0;
     if (!nextStation || !nextStation.coordinates) return 0;
 
-    let distanceToCurrent = calcDistance(props.train.coordinates, currentStation.coordinates);
-    let distanceToNext = calcDistance(props.train.coordinates, nextStation.coordinates);
+    let distanceToCurrent = calcDistance(train.value.coordinates, currentStation.coordinates);
+    let distanceToNext = calcDistance(train.value.coordinates, nextStation.coordinates);
 
     return (distanceToCurrent / (distanceToCurrent + distanceToNext)) * 100;
 });
@@ -70,17 +69,13 @@ const progressBarStyle = computed(() => {
 });
 
 function toggleSelect() {
-    const idx = options.trains.indexOf(props.train.id);
-    if (idx === -1) options.trains.push(props.train.id);
+    const idx = options.trains.indexOf(train.value.id);
+    if (idx === -1) options.trains.push(train.value.id);
     else options.trains.splice(idx, 1);
-
-    if (route.name !== 'map') {
-        router.push({ name: 'map' });
-    }
 }
 
 const isSelected = computed(() => {
-    return options.trains.includes(props.train.id);
+    return options.trains.includes(train.value.id);
 });
 
 function formatTime(timestamp) {
@@ -105,11 +100,11 @@ function formatDuration(duration) {
 const trainClass = computed(() => {
     return [
         'train',
-        props.train.state === 'DRIVING' ? 'train-driving' : null,
-        props.train.state === 'STOPPED' ? 'train-stopped' : null,
-        props.train.state === 'BOARDING' ? 'train-boarding' : null,
-        !props.train.isActive ? 'train-inactive' : null,
-        props.train.line.id === 0 ? 'train-sided' : null,
+        train.value.state === 'DRIVING' ? 'train-driving' : null,
+        train.value.state === 'STOPPED' ? 'train-stopped' : null,
+        train.value.state === 'BOARDING' ? 'train-boarding' : null,
+        !train.value.isActive ? 'train-inactive' : null,
+        train.value.line.id === 0 ? 'train-sided' : null,
         showChanged.value ? 'changed' : null,
     ];
 });
@@ -128,19 +123,19 @@ const vehicleClass = (vehicle) => {
 };
 
 const lastUpdateText = computed(() => {
-    return props.train.lastUpdateMinutes >= 1
-        ? 'Keine Info seit ' + props.train.lastUpdateMinutes + 'min'
+    return train.value.lastUpdateMinutes >= 1
+        ? 'Keine Info seit ' + train.value.lastUpdateMinutes + 'min'
         : '';
 });
 
 const showChanged = ref(false);
 watch(
     [
-        () => props.train.line?.id,
-        () => props.train.number,
-        () => props.train.destinationId,
-        () => props.train.state,
-        () => props.train.currentStationId,
+        () => train.value.line?.id,
+        () => train.value.number,
+        () => train.value.destinationId,
+        () => train.value.state,
+        () => train.value.currentStationId,
     ],
     () => {
         showChanged.value = true;
@@ -229,12 +224,9 @@ watch(
                 }}</span>
             </div>
 
-            <a
-                href=""
-                class="action-link"
-                @click.prevent="toggleSelect"
-                v-text="isSelected ? '×' : 'ℹ'"
-            />
+            <a class="action-link" href="" @click.prevent="toggleSelect">
+                {{ isSelected ? '×' : 'ℹ' }}
+            </a>
         </aside>
 
         <div class="last-update">{{ lastUpdateText }}</div>

@@ -1,38 +1,61 @@
-import { defineStore } from 'pinia';
+//@ts-check
+import { ref, shallowReactive, shallowReadonly, reactive, inject, provide } from "vue";
 
-export const useStore = defineStore('main', {
-    state: () => ({
-        vehicleInfos: {},
+const MAIN_STORE_KEY = 'store';
 
-        lines: {},
-        trains: {},
-        vehicles: {},
-        stations: {},
+export default function createMainStore() {
+    const vehicleInfos = reactive([]);
+    const lines = reactive({});
+    const trains = reactive({});
+    const vehicles = reactive({});
+    const stations = reactive({});
 
-        // Log
-        messages: [],
+    // Log
+    const messages = reactive([]);
 
-        // Newsticker
-        news: [],
+    // Newsticker
+    const news = reactive([]);
 
-        // Debug
-        trainEvents: [],
+    // Debug
+    const trainEvents = reactive([]);
 
-        // Stats
-        messagesReceived: 0,
-        bytesReceived: 0,
-        messagesSent: 0,
-        bytesSent: 0,
-    }),
-    actions: {
-        refreshLastUpdateMinutes(trainId, client) {
-            if (this.trains[trainId]) {
-                this.trains[trainId].lastUpdateMinutes = Math.floor(
-                    (Date.now() - client.clientTimeDiff - this.trains[trainId].lastUpdate) /
-                        1000 /
-                        60,
-                );
-            }
-        },
-    },
-});
+    // Stats
+    const messagesReceived = ref(0);
+    const bytesReceived = ref(0);
+    const messagesSent = ref(0);
+    const bytesSent = ref(0);
+
+    function refreshLastUpdateMinutes(trainId, client) {
+        if (trains[trainId]) {
+            trains[trainId].lastUpdateMinutes = Math.floor(
+                (Date.now() - client.clientTimeDiff - trains[trainId].lastUpdate) /
+                    1000 /
+                    60,
+            );
+        }
+    }
+
+    const store = reactive({
+        vehicleInfos,
+        lines,
+        trains,
+        vehicles,
+        stations,
+        messages,
+        news,
+        trainEvents,
+        messagesReceived,
+        bytesReceived,
+        messagesSent,
+        bytesSent,
+        refreshLastUpdateMinutes,
+    });
+
+    provide(MAIN_STORE_KEY, store);
+
+    return store;
+}
+
+export function useStore() {
+    return inject(MAIN_STORE_KEY);
+}
