@@ -68,16 +68,11 @@ const progressBarStyle = computed(() => {
     return `width: ${progress.value}%`;
 });
 
-const toggleSelectLink = computed(() => {
-    const newTrains = options.trains.slice();
-    const idx = newTrains.indexOf(train.value.id);
-    if (idx === -1) {
-        newTrains.push(train.value.id);
-    } else {
-        newTrains.splice(idx, 1);
-    }
-    return { name: 'map', query: { trains: newTrains.length ? newTrains.join(',') : undefined } };
-});
+function toggleSelect() {
+    const idx = options.trains.indexOf(train.value.id);
+    if (idx === -1) options.trains.push(train.value.id);
+    else options.trains.splice(idx, 1);
+}
 
 const isSelected = computed(() => {
     return options.trains.includes(train.value.id);
@@ -224,9 +219,9 @@ watch(
                 }}</span>
             </div>
 
-            <s-bahn-link class="action-link" :to="toggleSelectLink">
+            <a class="action-link" href="" @click.prevent="toggleSelect">
                 {{ isSelected ? '×' : 'ℹ' }}
-            </s-bahn-link>
+            </a>
         </aside>
 
         <div class="last-update">{{ lastUpdateText }}</div>
