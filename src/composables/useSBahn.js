@@ -21,9 +21,7 @@ export function useSBahn() {
         return obj;
     }, {});
 
-
     // Events
-
     const client = new SBahnClient(API_KEY, console);
     client.on('station', (event) => onStationEvent(event));
     client.on('trajectory', (event) => onTrajectoryEvent(event));
@@ -31,9 +29,9 @@ export function useSBahn() {
     client.on('sbm_newsticker', (event) => onNewstickerEvent(event));
     client.onReconnect(() => onReconnectEvent());
     client.onStatsUpdate((stats) => {
-        //for (const key in stats) {
-        //    store[key] = stats.key;
-        //}
+        for (const key in stats) {
+            store[key] = stats[key];
+        }
     });
     client.connect();
     let reconnectSyncTimeout = null;
