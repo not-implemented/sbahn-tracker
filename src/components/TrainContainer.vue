@@ -76,7 +76,6 @@ const toggleSelectLink = computed(() => {
     } else {
         newTrains.splice(idx, 1);
     }
-    console.log('new trains', newTrains);
     if (!newTrains.length) {
         return { name: 'map', query: { trains: undefined } };
     } else {
