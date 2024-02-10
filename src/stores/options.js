@@ -58,7 +58,7 @@ function createRouteArray(router, key, type) {
 function createRouteBoolean(router, key) {
     return computed({
         get: () => {
-            return !!router.currentRoute.value.query[key] ?? false;
+            return key in router.currentRoute.value.query;
         },
         set: (val) => {
             if (val) {
