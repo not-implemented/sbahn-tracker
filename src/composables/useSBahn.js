@@ -438,7 +438,8 @@ export function useSBahn() {
         if (removedVehicles.length > 0) {
             let splittedTrain = {
                 ...originalTrain,
-                id: '' + nextImplicitTrainId++,
+                id: 'split_' + nextImplicitTrainId++,
+                isActive: false,
                 // _changed: new Set(['isNew']),
                 vehicles: removedVehicles,
             };
