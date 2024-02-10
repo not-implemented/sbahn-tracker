@@ -519,7 +519,7 @@ class SBahnGui {
 
         let removedVehicles = train.vehicles.filter(vehicle => !vehicles.includes(vehicle));
         if (removedVehicles.length > 0) {
-            let splittedTrain = { ...originalTrain, id: '' + this.nextImplicitTrainId++, _changed: new Set(['isNew']), vehicles: removedVehicles };
+            let splittedTrain = { ...originalTrain, id: 'split_' + this.nextImplicitTrainId++, isActive: false, _changed: new Set(['isNew']), vehicles: removedVehicles };
             splittedTrain.vehicles.forEach(vehicle => vehicle.currentTrain = splittedTrain);
             train.vehicles = train.vehicles.filter(vehicle => vehicles.includes(vehicle));
 
