@@ -130,12 +130,17 @@ const lastUpdateText = computed(() => {
 
 const showChanged = ref(false);
 watch(
-    train,
+    [
+        () => train.value.line?.id,
+        () => train.value.number,
+        () => train.value.destinationId,
+        () => train.value.state,
+        () => train.value.currentStationId,
+    ],
     () => {
         showChanged.value = true;
         setTimeout(() => (showChanged.value = false), 1500);
     },
-    { deep: true },
 );
 </script>
 
