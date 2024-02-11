@@ -1,54 +1,14 @@
 <script setup>
-import { computed, toRaw } from 'vue';
 import { useStore } from '../stores/main';
-import { useOptionsStore } from '../stores/options';
 import TrainContainer from '../components/TrainContainer.vue';
 
 const store = useStore();
-const options = useOptionsStore();
-
-const trains = computed(() => {
-    return Object.values(store.trains)
-        .filter((train) => options.lines.length === 0 || options.lines.includes(train.line.id))
-        .filter(
-            (train) =>
-                options.direction.length === 0 ||
-                (!!train.number &&
-                    options.direction.includes(train.number % 2 === 1 ? 'east' : 'west')),
-        )
-        .filter(
-            (train) =>
-                !options.outdated ||
-                train.vehicles.some((vehicle) => {
-                    if (vehicle.id === null) return false;
-                    const vehicleInfo = toRaw(store.vehicleInfos[vehicle.id]) || { isModern: null };
-                    return vehicleInfo.isModern === null;
-                }),
-        )
-        .filter(
-            (train) =>
-                !options.tagged ||
-                train.vehicles.some((vehicle) => {
-                    if (vehicle.id === null) return false;
-                    const vehicleInfo = toRaw(store.vehicleInfos[vehicle.id]) || { isTagged: true };
-                    return vehicleInfo.isTagged;
-                }),
-        )
-        .sort((train1, train2) => {
-            let result = (train1.line.id === 0) - (train2.line.id === 0);
-            if (result == 0) result = train1.line.id - train2.line.id;
-            // gerade Zugnummern Richtung Westen, ungerade Richtung Osten:
-            if (result == 0) result = (train1.number % 2) - (train2.number % 2);
-            if (result == 0) result = train1.number - train2.number;
-            return result;
-        });
-});
 </script>
 
 <template>
     <div id="page-list" class="page">
         <ul id="trains">
-            <TrainContainer v-for="train in trains" :key="train.id" :train="train" />
+            <TrainContainer v-for="train in store.filteredTrains" :key="train.id" :train="train" />
         </ul>
 
         <ul id="log">

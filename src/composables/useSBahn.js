@@ -12,8 +12,8 @@ export function useSBahn() {
     let nextImplicitTrainId = 1001; // for split trains - should not overlap with official train_ids (which are very big)
 
     // Initial state
-    const store = createMainStore();
     const options = createOptionsStore();
+    const store = createMainStore(options);
 
     // stations
     store.stations = Object.values(Stations).reduce((obj, v) => {
