@@ -3,7 +3,6 @@ import { computed, toRef, ref, watch, toRaw } from 'vue';
 import { useStore } from '../stores/main';
 import { useOptionsStore } from '../stores/options';
 import LineLogo from './LineLogo.vue';
-import SBahnLink from './SBahnLink.vue';
 
 const props = defineProps({
     train: {

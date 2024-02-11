@@ -14,7 +14,10 @@ const props = defineProps({
 });
 
 const route = useRoute();
-const toWithParams = computed(() => ({ ...props.to, query: { ...route.query, ...props.to.query }}));
+const toWithParams = computed(() => ({
+    ...props.to,
+    query: { ...route.query, ...props.to.query },
+}));
 </script>
 
 <template>

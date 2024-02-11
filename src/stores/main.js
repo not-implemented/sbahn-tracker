@@ -65,9 +65,7 @@ export default function createMainStore(options) {
     function refreshLastUpdateMinutes(trainId, client) {
         if (trains[trainId]) {
             trains[trainId].lastUpdateMinutes = Math.floor(
-                (Date.now() - client.clientTimeDiff - trains[trainId].lastUpdate) /
-                    1000 /
-                    60,
+                (Date.now() - client.clientTimeDiff - trains[trainId].lastUpdate) / 1000 / 60,
             );
         }
     }
