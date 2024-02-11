@@ -73,6 +73,10 @@ function toggleSelect() {
     else options.trains.splice(idx, 1);
 }
 
+function selectStation(stationId) {
+    options.station = stationId;
+}
+
 const isSelected = computed(() => {
     return options.trains.includes(train.value.id);
 });
@@ -151,7 +155,9 @@ watch(
             </div>
 
             <h2 class="destination">
-                {{ getStationName(train.destinationId, 'Nicht einsteigen') }}
+                <a href="" @click.prevent="selectStation(train.destinationId)">{{
+                    getStationName(train.destinationId, 'Nicht einsteigen')
+                }}</a>
             </h2>
         </header>
 
@@ -178,7 +184,9 @@ watch(
                         </span>
                         {{ ' ' }}
                         <span class="name">
-                            {{ getStationName(train.currentStationId) }}
+                            <a href="" @click.prevent="selectStation(train.currentStationId)">{{
+                                getStationName(train.currentStationId)
+                            }}</a>
                         </span>
                     </span>
                 </li>
@@ -194,7 +202,9 @@ watch(
                         </span>
                         {{ ' ' }}
                         <span class="name">
-                            {{ getStationName(train.nextStationId) }}
+                            <a href="" @click.prevent="selectStation(train.nextStationId)">{{
+                                getStationName(train.nextStationId)
+                            }}</a>
                         </span>
                     </span>
                 </li>
@@ -281,6 +291,10 @@ watch(
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.destination a {
+    color: inherit;
+    text-decoration: none;
+}
 /* /line-number and destination */
 /* list of prev, current and next station */
 .train-main {
@@ -311,6 +325,10 @@ watch(
 .stations .delay {
     font-size: smaller;
     color: #df3333;
+}
+.stations .name a {
+    color: inherit;
+    text-decoration: none;
 }
 .station-prev {
     display: none; /* TODO */

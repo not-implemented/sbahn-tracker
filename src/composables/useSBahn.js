@@ -16,9 +16,23 @@ export function useSBahn() {
     const store = createMainStore(options);
 
     // stations
-    store.stations = Object.values(Stations).reduce((obj, v) => {
-        obj[v.id] = v;
-        return obj;
+    store.stations = Object.values(Stations).reduce((stations, station) => {
+        station.departures = {};
+        station.enableDepartureUpdates = (enable) => {
+            if (enable) {
+                client.on('timetable_' + station.id, (event) => onTimetableEvent(event, station));
+            } else {
+                client.remove('timetable_' + station.id);
+
+                Object.values(station.departures).forEach((departure) => {
+                    if (departure.updateInterval) clearInterval(departure.updateInterval);
+                    delete station.departures[departure.id];
+                });
+            }
+        };
+
+        stations[station.id] = station;
+        return stations;
     }, {});
 
     // Events
@@ -284,6 +298,58 @@ export function useSBahn() {
 
     function onNewstickerEvent(event) {
         store.news = event.messages.reverse();
+    }
+
+    function onTimetableEvent(event, station) {
+        station = store.stations[station.id]; // to fix reactivity
+
+        let departure = station.departures[event.call_id];
+        if (!departure) {
+            departure = { id: event.call_id };
+            station.departures[departure.id] = departure;
+        }
+
+        departure.trainId = event.train_id;
+        departure.line = event.line;
+        departure.destination = event.to[0];
+        departure.platform = event.platform;
+        departure.trainType = event.train_type;
+        departure.aimedTime = event.ris_aimed_time;
+        departure.estimatedTime = event.time;
+        departure.state = event.state;
+        departure.isCancelled =
+            event.state === 'STOP_CANCELLED' || event.state === 'JOURNEY_CANCELLED';
+        departure.hasRealtime = event.has_realtime_journey;
+
+        /* Interessant:
+        event.raw.ris_aimed_time
+        event.raw.ris_estimated_time
+        event.raw.fzo_estimated_time
+        event.raw.min_arrival_time
+        */
+
+        if (departure.state === 'LEAVING') {
+            if (departure.updateInterval) clearInterval(departure.updateInterval);
+            delete station.departures[departure.id];
+            return;
+        }
+
+        function updateTime() {
+            departure = store.stations[station.id].departures[departure.id]; // to fix reactivity
+
+            let now = Date.now();
+            departure.minutes = Math.floor((departure.estimatedTime - now) / 60000);
+            departure.minutesDelay = Math.floor(
+                (departure.estimatedTime - departure.aimedTime) / 60000,
+            );
+
+            if (departure.isCancelled && departure.minutes < -5) {
+                if (departure.updateInterval) clearInterval(departure.updateInterval);
+                delete station.departures[departure.id];
+            }
+        }
+        if (!departure.updateInterval) departure.updateInterval = setInterval(updateTime, 1000);
+        updateTime();
     }
 
     function onReconnectEvent() {

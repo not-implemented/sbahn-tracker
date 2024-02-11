@@ -6,7 +6,9 @@ import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import areas from '../constants/areas';
 import MapMarker from '../components/MapMarker.vue';
+import StationMarker from '../components/StationMarker.vue';
 import TrainContainer from '../components/TrainContainer.vue';
+import StationContainer from '../components/StationContainer.vue';
 
 const store = useStore();
 const options = useOptionsStore();
@@ -68,12 +70,16 @@ const selectedTrains = computed(() => {
     return Object.values(store.trains).filter((train) => options.trains.includes(train.id));
 });
 
-// size of map will change on train selection change - we have to notify Leaflet:
-watch(
-    () => selectedTrains.value.length > 0, // same condition as in train-details div below
-    () => map.value.invalidateSize(),
-    { flush: 'post' },
-);
+const selectedStation = computed(() => {
+    return (options.station && store.stations[options.station]) ?? null;
+});
+
+const sidebarOpen = computed(() => {
+    return selectedTrains.value.length > 0 || selectedStation.value;
+});
+
+// size of map will change when sidebar opens/closes - we have to notify Leaflet:
+watch(sidebarOpen, () => map.value.invalidateSize(), { flush: 'post' });
 
 onActivated(() => map.value.invalidateSize());
 </script>
@@ -91,7 +97,18 @@ onActivated(() => map.value.invalidateSize());
             />
         </div>
 
-        <div id="train-details" :class="[selectedTrains.length > 0 ? 'is-active' : null]">
+        <div v-if="map">
+            <StationMarker
+                v-for="station in store.stations"
+                :key="station.id"
+                :station="station"
+                :map="map"
+            />
+        </div>
+
+        <div id="train-details" :class="[sidebarOpen ? 'is-active' : null]">
+            <StationContainer v-if="selectedStation" :station="selectedStation" />
+
             <ul id="selected-trains">
                 <TrainContainer v-for="train in selectedTrains" :key="train.id" :train="train" />
             </ul>

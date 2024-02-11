@@ -55,6 +55,34 @@ function createRouteArray(router, key, type) {
     return data;
 }
 
+function createRouteString(router, key) {
+    return computed({
+        get: () => {
+            return router.currentRoute.value.query[key];
+        },
+        set: (val) => {
+            if (val) {
+                router.push({
+                    ...router.currentRoute.value,
+                    query: {
+                        ...router.currentRoute.value.query,
+                        [key]: val,
+                    },
+                });
+            } else {
+                const newQuery = {
+                    ...router.currentRoute.value.query,
+                };
+                delete newQuery[key];
+                router.push({
+                    ...router.currentRoute.value,
+                    query: newQuery,
+                });
+            }
+        },
+    });
+}
+
 function createRouteBoolean(router, key) {
     return computed({
         get: () => {
@@ -91,6 +119,7 @@ export default function createOptionsStore() {
     const direction = createRouteArray(router, 'direction');
     const outdated = createRouteBoolean(router, 'isOutdated');
     const tagged = createRouteBoolean(router, 'isTagged');
+    const station = createRouteString(router, 'station');
 
     router.beforeResolve((to, from) => {
         if (to.name !== 'map') {
@@ -108,6 +137,7 @@ export default function createOptionsStore() {
         direction,
         outdated,
         tagged,
+        station,
     });
 
     provide(OPTIONS_STORE_KEY, store);
