@@ -14,7 +14,7 @@ function formatBytes(bytes, decimals = 2) {
 
 <template>
     <footer class="site-footer">
-        Live-Data from <a href="https://geops.ch/">geOps</a> — Made with 🥨 and Vue.js in Munich
+        Live-Data from <a href="https://geops.ch/">geOps</a> — Made with 🥨 in Munich
 
         <div class="stats">
             In: {{ store.messagesReceived }} ({{ formatBytes(store.bytesReceived) }}), Out:
