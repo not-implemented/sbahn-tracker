@@ -343,7 +343,7 @@ export function useSBahn() {
                 (departure.estimatedTime - departure.aimedTime) / 60000,
             );
 
-            if (departure.isCancelled && departure.minutes < -5) {
+            if ((departure.isCancelled && departure.minutes < -5) || departure.minutes < -15) {
                 if (departure.updateInterval) clearInterval(departure.updateInterval);
                 delete station.departures[departure.id];
             }
