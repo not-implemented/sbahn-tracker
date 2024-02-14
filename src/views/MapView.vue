@@ -80,7 +80,7 @@ const sidebarOpen = computed(() => {
 
 // size of map will change when sidebar opens/closes - we have to notify Leaflet:
 watch(sidebarOpen, () => map.value.invalidateSize(), { flush: 'post' });
-
+onMounted(() => map.value.invalidateSize());
 onActivated(() => map.value.invalidateSize());
 </script>
 
