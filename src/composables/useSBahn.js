@@ -310,7 +310,7 @@ export function useSBahn() {
             departure = { id: event.call_id };
             station.departures[departure.id] = departure;
         }
-
+        departure.direction = event.train_number % 2 === 1 ? 'east' : 'west';
         departure.trainId = event.train_id;
         departure.line = event.line;
         departure.destination = event.to[0];
