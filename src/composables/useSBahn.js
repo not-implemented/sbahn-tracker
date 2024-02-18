@@ -82,6 +82,8 @@ export function useSBahn() {
             station = {
                 id: event.properties.uic,
                 name: event.properties.name,
+                enableDepartureUpdates: () =>
+                    console.warn('Missing enableDepartureUpdates implementation'),
             };
             store.stations[station.id] = station;
         }
