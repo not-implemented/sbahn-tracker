@@ -14,11 +14,22 @@ const options = useOptionsStore();
 const station = toRef(props, 'station');
 
 const departures = computed(() => {
-    return Object.values(station.value.departures).sort((departure1, departure2) => {
+    return Object.values(station.value.departures ?? {}).sort((departure1, departure2) => {
         let result = 0;
         if (result === 0) result = departure1.estimatedTime - departure2.estimatedTime;
         return result;
     });
+});
+
+const filteredDepatures = computed(() => {
+    return departures.value
+        .filter(
+            (departure) => options.lines.length === 0 || options.lines.includes(departure.line.id),
+        )
+        .filter(
+            (departure) =>
+                options.direction.length === 0 || options.direction.includes(departure.direction),
+        );
 });
 
 function formatTime(timestamp) {
@@ -65,7 +76,7 @@ onUnmounted(() => station.value?.enableDepartureUpdates(false));
 
             <tbody id="sbahn-departures">
                 <tr
-                    v-for="departure in departures"
+                    v-for="departure in filteredDepatures"
                     :key="departure.id"
                     class="sbahn-departure-entry"
                     :class="{
