@@ -310,12 +310,12 @@ export function useSBahn() {
             departure = { id: event.call_id };
             station.departures[departure.id] = departure;
         }
-        departure.direction = event.train_number % 2 === 1 ? 'east' : 'west';
         departure.trainId = event.train_id;
         departure.line = event.line;
         departure.destination = event.to[0];
         departure.platform = event.platform;
         departure.trainType = event.train_type;
+        departure.direction = event.train_number % 2 === 1 ? 'east' : 'west';
         departure.aimedTime = event.ris_aimed_time;
         departure.estimatedTime = event.time;
         departure.state = event.state;
