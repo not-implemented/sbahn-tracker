@@ -14,7 +14,7 @@ const options = useOptionsStore();
 const station = toRef(props, 'station');
 
 const departures = computed(() => {
-    return Object.values(station.value.departures ?? {}).sort((departure1, departure2) => {
+    return Object.values(station.value.departures).sort((departure1, departure2) => {
         let result = 0;
         if (result === 0) result = departure1.estimatedTime - departure2.estimatedTime;
         return result;

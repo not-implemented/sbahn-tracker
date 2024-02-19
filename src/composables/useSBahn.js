@@ -17,21 +17,7 @@ export function useSBahn() {
 
     // stations
     store.stations = Object.values(Stations).reduce((stations, station) => {
-        station.departures = {};
-        station.enableDepartureUpdates = (enable) => {
-            if (enable) {
-                client.on('timetable_' + station.id, (event) => onTimetableEvent(event, station));
-            } else {
-                client.remove('timetable_' + station.id);
-
-                Object.values(station.departures).forEach((departure) => {
-                    if (departure.updateInterval) clearInterval(departure.updateInterval);
-                    delete station.departures[departure.id];
-                });
-            }
-        };
-
-        stations[station.id] = station;
+        stations[station.id] = initStation(station);
         return stations;
     }, {});
 
@@ -79,16 +65,32 @@ export function useSBahn() {
         let station = store.stations[event.properties.uic];
 
         if (!station) {
-            station = {
+            station = initStation({
                 id: event.properties.uic,
                 name: event.properties.name,
-                enableDepartureUpdates: () =>
-                    console.warn('Missing enableDepartureUpdates implementation'),
-            };
+            });
             store.stations[station.id] = station;
         }
 
         station.coordinates = convertCoordinates(event.geometry.coordinates);
+    }
+
+    function initStation(station) {
+        station.departures = {};
+        station.enableDepartureUpdates = (enable) => {
+            if (enable) {
+                client.on('timetable_' + station.id, (event) => onTimetableEvent(event, station));
+            } else {
+                client.remove('timetable_' + station.id);
+
+                Object.values(station.departures).forEach((departure) => {
+                    if (departure.updateInterval) clearInterval(departure.updateInterval);
+                    delete station.departures[departure.id];
+                });
+            }
+        };
+
+        return station;
     }
 
     function onTrajectoryEvent(event) {
