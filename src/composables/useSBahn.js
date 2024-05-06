@@ -284,6 +284,7 @@ export function useSBahn() {
 
         const train = store.trains[event];
         if (!train) return;
+        if (!train.isActive) return;
 
         client.remove('stopsequence_' + train.id);
 

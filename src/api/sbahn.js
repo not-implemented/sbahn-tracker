@@ -48,6 +48,8 @@ export default class SBahnClient {
     _sendSubscribe(source) {
         if (source === 'trajectory') {
             this._send('BBOX -9999999 -9999999 9999999 9999999 14 tenant=sbm');
+        } else if (source === 'deleted_vehicles') {
+            // implicitly subscribed on server side
         } else {
             this._send('GET ' + source);
             this._send('SUB ' + source);
