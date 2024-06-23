@@ -20,6 +20,7 @@ export default function createMainStore(options) {
     const trainEvents = reactive([]);
 
     // Stats
+    const connectionStatus = ref('closed');
     const messagesReceived = ref(0);
     const bytesReceived = ref(0);
     const messagesSent = ref(0);
@@ -79,6 +80,7 @@ export default function createMainStore(options) {
         messages,
         news,
         trainEvents,
+        connectionStatus,
         messagesReceived,
         bytesReceived,
         messagesSent,

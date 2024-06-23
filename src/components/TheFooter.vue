@@ -16,8 +16,8 @@ function formatBytes(bytes, decimals = 2) {
     <footer class="site-footer">
         Live-Data from <a href="https://geops.ch/">geOps</a> — Made with 🥨 in Munich
 
-        <div class="stats">
-            In: {{ store.messagesReceived }} ({{ formatBytes(store.bytesReceived) }}), Out:
+        <div class="stats" :class="'connection-status-' + store.connectionStatus">
+            {{ store.messagesReceived }} ({{ formatBytes(store.bytesReceived) }}) &lt;&gt;
             {{ store.messagesSent }} ({{ formatBytes(store.bytesSent) }})
         </div>
     </footer>
@@ -34,5 +34,24 @@ function formatBytes(bytes, decimals = 2) {
 }
 .site-footer .stats {
     float: right;
+}
+.site-footer .stats::after {
+    content: '';
+    display: inline-block;
+    height: 1.2rem;
+    width: 1.2rem;
+    border-radius: 50%;
+}
+.site-footer .stats.connection-status-open::after {
+    background-color: #a2d551;
+}
+.site-footer .stats.connection-status-connecting::after {
+    background-color: #f7d72f;
+}
+.site-footer .stats.connection-status-ping-wait::after {
+    background-color: #dc8e4a;
+}
+.site-footer .stats.connection-status-closed::after {
+    background-color: #d7584f;
 }
 </style>

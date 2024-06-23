@@ -12,6 +12,7 @@ export default class SBahnClient {
         this.clientTimeDiff = null;
 
         this._stats = {
+            connectionStatus: 'closed',
             messagesReceived: 0,
             bytesReceived: 0,
             messagesSent: 0,
@@ -78,24 +79,44 @@ export default class SBahnClient {
         if (this._reconnectDelay) clearTimeout(this._reconnectDelay);
     }
 
+    _updateConnectionStatus(connectionStatus) {
+        this._stats.connectionStatus = connectionStatus;
+        if (this._onStatsUpdateCallback) this._onStatsUpdateCallback(this._stats);
+    }
+
     _connect() {
         this._socket = new WebSocket('wss://api.geops.io/realtime-ws/v1/?key=' + this._apiKey);
+        this._updateConnectionStatus('connecting');
 
         this._socket.onopen = () => {
+            this._updateConnectionStatus('open');
             this._onReconnectCallback();
 
             Object.keys(this._callbacks).forEach((source) => {
                 this._sendSubscribe(source);
             });
 
-            this._pingInterval = setInterval(() => this._send('PING'), 10000);
+            this._pingInterval = setInterval(() => {
+                this._send('PING');
+                this._updateConnectionStatus('ping-wait');
+
+                // fast reconnect if ping/pong fails:
+                if (this._pongTimeout) clearTimeout(this._pongTimeout);
+                this._pongTimeout = setTimeout(() => {
+                    this._log.info('WebSocket ping timeout');
+                    if (this._socket) this._socket.close();
+                }, 2000);
+            }, 10000);
         };
 
         this._socket.onclose = () => {
             if (this._pingInterval) clearInterval(this._pingInterval);
             this._pingInterval = null;
+            if (this._pongTimeout) clearTimeout(this._pongTimeout);
+            this._pongTimeout = null;
 
             this._socket = null;
+            this._updateConnectionStatus('closed');
 
             if (this._isActive) {
                 this._log.info('WebSocket connection closed - reconnecting');
@@ -129,7 +150,13 @@ export default class SBahnClient {
             }
 
             if (message.source === 'websocket') {
-                // ignoring messages: content: {status: "open"} and "content": "PONG"
+                if (message.content === 'PONG') {
+                    if (this._pongTimeout) clearTimeout(this._pongTimeout);
+                    this._pongTimeout = null;
+                    this._updateConnectionStatus('open');
+                }
+
+                // ignoring messages: content: {status: "open"}
             } else if (this._callbacks[message.source]) {
                 this._callbacks[message.source](message.content);
             } else {
