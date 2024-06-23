@@ -38,6 +38,10 @@ export default class SBahnClient {
         delete this._callbacks[source];
     }
 
+    removeSilent(source) {
+        delete this._callbacks[source];
+    }
+
     connect() {
         if (this._isActive) return;
 

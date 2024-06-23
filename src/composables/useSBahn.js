@@ -288,7 +288,10 @@ export function useSBahn() {
         if (!train) return;
         if (!train.isActive) return;
 
-        client.remove('stopsequence_' + train.id);
+        // "silent" remove as workaround for server side bug: do not explicitly unsubscribe
+        // "stopsequence" events after a deleted_vehicles event - sometimes this unsubscribes
+        // all trajectory events:
+        client.removeSilent('stopsequence_' + train.id);
 
         if (train.hasGpsCordinates) {
             // Züge mit Echtzeitdaten (und Fahrzeuginfos) nicht löschen, nur markieren:
