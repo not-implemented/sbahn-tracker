@@ -97,6 +97,15 @@ onUnmounted(() => station.value?.enableDepartureUpdates(false));
                     </td>
                     <td class="minutes">
                         <span>{{ departure.minutes }}</span>
+                        <span
+                            v-if="
+                                departure.minutesRis !== null &&
+                                departure.minutesRis !== departure.minutes
+                            "
+                            class="minutesRis"
+                        >
+                            ({{ departure.minutesRis }})
+                        </span>
                         <span v-if="departure.state === 'BOARDING'">🚉</span>
                     </td>
                     <td>
@@ -208,6 +217,10 @@ onUnmounted(() => station.value?.enableDepartureUpdates(false));
 .sbahn-departure-entry .platform {
     text-align: right;
     padding-right: 0.75rem;
+}
+.sbahn-departure-entry .minutes .minutesRis {
+    font-size: 1rem;
+    font-weight: normal;
 }
 .sbahn-departure-entry:not(.has-realtime) .minutes::after {
     display: inline-block;

@@ -323,18 +323,12 @@ export function useSBahn() {
         departure.direction = event.train_number % 2 === 1 ? 'east' : 'west';
         departure.aimedTime = event.ris_aimed_time;
         departure.estimatedTime = event.time;
+        departure.estimatedRisTime = event.ris_estimated_time;
         departure.state = event.state;
         departure.isCancelled =
             event.state === 'STOP_CANCELLED' || event.state === 'JOURNEY_CANCELLED';
         departure.hasRealtime = event.has_realtime_journey;
         departure.isSynced = true; // for consistent reconnects
-
-        /* Interessant:
-        event.raw.ris_aimed_time
-        event.raw.ris_estimated_time
-        event.raw.fzo_estimated_time
-        event.raw.min_arrival_time
-        */
 
         if (departure.state === 'LEAVING') {
             if (departure.updateInterval) clearInterval(departure.updateInterval);
@@ -347,6 +341,10 @@ export function useSBahn() {
 
             let now = Date.now();
             departure.minutes = Math.floor((departure.estimatedTime - now) / 60000);
+            departure.minutesRis =
+                departure.estimatedRisTime !== null
+                    ? Math.floor((departure.estimatedRisTime - now) / 60000)
+                    : null;
             departure.minutesDelay = Math.floor(
                 (departure.estimatedTime - departure.aimedTime) / 60000,
             );
