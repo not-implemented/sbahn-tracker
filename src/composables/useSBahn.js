@@ -65,6 +65,8 @@ export function useSBahn() {
         let station = store.stations[event.properties.uic];
 
         if (!station) {
+            if (event.properties.isRailReplacement) return; // SEV Bushaltestellen
+
             station = initStation({
                 id: event.properties.uic,
                 name: event.properties.name,
