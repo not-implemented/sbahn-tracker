@@ -236,16 +236,14 @@ export function useSBahn() {
         // train._changed.clear();
 
         let stations = route.stations; // Zuglauf (Liste aller anzufahrenden Stationen)
+        let nextIdx = stations ? stations.findIndex((station) => station.state === 'PENDING') : -1;
         let currentIdx = stations
-            ? stations.findIndex(
-                  (station) =>
-                      !['LEAVING', 'STOP_CANCELLED', 'JOURNEY_CANCELLED'].includes(station.state),
+            ? stations.findLastIndex(
+                  (station, idx) =>
+                      (idx < nextIdx || nextIdx === -1) &&
+                      !['STOP_CANCELLED', 'JOURNEY_CANCELLED'].includes(station.state),
               )
             : -1;
-
-        if (currentIdx > 0 && stations[currentIdx].state !== 'BOARDING') {
-            currentIdx--; // wenn unterwegs, letzte "LEAVING"-Station als current setzen
-        }
 
         let destinationIdx = stations
             ? stations.findLastIndex(
@@ -261,18 +259,9 @@ export function useSBahn() {
             currentIdx !== -1 ? stations[currentIdx].departureDelay : null;
         train.prevStationId =
             currentIdx !== -1 && currentIdx > 0 ? stations[currentIdx - 1].stationId : null;
-        train.nextStationId =
-            currentIdx !== -1 && currentIdx + 1 < stations.length
-                ? stations[currentIdx + 1].stationId
-                : null;
-        train.nextStationDepartureTime =
-            currentIdx !== -1 && currentIdx + 1 < stations.length
-                ? stations[currentIdx + 1].aimedArrivalTime
-                : null;
-        train.nextStationDepartureDelay =
-            currentIdx !== -1 && currentIdx + 1 < stations.length
-                ? stations[currentIdx + 1].arrivalDelay
-                : null;
+        train.nextStationId = nextIdx !== -1 ? stations[nextIdx].stationId : null;
+        train.nextStationDepartureTime = nextIdx !== -1 ? stations[nextIdx].aimedArrivalTime : null;
+        train.nextStationDepartureDelay = nextIdx !== -1 ? stations[nextIdx].arrivalDelay : null;
 
         if (options.trains.includes(train.id)) {
             console.log(event);
