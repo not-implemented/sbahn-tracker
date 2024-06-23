@@ -333,6 +333,13 @@ export function useSBahn() {
         departure.hasRealtime = event.has_realtime_journey;
         departure.isSynced = true; // for consistent reconnects
 
+        for (const change of event.changes ?? []) {
+            if (change.old_to && change.new_to) {
+                departure.destination = change.new_to;
+                departure.originalDestination = change.old_to;
+            }
+        }
+
         if (departure.state === 'LEAVING') {
             if (departure.updateInterval) clearInterval(departure.updateInterval);
             delete station.departures[departure.id];

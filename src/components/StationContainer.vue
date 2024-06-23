@@ -89,6 +89,9 @@ onUnmounted(() => station.value?.enableDepartureUpdates(false));
                         <a href="" @click.prevent="selectTrain(departure.trainId)">{{
                             departure.destination
                         }}</a>
+                        <div v-if="departure.originalDestination" class="originalDestination">
+                            {{ departure.originalDestination }}
+                        </div>
                     </td>
                     <td class="platform">{{ departure.platform }}</td>
                     <td class="trainType" :data-train-type="departure.trainType">
@@ -209,6 +212,13 @@ onUnmounted(() => station.value?.enableDepartureUpdates(false));
     max-width: 17.5rem;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+.sbahn-departure-entry .originalDestination {
+    font-size: 1.5rem;
+    font-weight: normal;
+    text-decoration: line-through;
+    text-decoration-thickness: 0.15rem;
+    text-decoration-color: red;
 }
 .sbahn-departure-entry .destination a {
     color: inherit;
