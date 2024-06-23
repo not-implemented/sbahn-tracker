@@ -327,6 +327,7 @@ export function useSBahn() {
         departure.isCancelled =
             event.state === 'STOP_CANCELLED' || event.state === 'JOURNEY_CANCELLED';
         departure.hasRealtime = event.has_realtime_journey;
+        departure.isSynced = true; // for consistent reconnects
 
         /* Interessant:
         event.raw.ris_aimed_time
@@ -367,11 +368,27 @@ export function useSBahn() {
             train.isSynced = false;
         }
 
+        // Selbiges für die Abfahrtstafeln:
+        for (const station of Object.values(store.stations)) {
+            for (const departure of Object.values(station.departures)) {
+                departure.isSynced = false;
+            }
+        }
+
         if (reconnectSyncTimeout) clearTimeout(reconnectSyncTimeout);
         reconnectSyncTimeout = setTimeout(() => {
             reconnectSyncTimeout = null;
             for (const train of Object.values(store.trains)) {
                 if (!train.isSynced) onDeletedVehiclesEvent(train.id);
+            }
+
+            for (const station of Object.values(store.stations)) {
+                for (const departure of Object.values(station.departures)) {
+                    if (!departure.isSynced) {
+                        if (departure.updateInterval) clearInterval(departure.updateInterval);
+                        delete station.departures[departure.id];
+                    }
+                }
             }
         }, 5000);
     }
