@@ -96,7 +96,8 @@ onUnmounted(() => station.value?.enableDepartureUpdates(false));
                         ><span class="vehicle-3"></span>
                     </td>
                     <td class="minutes">
-                        {{ departure.state === 'BOARDING' ? '🚉' : departure.minutes }}
+                        <span>{{ departure.minutes }}</span>
+                        <span v-if="departure.state === 'BOARDING'">🚉</span>
                     </td>
                     <td>
                         <span class="aimed-time">{{ formatTime(departure.aimedTime) }}</span
