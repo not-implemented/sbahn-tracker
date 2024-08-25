@@ -33,6 +33,7 @@ const formatTime = (updated) => {
                 </div>
 
                 <h3 class="title">{{ newsMessage.title }}</h3>
+                <p>{{ newsMessage.message }}</p>
                 <!-- eslint-disable vue/no-v-html -->
                 <div class="content" v-html="newsMessage.content" />
                 <!-- eslint-enable -->
