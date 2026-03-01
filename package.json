@@ -5,7 +5,7 @@
         "dev": "vite",
         "build": "vite build",
         "preview": "vite preview --port 5050",
-        "lint": "eslint --ext .js,.vue,.ts,.json --ignore-path .gitignore src",
+        "lint": "eslint --ext .js,.vue,.ts,.json --ignore-pattern .gitignore src",
         "prettier": "prettier src --write"
     },
     "type": "module",
@@ -27,18 +27,5 @@
         "tabWidth": 4,
         "singleQuote": true,
         "printWidth": 100
-    },
-    "eslintConfig": {
-        "extends": [
-            "eslint:recommended",
-            "plugin:vue/vue3-recommended",
-            "plugin:prettier/recommended",
-            "prettier"
-        ],
-        "globals": {
-            "defineEmits": true,
-            "defineExpose": true,
-            "defineProps": true
-        }
     }
 }
