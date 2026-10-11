@@ -2,11 +2,13 @@ import { toRaw } from 'vue';
 import createMainStore from '../stores/main';
 import createOptionsStore from '../stores/options';
 import SBahnClient from '../api/sbahn';
+import { fetchDisruptions } from '../api/moco';
 import areas from '../constants/areas';
 import Stations from '../constants/stations';
 import * as L from 'leaflet';
 
 const API_KEY = import.meta.env.VITE_SBAHN_API_KEY;
+const DISRUPTION_POLL_INTERVAL = 60 * 1000;
 
 export function useSBahn() {
     let nextImplicitTrainId = 1001; // for split trains - should not overlap with official train_ids (which are very big)
@@ -26,7 +28,6 @@ export function useSBahn() {
     client.on('station', (event) => onStationEvent(event));
     client.on('trajectory', (event) => onTrajectoryEvent(event));
     client.on('deleted_vehicles', (event) => onDeletedVehiclesEvent(event));
-    client.on('sbm_newsticker', (event) => onNewstickerEvent(event));
     client.onReconnect(() => onReconnectEvent());
     client.onStatsUpdate((stats) => {
         for (const key in stats) {
@@ -37,6 +38,7 @@ export function useSBahn() {
     let reconnectSyncTimeout = null;
 
     loadVehicleInfos();
+    startDisruptionPolling();
 
     function loadVehicleInfos() {
         fetch('https://sbahn.not-implemented.de/vehicle-info.php')
@@ -295,8 +297,32 @@ export function useSBahn() {
         }
     }
 
-    function onNewstickerEvent(event) {
-        store.news = event.messages.reverse();
+    function startDisruptionPolling() {
+        let abortController = null;
+
+        const loadDisruptions = () => {
+            abortController?.abort();
+            abortController = new AbortController();
+
+            fetchDisruptions(abortController.signal)
+                .then((situations) => {
+                    // show latest first
+                    store.news = situations.sort((a, b) =>
+                        b.publishedAt.localeCompare(a.publishedAt),
+                    );
+                })
+                .catch((err) => {
+                    if (err.name !== 'AbortError') console.warn('Loading disruptions failed', err);
+                });
+        };
+
+        loadDisruptions();
+        setInterval(() => {
+            if (document.visibilityState === 'visible') loadDisruptions();
+        }, DISRUPTION_POLL_INTERVAL);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') loadDisruptions();
+        });
     }
 
     function onTimetableEvent(event, station) {
