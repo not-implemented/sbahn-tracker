@@ -192,10 +192,11 @@ Event-Quelle "timetable_\[Station-ID]_schematic"
 TODO
 
 
-Event-Quelle "newsticker"
--------------------------
+Event-Quelle "sbm_newsticker"
+-----------------------------
 
-TODO
+Veraltet: Wird seit Anfang 2026 nicht mehr aktualisiert (letzte Meldung vom 11.02.2026). Störungsmeldungen
+kommen jetzt aus der MOCO API (siehe unten).
 
 
 Event-Quelle "extra_geoms"
@@ -214,3 +215,67 @@ Event-Quelle "healthcheck_schematic"
 ------------------------------------
 
 TODO
+
+
+MOCO API (Störungsmeldungen)
+============================
+
+REST-Schnittstelle unter `https://api.geops.io/moco3/v1/s-bahn-munchen/export/` - wird von der offiziellen
+Live-Map (s-bahn-muenchen-live.de) für Störungen verwendet. Die offizielle Map schickt einen eigenen `key` mit, die
+API prüft ihn aber nicht (Stand 10/2026): Ohne Key oder mit ungültigem Key kommen dieselben Daten.
+
+Es gibt anscheinend keine Push-Updates?
+Wir pollen deshalb; die Antworten werden vom API-Gateway gecacht (`X-Tyk-Cached-Response`). CORS ist für alle
+Origins freigegeben.
+
+Das zugrundeliegende OpenAPI-Schema ist öffentlich: `https://moco.geops.io/api/schema/` (Pfad `/api/v2/{tenant}/export/`,
+Tenant `s-bahn-munchen`). Ein einzelnes Situation-Objekt gibt es unter `.../export/[Situation-ID]`.
+
+### Query-Parameter
+
+- **publicNow** (bool, default false): Nur aktuell veröffentlichte Meldungen. Liefert sonst Historie. `false` deaktiviert nur den Filter, liefert also nicht das Gegenteil
+- **publicAt** / **publicBefore** / **publicAfter** (ISO-Datum): Veröffentlichungszeitraum filtern
+- **affectedAt** (ISO-Datum): Nur Meldungen, deren Gültigkeitszeitraum diesen Zeitpunkt enthält
+- **timeintervalBefore** / **timeintervalAfter** (ISO-Datum): Laut Schema vorhanden, filtern aber (Stand 10/2026) nicht
+- **limit** (int, 1-300, default 200) / **offset** (int, default 0): Pagination - siehe `totalCount`
+- **graph** (string, kommasepariert): Graph für Geometrien - ohne Angabe kommen alle. Bei der S-Bahn gibt es:
+    - `tralis100_sbm`: Geografische Koordinaten in EPSG:3857 (Web Mercator, Meter) - für Leaflet per
+      `L.CRS.EPSG3857.unproject()` umrechnen
+    - `tralis_schematic_sbm`: Koordinaten im schematischen Netzplan (keine echten Positionen)
+- **includeGeoms** / **includeStops** / **includeLines** (bool, default true): Geometrien, betroffene Haltestellen bzw.
+  Linien mitliefern
+- **hasGeoms** (bool): Nur Meldungen mit/ohne Geometrie
+- **simplify** (int, default 0): Geometrien vereinfachen
+- **bbox** (4 Floats: min_x, min_y, max_x, max_y), **bbox_srid** (default 3857), **bbox_graph** (default `osm`):
+  Räumlicher Filter
+- **contentLarge** (default true) / **contentMedium** / **contentSmall** (default false): Textvarianten - bei der
+  S-Bahn ist nur `contentLarge` befüllt
+- **de** (default true) / **en** / **fr** / **it** (default false): Sprachen
+- **isEdited** (bool): unklar - mit `true` kommt aktuell nichts zurück
+
+Ungültige Werte liefern HTTP 400 mit Details (z.B. `limit` > 300), unbekannte Parameter werden ignoriert.
+Sortierung ist immer nach einem internen Startdatum aufsteigend - ungefähr `affectedTimeIntervalsStart`, aber nicht
+exakt (benachbarte Einträge sind teils um einige Stunden vertauscht). Ein `ordering`-Parameter existiert nur im alten
+v1-Endpunkt (`/api/v1/export/publication/`), der aber immer die komplette Historie liefert (> 16 MB).
+
+### paginatedSituations.results[]
+
+- **id** (string): Situation-ID (Beispiel: "6616212")
+- **title** (string): Überschrift
+- **publicationLineNames** (array[string]): Betroffene Linien - teils "S 1", teils "S1", auch Regional- und Fernzüge
+  (z.B. "RE 9", "ICE 60")
+- **publicationStopNames** (array[string]): Betroffene Haltestellen
+- **affectedTimeIntervalsStart** / **affectedTimeIntervalsEnd** (ISO-Datum): Gültigkeitszeitraum der Störung
+- **publicationWindowsStart** / **publicationWindowsEnd** (ISO-Datum): Veröffentlichungszeitraum
+- **reasons** (array): Grund, z.B. `{name: "CONSTRUCTION"}`, `TECHNICAL_PROBLEM_RAILWAY_SECTION`
+- **publications** (array): Bisher immer genau ein Eintrag mit:
+    - **serviceCondition**: z.B. DISRUPTION, MAJOR_DELAYS, DISCONTINUED_OPERATION, TRIP_CANCELLATION, STOP_MOVED,
+      IRREGULAR_TRAFFIC, REPLACEMENT_RIDE
+    - **severity**: bisher immer UNDEFINED
+    - **textualContentLarge.de**: `summary`, `description` (HTML) - `reason`, `consequence`, `durationText`,
+      `recommendation` sind bisher immer leer
+    - **publicationStops** (wenn `includeStops`): Betroffene Haltestellen mit `name` und
+      `geometry[].geom` (`Point`) je Graph
+    - **publicationLines** (wenn `includeLines`): `lines[]` mit `name` und `geometry[].geom` (`MultiLineString`) je
+      Graph - der betroffene Streckenabschnitt. Nicht jede Meldung hat Geometrien (z.B. Störungen im Gesamtnetz)
+    - **images**, **infoLinks**: bisher immer leer

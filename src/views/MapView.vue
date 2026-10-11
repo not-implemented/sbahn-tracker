@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import areas from '../constants/areas';
 import MapMarker from '../components/MapMarker.vue';
 import StationMarker from '../components/StationMarker.vue';
+import DisruptionLayer from '../components/DisruptionLayer.vue';
 import TrainContainer from '../components/TrainContainer.vue';
 import StationContainer from '../components/StationContainer.vue';
 
@@ -96,6 +97,8 @@ onActivated(() => map.value.invalidateSize());
                 :train="train"
             />
         </div>
+
+        <DisruptionLayer v-if="map" :map="map" :disruptions="store.news" />
 
         <div v-if="map">
             <StationMarker
