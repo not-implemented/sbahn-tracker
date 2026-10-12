@@ -78,6 +78,7 @@ const sortedLines = computed(() =>
                     {{ ' ' }}
                 </label>
             </div>
+            <!--
             {{ ' ' }}
             <div id="isOutdated" class="filter">
                 <label>
@@ -92,6 +93,7 @@ const sortedLines = computed(() =>
                     <span title="Züge mit markierten Fahrzeugen">🔔</span>
                 </label>
             </div>
+            -->
         </nav>
     </header>
 </template>
