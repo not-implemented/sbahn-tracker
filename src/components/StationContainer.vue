@@ -260,11 +260,12 @@ onUnmounted(() => station.value?.enableDepartureUpdates(false));
 }
 
 .sbahn-departure-entry .aimed-time {
-    font-size: 1.25rem;
+    font-size: 1.4rem;
 }
 .sbahn-departure-entry .delay:not(:empty) {
     padding-left: 0.25rem;
-    font-size: 1rem;
-    color: #e43737;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #f07d7d;
 }
 </style>
