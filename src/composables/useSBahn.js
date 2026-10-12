@@ -25,6 +25,7 @@ export function useSBahn() {
 
     // Events
     const client = new SBahnClient(API_KEY, console);
+    store.setServerNow(() => client.serverNow());
     client.on('station', (event) => onStationEvent(event));
     client.on('trajectory', (event) => onTrajectoryEvent(event));
     client.on('deleted_vehicles', (event) => onDeletedVehiclesEvent(event));
@@ -155,6 +156,7 @@ export function useSBahn() {
             (event.geometry.coordinates &&
                 event.geometry.coordinates.map((coords) => convertCoordinates(coords))) ||
             [];
+        train.timeIntervals = rawTrain.time_intervals || [];
         train.lastUpdate = rawTrain.event_timestamp;
 
         train.historyPath = train.historyPath || [];
@@ -206,12 +208,12 @@ export function useSBahn() {
 
         if (!train.refreshInterval) {
             train.refreshInterval = setInterval(
-                () => store.refreshLastUpdateMinutes(train.id, client),
+                () => store.refreshLastUpdateMinutes(train.id),
                 1000,
             );
         }
 
-        store.refreshLastUpdateMinutes(train.id, client);
+        store.refreshLastUpdateMinutes(train.id);
 
         /*
         if (['isNew', 'line', 'number'].some(attr => train._changed.has(attr))) {
@@ -569,7 +571,7 @@ export function useSBahn() {
                 // this.createTrainGui(splittedTrain);
                 store.trains[splittedTrain.id] = splittedTrain;
                 splittedTrain.refreshInterval = setInterval(
-                    () => store.refreshLastUpdateMinutes(splittedTrain.id, client),
+                    () => store.refreshLastUpdateMinutes(splittedTrain.id),
                     1000,
                 );
                 // this.onTrainUpdate(splittedTrain);

@@ -63,10 +63,17 @@ export default function createMainStore(options) {
             });
     });
 
-    function refreshLastUpdateMinutes(trainId, client) {
+    // current time in server clock - replaced by useSBahn() as soon as the client exists:
+    let serverNow = () => Date.now();
+
+    function setServerNow(callback) {
+        serverNow = callback;
+    }
+
+    function refreshLastUpdateMinutes(trainId) {
         if (trains[trainId]) {
             trains[trainId].lastUpdateMinutes = Math.floor(
-                (Date.now() - client.clientTimeDiff - trains[trainId].lastUpdate) / 1000 / 60,
+                (serverNow() - trains[trainId].lastUpdate) / 1000 / 60,
             );
         }
     }
@@ -87,6 +94,8 @@ export default function createMainStore(options) {
         bytesSent,
         filteredTrains,
         refreshLastUpdateMinutes,
+        setServerNow,
+        serverNow: () => serverNow(),
     });
 
     provide(MAIN_STORE_KEY, store);

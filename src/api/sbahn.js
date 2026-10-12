@@ -10,6 +10,7 @@ export default class SBahnClient {
         this._reconnectDelay = null;
 
         this.clientTimeDiff = null;
+        this._resetClientTimeDiff = false;
 
         this._stats = {
             connectionStatus: 'closed',
@@ -41,6 +42,10 @@ export default class SBahnClient {
 
     removeSilent(source) {
         delete this._callbacks[source];
+    }
+
+    serverNow() {
+        return Date.now() - (this.clientTimeDiff ?? 0);
     }
 
     connect() {
@@ -90,6 +95,9 @@ export default class SBahnClient {
 
         this._socket.onopen = () => {
             this._updateConnectionStatus('open');
+            // client clock may have jumped in the meantime (e.g. standby) - re-measure, but keep the
+            // old value until the first message arrives:
+            this._resetClientTimeDiff = true;
             this._onReconnectCallback();
 
             Object.keys(this._callbacks).forEach((source) => {
@@ -140,10 +148,15 @@ export default class SBahnClient {
                 return;
             }
 
-            // minimal client time difference:
-            let timeDiff = Date.now() - message.timestamp;
-            this.clientTimeDiff =
-                this.clientTimeDiff !== null ? Math.min(timeDiff, this.clientTimeDiff) : timeDiff;
+            // minimal client time difference (= clock offset + minimal network latency):
+            const timeDiff = Date.now() - message.timestamp;
+            if (Number.isFinite(timeDiff)) {
+                this.clientTimeDiff =
+                    this.clientTimeDiff !== null && !this._resetClientTimeDiff
+                        ? Math.min(timeDiff, this.clientTimeDiff)
+                        : timeDiff;
+                this._resetClientTimeDiff = false;
+            }
 
             if (message.client_reference !== null && message.client_reference !== '') {
                 this._log.info('client_reference is not null in WebSocket message', message);

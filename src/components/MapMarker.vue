@@ -12,10 +12,63 @@ const TrainMarker = L.Marker.extend({
         }
     },
 });
+
+const ESTIMATED_POSITION_UPDATE_INTERVAL = 100;
+
+// interpolate the fraction (0..1) along the estimated path for the given time based on the
+// "time_intervals" keyframes ([timestamp, fraction, heading]):
+function interpolateFraction(timeIntervals, time) {
+    if (!timeIntervals.length) return null;
+    if (time <= timeIntervals[0][0]) return timeIntervals[0][1];
+
+    for (let i = 1; i < timeIntervals.length; i++) {
+        const [endTime, endFraction] = timeIntervals[i];
+        if (time > endTime) continue;
+
+        const [startTime, startFraction] = timeIntervals[i - 1];
+        if (endTime === startTime) return endFraction;
+        return (
+            startFraction +
+            ((time - startTime) / (endTime - startTime)) * (endFraction - startFraction)
+        );
+    }
+
+    return timeIntervals[timeIntervals.length - 1][1];
+}
+
+// get the point at the given fraction (0..1) of the path length (measured in EPSG:3857 like the server does):
+function pointAlongPath(path, fraction) {
+    if (!path.length) return null;
+    if (path.length === 1) return path[0];
+
+    const points = path.map((latLng) => L.CRS.EPSG3857.project(L.latLng(latLng)));
+    const segmentLengths = [];
+    let totalLength = 0;
+    for (let i = 1; i < points.length; i++) {
+        const length = points[i - 1].distanceTo(points[i]);
+        segmentLengths.push(length);
+        totalLength += length;
+    }
+    if (totalLength === 0) return path[0];
+
+    let remaining = Math.min(Math.max(fraction, 0), 1) * totalLength;
+    for (let i = 0; i < segmentLengths.length; i++) {
+        if (remaining <= segmentLengths[i] || i === segmentLengths.length - 1) {
+            const ratio = segmentLengths[i] ? Math.min(remaining / segmentLengths[i], 1) : 0;
+            const point = points[i].add(points[i + 1].subtract(points[i]).multiplyBy(ratio));
+            const latLng = L.CRS.EPSG3857.unproject(point);
+            return [latLng.lat, latLng.lng];
+        }
+        remaining -= segmentLengths[i];
+    }
+
+    return path[path.length - 1];
+}
 </script>
 
 <script setup>
 import { computed, ref, onMounted, onUnmounted, watch, watchEffect, toRaw } from 'vue';
+import { useStore } from '../stores/main';
 import { useOptionsStore } from '../stores/options';
 
 const defaultCoordinates = [47.9052567, 11.3084582]; // Starnberger See als "Fallback"
@@ -32,12 +85,15 @@ const props = defineProps({
     },
 });
 
+const store = useStore();
 const options = useOptionsStore();
 const svg = ref();
 const heading = ref();
 let mapMarker;
 let historyPath;
 let estimatedPath;
+let estimatedPositionMarker;
+let estimatedPositionTimer = null;
 
 // ignore clicks when dragged the map directly at a mapMarkerSvgNode:
 let handleClick = false;
@@ -83,7 +139,47 @@ onMounted(() => {
     });
     estimatedPath.setLatLngs(props.train.estimatedPath);
     if (isSelected.value) estimatedPath.addTo(props.map);
+
+    estimatedPositionMarker = L.circleMarker([0, 0], {
+        radius: 6,
+        color: '#406fff',
+        weight: 2,
+        fillColor: props.train.line.color,
+        fillOpacity: 0.6,
+        keyboard: false,
+        interactive: false,
+    });
+    if (isSelected.value) startEstimatedPosition();
 });
+
+function updateEstimatedPosition() {
+    const fraction = interpolateFraction(props.train.timeIntervals || [], store.serverNow());
+    const position = fraction !== null ? pointAlongPath(props.train.estimatedPath, fraction) : null;
+
+    if (position) {
+        estimatedPositionMarker.setLatLng(position);
+        if (!toRaw(props.map).hasLayer(estimatedPositionMarker)) {
+            estimatedPositionMarker.addTo(toRaw(props.map));
+        }
+    } else {
+        estimatedPositionMarker.remove();
+    }
+}
+
+function startEstimatedPosition() {
+    stopEstimatedPosition();
+    updateEstimatedPosition();
+    estimatedPositionTimer = setInterval(
+        updateEstimatedPosition,
+        ESTIMATED_POSITION_UPDATE_INTERVAL,
+    );
+}
+
+function stopEstimatedPosition() {
+    if (estimatedPositionTimer !== null) clearInterval(estimatedPositionTimer);
+    estimatedPositionTimer = null;
+    estimatedPositionMarker.remove();
+}
 
 watch(
     () => props.train.coordinates,
@@ -112,7 +208,13 @@ watch(
     () => props.train.estimatedPath,
     () => {
         estimatedPath.setLatLngs(props.train.estimatedPath);
+        if (isSelected.value) updateEstimatedPosition();
     },
+);
+
+watch(
+    () => props.train.line.color,
+    (color) => estimatedPositionMarker.setStyle({ fillColor: color }),
 );
 
 watch(
@@ -123,6 +225,9 @@ watch(
 
         if (isSelected.value) estimatedPath.addTo(props.map);
         else estimatedPath.remove();
+
+        if (isSelected.value) startEstimatedPosition();
+        else stopEstimatedPosition();
     },
 );
 
@@ -132,6 +237,7 @@ onUnmounted(() => {
     mapMarker.remove();
     historyPath.remove();
     estimatedPath.remove();
+    stopEstimatedPosition();
 });
 
 function onMapMarkerClick(event) {
