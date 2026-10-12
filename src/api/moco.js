@@ -75,6 +75,7 @@ function parseDisruption(disruption) {
     return {
         id: disruption.id,
         title: disruption.title,
+        isConstruction: (disruption.reasons ?? []).some(({ name }) => name === 'CONSTRUCTION'),
         // line names sometimes include spaced ('S 1' vs 'S1')
         lineNames: [
             ...new Set(disruption.publicationLineNames.map((name) => name.replace(/\s+/g, ''))),

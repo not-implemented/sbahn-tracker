@@ -8,6 +8,7 @@ import LineLogo from '../components/LineLogo.vue';
 type Disruption = {
     id: string;
     title: string;
+    isConstruction: boolean;
     lineNames: string[];
     content: string;
     publishedAt: string;
@@ -195,7 +196,15 @@ const getLine = (name: string) =>
                         </span>
                     </div>
 
-                    <h3 class="title">{{ newsMessage.title }}</h3>
+                    <h3 class="title">
+                        <span
+                            v-if="newsMessage.isConstruction"
+                            class="construction"
+                            title="Baustelle"
+                            aria-label="Baustelle"
+                            >🚧</span
+                        >{{ newsMessage.title }}
+                    </h3>
                     <!-- eslint-disable vue/no-v-html -->
                     <div class="content" v-html="newsMessage.content" />
                     <!-- eslint-enable -->
@@ -258,6 +267,9 @@ const getLine = (name: string) =>
 }
 .news-message .title {
     margin: 0.8rem 0;
+}
+.news-message .construction {
+    margin-right: 0.5rem;
 }
 .news-message.is-historic {
     opacity: 0.6;

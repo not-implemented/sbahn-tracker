@@ -7,6 +7,7 @@ type Disruption = {
     title: string;
     stops?: { name: string; coordinates: L.LatLngTuple }[];
     lineSections?: L.LatLngTuple[][];
+    isConstruction?: boolean;
 };
 
 const props = defineProps<{
@@ -15,6 +16,7 @@ const props = defineProps<{
 }>();
 
 const COLOR = '#e3000f';
+const CONSTRUCTION_COLOR = '#ffd000';
 const PANE = 'disruptions';
 
 const layerGroup = L.layerGroup();
@@ -43,9 +45,10 @@ function render() {
 
     for (const disruption of props.disruptions) {
         const popup = createPopup(disruption);
+        const color = disruption.isConstruction ? CONSTRUCTION_COLOR : COLOR;
 
         for (const lineSection of disruption.lineSections ?? []) {
-            L.polyline(lineSection, { pane, color: COLOR, weight: 8, opacity: 0.5 })
+            L.polyline(lineSection, { pane, color, weight: 16, opacity: 0.7 })
                 .bindPopup(popup)
                 .addTo(layerGroup);
         }
@@ -55,9 +58,9 @@ function render() {
                 pane,
                 radius: 12,
                 weight: 4,
-                color: COLOR,
+                color,
                 opacity: 0.8,
-                fillColor: COLOR,
+                fillColor: color,
                 fillOpacity: 0.2,
             })
                 .bindPopup(popup)
@@ -70,11 +73,12 @@ function render() {
 // disruptions are re-fetched every minute - only redraw (and close open popups) on actual changes:
 const signature = computed(() =>
     JSON.stringify(
-        props.disruptions.map(({ id, title, stops, lineSections }) => [
+        props.disruptions.map(({ id, title, stops, lineSections, isConstruction }) => [
             id,
             title,
             stops,
             lineSections,
+            isConstruction,
         ]),
     ),
 );
