@@ -29,10 +29,6 @@ const sortedLines = computed(() =>
         </h1>
 
         <nav id="nav">
-            <s-bahn-link class="nav-list" active-class="is-active" :to="{ name: 'list' }">
-                <span class="text">Liste</span>
-            </s-bahn-link>
-            {{ ' ' }}
             <s-bahn-link class="nav-map" active-class="is-active" :to="{ name: 'map' }">
                 <span class="text">Karte</span>
             </s-bahn-link>
@@ -44,6 +40,10 @@ const sortedLines = computed(() =>
             >
                 <span class="text">Newsticker</span>
                 <span class="badge">{{ newsCount }}</span>
+            </s-bahn-link>
+            {{ ' ' }}
+            <s-bahn-link class="nav-list" active-class="is-active" :to="{ name: 'list' }">
+                <span class="text">Liste</span>
             </s-bahn-link>
             {{ ' ' }}
             <s-bahn-link class="nav-debug" active-class="is-active" :to="{ name: 'debug' }">

@@ -30,7 +30,7 @@ export default createRouter({
         {
             name: 'NotFound',
             path: '/:pathMatch(.*)*',
-            redirect: () => ({ name: 'list' }),
+            redirect: () => ({ name: 'map' }),
         },
     ],
 });
