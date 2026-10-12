@@ -1,6 +1,21 @@
+<script>
+import * as L from 'leaflet';
+
+// Leaflet positions markers via translate3d(), which makes Chrome promote every marker to its own
+// compositing layer - with all trains in view, panning gets laggy (esp. Chrome on Android).
+// A 2D translate() avoids that:
+const TrainMarker = L.Marker.extend({
+    _setPos(pos) {
+        L.Marker.prototype._setPos.call(this, pos);
+        if (this._icon) {
+            this._icon.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
+        }
+    },
+});
+</script>
+
 <script setup>
 import { computed, ref, onMounted, onUnmounted, watch, watchEffect, toRaw } from 'vue';
-import * as L from 'leaflet';
 import { useOptionsStore } from '../stores/options';
 
 const defaultCoordinates = [47.9052567, 11.3084582]; // Starnberger See als "Fallback"
@@ -33,7 +48,7 @@ const isSelected = computed(() => {
 });
 
 onMounted(() => {
-    mapMarker = L.marker([0, 0], {
+    mapMarker = new TrainMarker([0, 0], {
         icon: L.divIcon({
             html: svg.value,
             className: 'train-marker',
