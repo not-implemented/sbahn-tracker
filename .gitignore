@@ -1,5 +1,6 @@
 config.php
+.env
 node_modules
-.DS_Store
 dist
+.DS_Store
 *.local
