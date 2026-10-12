@@ -140,17 +140,25 @@ onMounted(() => {
     estimatedPath.setLatLngs(props.train.estimatedPath);
     if (isSelected.value) estimatedPath.addTo(props.map);
 
-    estimatedPositionMarker = L.circleMarker([0, 0], {
-        radius: 6,
-        color: '#406fff',
-        weight: 2,
-        fillColor: props.train.line.color,
-        fillOpacity: 0.6,
+    estimatedPositionMarker = new TrainMarker([0, 0], {
+        icon: createEstimatedPositionIcon(props.train.line.color),
+        zIndexOffset: -1000, // below the train markers
         keyboard: false,
         interactive: false,
     });
     if (isSelected.value) startEstimatedPosition();
 });
+
+function createEstimatedPositionIcon(color) {
+    const element = document.createElement('div');
+    element.style.color = color;
+    return L.divIcon({
+        html: element,
+        className: 'estimated-position-marker',
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
+    });
+}
 
 function updateEstimatedPosition() {
     const fraction = interpolateFraction(props.train.timeIntervals || [], store.serverNow());
@@ -214,7 +222,7 @@ watch(
 
 watch(
     () => props.train.line.color,
-    (color) => estimatedPositionMarker.setStyle({ fillColor: color }),
+    (color) => estimatedPositionMarker.setIcon(createEstimatedPositionIcon(color)),
 );
 
 watch(
@@ -452,5 +460,25 @@ const typeText = computed(() => {
 }
 .train-marker .outdated {
     fill: #7f7f7f;
+}
+</style>
+
+<style>
+/* not scoped, as the divIcon's HTML isn't rendered by Vue: */
+.estimated-position-marker div {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: 2px solid #406fff;
+    border-radius: 50%;
+    overflow: hidden;
+}
+.estimated-position-marker div::before {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: currentColor;
+    opacity: 0.6;
 }
 </style>
