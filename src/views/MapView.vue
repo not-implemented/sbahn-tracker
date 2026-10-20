@@ -71,6 +71,16 @@ const selectedTrains = computed(() => {
     return Object.values(store.trains).filter((train) => options.trains.includes(train.id));
 });
 
+const filteredDisruptions = computed(() => {
+    if (options.lines.length === 0) return store.news;
+    const selectedNames = options.lines.map((id) => store.lines[id]?.name);
+    return store.news.filter(
+        ({ lineNames }) =>
+            !lineNames.some((name) => /^S\d+$/.test(name)) ||
+            lineNames.some((name) => selectedNames.includes(name)),
+    );
+});
+
 const selectedStation = computed(() => {
     return (options.station && store.stations[options.station]) ?? null;
 });
@@ -98,7 +108,7 @@ onActivated(() => map.value.invalidateSize());
             />
         </div>
 
-        <DisruptionLayer v-if="map" :map="map" :disruptions="store.news" />
+        <DisruptionLayer v-if="map" :map="map" :disruptions="filteredDisruptions" />
 
         <div v-if="map">
             <StationMarker
