@@ -13,5 +13,11 @@ export default defineConfig([
             },
         },
     },
+    {
+        files: ['**/*.ts'],
+        languageOptions: {
+            parser: tseslint.parser,
+        },
+    },
     eslintConfigPrettier,
 ]);
